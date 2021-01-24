@@ -5,7 +5,6 @@ https://colab.research.google.com/drive/1pgAbzUF2SzF0BdFtGpJbZPWUOhFxT2NZ
 import torch
 
 from captum.attr import LayerIntegratedGradients
-from captum.attr import visualization as viz
 from datasets import load_dataset
 from transformers import AutoModel, AutoTokenizer
 
@@ -64,13 +63,7 @@ pred_class = pred.max(0).indices
 indices = input_ids[0].detach().tolist()
 all_tokens = tokenizer.convert_ids_to_tokens(indices)
 
-score_vis = viz.VisualizationDataRecord(attributions_sum,
-                                        pred_prob,
-                                        pred_class,
-                                        1,
-                                        text,
-                                        attributions_sum.sum(),
-                                        all_tokens,
-                                        delta)
 
-viz.visualize_text([score_vis])
+#score_vis = viz.VisualizationDataRecord(attributions_sum, pred_prob, pred_class, 1, text, attributions_sum.sum(),
+#                                        all_tokens, delta)
+#viz.visualize_text([score_vis])

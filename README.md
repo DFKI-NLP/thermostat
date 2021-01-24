@@ -1,7 +1,7 @@
 # Thermometer
 A collection of pre-computed heatmaps (also referred to as saliency maps, or visualization of attribution scores or feature importance scores) of natural language data sets to download and experiment with. It combines explainability methods from the `captum` library with Hugging Face's `datasets` and `transformers` (pre-trained language models).
 
-In the area of explainable / interpretable natural language processing, applying explainability methods like Integrated Gradients or Shapley Value Sampling can be costly - in terms of both time and resources - to compute for whole data sets. This repository offers downloads of these heatmaps for linguistic analysis.
+In the area of explainable / interpretable natural language processing, applying explainability methods like Integrated Gradients or Shapley Value Sampling can be costly - in terms of both time and resources - to compute for whole data sets. This repository offers downloads of the heatmaps of these standard datasets for linguistic analysis.
 
 ## Datasets
 
@@ -40,7 +40,15 @@ imdb_ig_bert_map.visualize()
 ```
 
 
-## Example config
+## Config files
+
+jsonnet config files have the following naming convention:
+`<DATASET_ID>_<EXPLAINER_ID>_<MODEL_ID>.jsonnet` where
+* `<DATASET_ID>` corresponds to a dataset (from `datasets` package by default, but can be any other locally stored dataset),
+* `<EXPLAINER_ID>` corresponds to an explainability method (usually provided through the `captum` package) and
+* `<MODEL_ID>` corresponds to a model (from `transformers` package by default)
+
+The contents of a `imdb_LayerIntegratedGradients_bert-base-cased.jsonnet` config are:
 
 ```jsonnet
 {
