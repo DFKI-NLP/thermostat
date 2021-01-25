@@ -14,10 +14,10 @@ from torch.utils.data import DataLoader
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from typing import Dict, Callable
 
-from data.readers import JsonIterator, ShapleyJsonToTensor
-from data.types import DatapointColored, DatapointProcessed
+from data.dtypes import DatapointColored, DatapointProcessed
+from data.readers import DatasetProcessedDatapoints, JsonIterator, ShapleyJsonToTensor
 from explainers import *
-from train import get_reader, load_checkpoint
+from train import load_checkpoint
 from utils import get_logger, get_time, read_path, Configurable
 
 
@@ -170,7 +170,6 @@ def run_explain(config: Dict, logger=None):
     name_explanation = config['name_explanation']  # under what name to save the explanation
 
     path_out = read_path(config['path_out'])
-    name_dataset = config['dataset']['name']
     config_dataset = config['dataset']['config']
     path_in = read_path(config_dataset['path_in'])
 
@@ -195,7 +194,7 @@ def run_explain(config: Dict, logger=None):
 
     logger.info(f'(Progress) Loaded trainer')
 
-    dataset = get_reader(name=name_dataset, config=config_dataset)
+    dataset = DatasetProcessedDatapoints.from_config(config=config_dataset)
 
     dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=False)
 
@@ -211,11 +210,11 @@ def run_explain(config: Dict, logger=None):
             break
         attribution, predictions = explainer.explain(batch_tensors)
         attribution = attribution.detach().cpu().numpy().tolist()
-        if predictions is not None: # generative explaines do not return predictions of the downstream model
+        if predictions is not None:  # generative explaines do not return predictions of the downstream model
             predictions = predictions.detach().cpu().numpy().tolist()
         for i, line in enumerate(batch_lines):
             json_line = json.loads(line)
-            if isinstance(dataset, ShapleyJsonToTensor): # legacy code starts indexing at zero
+            if isinstance(dataset, ShapleyJsonToTensor):  # legacy code starts indexing at zero
                 assert (json_id := json_line['id']) == (batch_id := (batch_tensors['id'][i].item() + 1)), \
                     f'Sanity check failed: Ids should match, but {json_id} != {batch_id}'
             else:

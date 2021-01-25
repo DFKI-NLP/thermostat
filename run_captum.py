@@ -9,7 +9,7 @@ from datasets import load_dataset
 from transformers import AutoModel, AutoTokenizer
 
 
-device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 # Load pre-trained model fine-tuned on IMDb
 model_id = 'textattack/roberta-base-imdb'
