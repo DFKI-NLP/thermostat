@@ -1,5 +1,5 @@
 {
-    "tokenizer_name": "roberta-base",
+    "name_tokenizer": "roberta-base",
     "max_length": 512,
     "padding": "max_length",
     "return_tensors": "np",

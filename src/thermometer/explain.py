@@ -19,7 +19,9 @@ from thermometer.explainers import ExplainerLayerIntegratedGradients, ExplainerS
 from thermometer.utils import get_logger, get_time, read_path
 
 
-def get_explainer(name: str, config: Dict):
+def get_explainer(config: Dict):
+    name = config["name"]
+
     if name == 'LayerIntegratedGradients':
         res = ExplainerLayerIntegratedGradients.from_config(config=config)
         return res
@@ -36,17 +38,12 @@ def run_explain(config: Dict, logger=None):
 
     _now = get_time()
 
-    name_explainer = config['explainer']['name']  # what explainer to use
-    config_explainer = config['explainer']['config']  # the explainer config
-    name_explanation = config['name_explanation']  # under what name to save the explanation
-
     path_out = read_path(config['path_out'])
     config_dataset = config['dataset']['config']
     path_in = read_path(config_dataset['path_in'])
 
     early_stopping = config['early_stopping']
     batch_size = config['batch_size']
-    append = config['append']
 
     if logger is None:
         path_log_out = path_out + '.log'
@@ -60,7 +57,7 @@ def run_explain(config: Dict, logger=None):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     logger.info(f'(Config) Explaining on device: {device}')
 
-    explainer = get_explainer(name=name_explainer, config=config_explainer)
+    explainer = get_explainer(config=config["explainer"])
     explainer.to(device)
 
     logger.info(f'(Progress) Loaded trainer')
@@ -93,15 +90,12 @@ def run_explain(config: Dict, logger=None):
             explanation = {'attribution': attribution[i],
                            'prediction': predictions[i] if predictions is not None else None,
                            'config': config}
-            if not append:
-                p_datapoint = DatapointProcessed.from_dict(json_line)
-                c_datapoint = DatapointColored.from_parent_class(datapoint_processed=p_datapoint,
-                                                                 name_explanation=name_explanation,
-                                                                 explanation=explanation)
-            else:
-                c_datapoint = DatapointColored.from_dict(json_line)
-                c_datapoint.append_explanation(name_explanation=name_explanation,
-                                               explanation=explanation)
+
+            p_datapoint = DatapointProcessed.from_dict(json_line)
+            c_datapoint = DatapointColored.from_parent_class(datapoint_processed=p_datapoint,
+                                                             name_explanation=name_explanation,
+                                                             explanation=explanation)
+
             file_out.write(str(c_datapoint) + os.linesep)
             logger.info(f'(Progress) Gave {(idx + 1) * batch_size} explanations')
 
