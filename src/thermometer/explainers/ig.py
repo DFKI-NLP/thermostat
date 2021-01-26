@@ -3,7 +3,7 @@ from captum.attr import LayerIntegratedGradients
 from transformers import BertForSequenceClassification, XLNetForSequenceClassification
 from typing import Dict
 
-from ..explain import ExplainerAutoModelInitializer
+from thermometer.explain_utils import ExplainerAutoModelInitializer
 
 
 class ExplainerLayerIntegratedGradients(ExplainerAutoModelInitializer):

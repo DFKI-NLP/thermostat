@@ -7,8 +7,8 @@ from tqdm import tqdm
 from transformers import AutoTokenizer
 from typing import Dict, Union
 
-from dtypes import Datapoint, DatapointProcessed
-from ..utils import get_logger, get_time, read_path, Configurable
+from thermometer.data.dtypes import Datapoint, DatapointProcessed
+from thermometer.utils import get_logger, get_time, read_path, Configurable
 
 
 class Processor:
@@ -106,7 +106,6 @@ class PreProcessSingleTextAutoTokenizer(Configurable, Processor):
                                    'tokens': tokens,
                                    'config_tokenizer': config_tokenizer,
                                    'tensors': tensors}
-
 
                     if self.append:
                         datapoint.append_input(name_input=self.name_input, input_model=input_model)

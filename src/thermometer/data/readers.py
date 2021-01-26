@@ -4,7 +4,7 @@ from overrides import overrides
 from torch.utils.data import Dataset
 from typing import Dict
 
-from ..utils import read_path, Configurable
+from thermometer.utils import read_path, Configurable
 
 
 class DatasetProcessedDatapoints(Configurable, Dataset):
