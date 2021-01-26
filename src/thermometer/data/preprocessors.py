@@ -26,7 +26,7 @@ class PreProcessSingleTextAutoTokenizer(Configurable, Processor):
         This class should be initialized from config.
         """
         super().__init__()
-        self.name_tokenizer: str = None
+        self.tokenizer_name: str = None
         self.path_in: str = None
         self.path_dir_out: str = None
         self.tokenizer: AutoTokenizer = None
@@ -39,8 +39,7 @@ class PreProcessSingleTextAutoTokenizer(Configurable, Processor):
 
     @overrides
     def validate_config(self, config: Dict) -> bool:
-        assert 'name_tokenizer' in config, 'No tokenizer specified'
-        assert 'path_in' in config, 'No input file specified'
+        assert 'tokenizer_name' in config, 'No tokenizer name specified'
         assert 'path_dir_out' in config, 'No output directory specified'
         assert 'padding' in config, 'No padding strategy defined'
         assert 'max_length' in config, 'No max_length defined'
