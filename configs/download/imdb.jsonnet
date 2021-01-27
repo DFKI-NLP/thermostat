@@ -11,4 +11,5 @@
         "test",
         "train",
     ],
+    "num_labels": 2,
 }

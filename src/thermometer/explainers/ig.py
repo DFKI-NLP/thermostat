@@ -1,9 +1,9 @@
 import torch
 from captum.attr import LayerIntegratedGradients
-from transformers import BertForSequenceClassification, XLNetForSequenceClassification
+from transformers import BertForSequenceClassification, RobertaForSequenceClassification, XLNetForSequenceClassification
 from typing import Dict
 
-from thermometer.explain_utils import ExplainerAutoModelInitializer
+from thermometer.explain import ExplainerAutoModelInitializer
 
 
 class ExplainerLayerIntegratedGradients(ExplainerAutoModelInitializer):
@@ -15,9 +15,9 @@ class ExplainerLayerIntegratedGradients(ExplainerAutoModelInitializer):
         self.internal_batch_size = None
 
     def validate_config(self, config: Dict) -> bool:
-        super().validate_config(config)
-        assert 'n_samples' in config, 'Define how many samples to take along the straight line path from the baseline.'
-        assert 'internal_batch_size' in config, 'Define an internal batch size for the attribute method.'
+        assert 'n_samples' in config['explainer'], \
+            'Define how many samples to take along the straight line path from the baseline.'
+        assert 'internal_batch_size' in config['explainer'], 'Define an internal batch size for the attribute method.'
 
     @staticmethod
     def get_embedding_layer_name(model):
@@ -25,15 +25,17 @@ class ExplainerLayerIntegratedGradients(ExplainerAutoModelInitializer):
             return 'bert.embeddings'
         elif isinstance(model, XLNetForSequenceClassification):
             return 'transformer.word_embedding'
+        elif isinstance(model, RobertaForSequenceClassification):
+            return 'roberta.embeddings'
         else:
             raise NotImplementedError
 
     @classmethod
     def from_config(cls, config):
         res = super().from_config(config)
-        res.validate_config(config=config)
-        res.n_samples = config['n_samples']
-        res.internal_batch_size = config['internal_batch_size']
+        res.validate_config(config)
+        res.n_samples = config['explainer']['n_samples']
+        res.internal_batch_size = config['explainer']['internal_batch_size']
         res.name_layer = res.get_embedding_layer_name(res.model)
         for name, layer in res.model.named_modules():
             if name == res.name_layer:

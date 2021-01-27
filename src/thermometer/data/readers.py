@@ -2,7 +2,7 @@ import json
 import torch
 from overrides import overrides
 from torch.utils.data import Dataset
-from typing import Dict
+from typing import Dict, List
 
 from thermometer.utils import read_path, Configurable
 
@@ -11,11 +11,13 @@ class DatasetProcessedDatapoints(Configurable, Dataset):
 
     def __init__(self):
         super().__init__()
+        self.name = None
         self.path_in = None
         self.size = None
         self.name_input = None
-        self.name_model = None
         self.input_keys = None
+        self.splits: List = []
+        self.num_labels = None
 
     def __len__(self):
         return self.size
@@ -40,15 +42,11 @@ class DatasetProcessedDatapoints(Configurable, Dataset):
 
     @overrides
     def validate_config(self, config: Dict) -> bool:
-        assert 'path_in' in config, 'Specify input path'
-        assert 'name_input' in config, 'Specify input name'
-        assert 'name_model' in config, 'Specify model name'
         assert 'input_keys' in config, 'Specify input keys'
 
     @classmethod
     def from_config(cls, config: Dict):
         res: DatasetProcessedDatapoints = super().from_config(config)
-        res.path_in = read_path(res.path_in)
         res.size = res.no_of_lines(res.path_in)
         return res
 
@@ -58,12 +56,12 @@ class DatasetColoredDatapoints(Configurable, Dataset):
 
     def __init__(self):
         super().__init__()
-        self.path_in = None # path_in
-        self.size = None # self.no_of_lines(self.path_in)
-        self.name_input = None # name_input
+        self.path_in = None  # path_in
+        self.size = None  # self.no_of_lines(self.path_in)
+        self.name_input = None  # name_input
         self.name_explanation = None
-        self.name_model = None # name_model
-        self.mode = None # mode
+        self.name_model = None  # name_model
+        self.mode = None  # mode
         # self.keys = None # self.keys_options[f'{self.name_model}.{self.mode}']
         self.input_keys = None
         self.flip_attributions_on_index = None
@@ -102,6 +100,7 @@ class DatasetColoredDatapoints(Configurable, Dataset):
         assert 'path_in' in config, 'Specify input path'
         assert 'name_input' in config, 'Specify input name'
         assert 'input_keys' in config, 'Specify input keys'
+        return True
 
     @classmethod
     def from_config(cls, config: Dict):
