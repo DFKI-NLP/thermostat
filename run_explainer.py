@@ -22,9 +22,10 @@ np.random.seed(123)
 _now = get_time()
 
 # File I/O
-# TODO: very hacky and unsafe!
 experiment_path = read_path(config['path'])
-experiment_in = [f for f in os.listdir(experiment_path) if "preprocess" in f and f.endswith('.jsonl')][0]
+explainer_name = config['explainer']['name']
+experiment_in = [f for f in os.listdir(experiment_path)
+                 if "preprocess" in f and explainer_name not in f and f.endswith('.jsonl')][0]
 path_in = os.path.join(experiment_path, experiment_in)
 logger.info(f'(File I/O) Input file: {path_in}')
 
@@ -33,8 +34,6 @@ logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')
 torch.cuda.empty_cache()
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 logger.info(f'(Config) Explaining on device: {device}')
-
-explainer_name = config['explainer']['name']
 
 path_out = f'{read_path(experiment_path)}/{_now}.{explainer_name}.{experiment_in}'
 logger.info(f'(File I/O) Output file: {path_out}')
