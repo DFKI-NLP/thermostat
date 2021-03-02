@@ -24,11 +24,7 @@ _now = get_time()
 # File I/O
 experiment_path = read_path(config['path'])
 explainer_name = config['explainer']['name']
-experiment_in = [f for f in os.listdir(experiment_path)
-                 if "preprocess" in f and explainer_name not in f and f.endswith('.jsonl')][0]
-path_in = os.path.join(experiment_path, experiment_in)
-logger.info(f'(File I/O) Input file: {path_in}')
-path_out = f'{read_path(experiment_path)}/{_now}.{explainer_name}.{experiment_in}'
+path_out = f'{read_path(experiment_path)}/{_now}.{explainer_name}'
 logger.info(f'(File I/O) Output file: {path_out}')
 assert not os.path.isfile(path_out), f'File {path_out} already exists!'
 

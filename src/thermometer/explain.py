@@ -41,8 +41,7 @@ class ExplainerCaptum(Explainer):
             assert 'input_ids' in batch, f'Input ids expected for {name_model} but not found.'
             assert 'attention_mask' in batch, f'Attention mask expected for {name_model} but not found.'
             input_ids = batch['input_ids']
-            # TODO: special tokens mask
-            additional_forward_args = (batch['attention_mask'])
+            additional_forward_args = (batch['attention_mask'],)
             return input_ids, additional_forward_args
         else:
             raise NotImplementedError
@@ -63,7 +62,6 @@ class ExplainerCaptum(Explainer):
         def roberta_forward(input_ids, attention_mask):
             input_model = {
                 'input_ids': input_ids.long(),
-                #'special_tokens_mask': special_tokens_mask.long(),
                 'attention_mask': attention_mask.long(),
             }
             output_model = model(**input_model)[0]

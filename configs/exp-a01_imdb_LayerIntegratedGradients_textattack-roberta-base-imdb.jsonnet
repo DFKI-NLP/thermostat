@@ -3,13 +3,13 @@
     "dataset": {
         "name": "imdb",
         "split": "test",
-        "columns": ['input_ids', 'attention_mask', 'labels'],
-        "batch_size": 1,
+        "columns": ['input_ids', 'special_tokens_mask', 'attention_mask', 'labels'],
+        "batch_size": 2,
         "root_dir": "$HOME/experiments/thermometer/datasets",
     },
     "explainer": {
         "name": "LayerIntegratedGradients",
-        "internal_batch_size": 1,
+        "internal_batch_size": 2,
         "n_samples": 5,
         "early_stopping": -1,
     },
@@ -23,7 +23,7 @@
             "padding": "max_length",
             "return_tensors": "np",
             "truncation": true,
-            "special_tokens_mask": false,
+            "special_tokens_mask": true,
         }
     }
 }
