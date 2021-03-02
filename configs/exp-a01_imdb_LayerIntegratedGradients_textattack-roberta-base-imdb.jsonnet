@@ -1,8 +1,11 @@
 {
     "path": "$HOME/experiments/thermometer/exp-a01",
     "dataset": {
-        "config": "./configs/download/imdb.jsonnet",
+        "name": "imdb",
         "split": "test",
+        "columns": ['input_ids', 'attention_mask', 'labels'],
+        "batch_size": 1,
+        "root_dir": "$HOME/experiments/thermometer/datasets",
     },
     "explainer": {
         "name": "LayerIntegratedGradients",
@@ -14,6 +17,13 @@
         "name": "textattack/roberta-base-imdb",
         "mode_load": "hf",
         "path_model": null,
-        "tokenizer": "./configs/preprocess/roberta-base.jsonnet",
+        "tokenizer": {
+            "name": "roberta-base",
+            "max_length": 512,
+            "padding": "max_length",
+            "return_tensors": "np",
+            "truncation": true,
+            "special_tokens_mask": false,
+        }
     }
 }

@@ -39,10 +39,10 @@ class ExplainerCaptum(Explainer):
             return input_ids, additional_forward_args
         elif name_model == 'textattack/roberta-base-imdb':  # TODO: Separate classes?
             assert 'input_ids' in batch, f'Input ids expected for {name_model} but not found.'
-            assert 'special_tokens_mask' in batch, f'Special tokens mask expected for {name_model} but not found.'
             assert 'attention_mask' in batch, f'Attention mask expected for {name_model} but not found.'
             input_ids = batch['input_ids']
-            additional_forward_args = (batch['special_tokens_mask'], batch['attention_mask'])
+            # TODO: special tokens mask
+            additional_forward_args = (batch['attention_mask'])
             return input_ids, additional_forward_args
         else:
             raise NotImplementedError
@@ -60,7 +60,7 @@ class ExplainerCaptum(Explainer):
             output_model = model(**input_model)[0]
             return output_model
 
-        def roberta_forward(input_ids, special_tokens_mask, attention_mask):
+        def roberta_forward(input_ids, attention_mask):
             input_model = {
                 'input_ids': input_ids.long(),
                 #'special_tokens_mask': special_tokens_mask.long(),
@@ -118,7 +118,7 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
         res.mode_load = config['model']['mode_load']
         assert res.mode_load in ['hf', 'ignite']
 
-        res.num_labels = read_config(config['dataset']['config'])['num_labels']
+        res.num_labels = config['dataset']['num_labels']
         res.model = AutoModelForSequenceClassification.from_pretrained(res.name_model,
                                                                        num_labels=res.num_labels)
         if res.mode_load == 'ignite':

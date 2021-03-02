@@ -15,6 +15,7 @@ class ExplainerLayerIntegratedGradients(ExplainerAutoModelInitializer):
         self.internal_batch_size = None
 
     def validate_config(self, config: Dict) -> bool:
+        super().validate_config(config)
         assert 'n_samples' in config['explainer'], \
             'Define how many samples to take along the straight line path from the baseline.'
         assert 'internal_batch_size' in config['explainer'], 'Define an internal batch size for the attribute method.'
@@ -47,6 +48,7 @@ class ExplainerLayerIntegratedGradients(ExplainerAutoModelInitializer):
 
     def explain(self, batch):
         self.model.eval()
+        self.model.zero_grad()
         batch = {k: v.to(self.device) for k, v in batch.items()}
         inputs, additional_forward_args = self.get_inputs_and_additional_args(name_model=self.name_model, batch=batch)
         predictions = self.forward_func(inputs, *additional_forward_args)
