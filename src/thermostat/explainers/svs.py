@@ -2,7 +2,7 @@ import torch
 from captum.attr import ShapleyValueSampling
 from typing import Dict
 
-from thermometer.explain import ExplainerAutoModelInitializer
+from thermostat.explain import ExplainerAutoModelInitializer
 
 
 class ExplainerShapleyValueSampling(ExplainerAutoModelInitializer):

@@ -7,8 +7,8 @@ from tqdm import tqdm
 from transformers import AutoTokenizer
 from typing import Dict, Union
 
-from thermometer.data.dtypes import Datapoint, DatapointProcessed
-from thermometer.utils import get_logger, get_time, read_path, Configurable
+from thermostat.data.dtypes import Datapoint, DatapointProcessed
+from thermostat.utils import get_logger, get_time, read_path, Configurable
 
 
 class Processor:

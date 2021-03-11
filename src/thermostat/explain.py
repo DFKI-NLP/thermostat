@@ -2,8 +2,8 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from typing import Dict, Callable
 
 
-from thermometer.train import load_checkpoint
-from thermometer.utils import read_config, read_path, Configurable
+from thermostat.train import load_checkpoint
+from thermostat.utils import read_path, Configurable
 
 
 class Explainer(Configurable):
@@ -37,7 +37,7 @@ class ExplainerCaptum(Explainer):
             input_ids = batch['input_ids']
             additional_forward_args = (batch['attention_mask'], batch['token_type_ids'])
             return input_ids, additional_forward_args
-        elif name_model == 'textattack/roberta-base-imdb':  # TODO: Separate classes?
+        elif name_model == 'textattack/roberta-base-imdb':
             assert 'input_ids' in batch, f'Input ids expected for {name_model} but not found.'
             assert 'attention_mask' in batch, f'Attention mask expected for {name_model} but not found.'
             input_ids = batch['input_ids']
@@ -69,7 +69,7 @@ class ExplainerCaptum(Explainer):
 
         if name_model in ['bert-base-cased', 'xlnet-base-cased']:
             return bert_forward
-        elif name_model == 'textattack/roberta-base-imdb':  # TODO: Separate classes?
+        elif name_model == 'textattack/roberta-base-imdb':
             return roberta_forward
         else:  # when adding a model, also update ExplainerCaptum.available_models
             raise NotImplementedError(f'Unknown model {name_model}')

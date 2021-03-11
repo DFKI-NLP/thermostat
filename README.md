@@ -1,36 +1,44 @@
-# Thermometer
+# Thermostat
 A collection of pre-computed heatmaps (also referred to as saliency maps, or visualization of attribution scores or feature importance scores) of natural language data sets to download and experiment with. It combines explainability methods from the `captum` library with Hugging Face's `datasets` and `transformers` (pre-trained language models).
 
 In the area of explainable / interpretable natural language processing, applying explainability methods like Integrated Gradients or Shapley Value Sampling can be costly - in terms of both time and resources - to compute for whole data sets. This repository offers downloads of the heatmaps of these standard datasets for linguistic analysis.
 
 ## Datasets
 
-Name | Task | Type
---- | --- | ---
-IMDb | Sentiment Analysis | Binary Classification
-SST-2 | Sentiment Analysis | Binary Classification
-QQP | Paraphrase Identification | Binary Classification
-[PAWS](https://github.com/google-research-datasets/paws) | Paraphrase Identification | Binary Classification
-[x-stance](https://github.com/ZurichNLP/xstance) | Stance Detection | Binary Classification
-[HANS](https://github.com/tommccoy1/hans) | Textual Entailment | Multi-class Classification
-SQuAD 1.1 | Question Answering |
+Name | 🤗 | Task | #Cls
+--- | --- | --- | ---
+IMDb | [`imdb`](https://huggingface.co/datasets/viewer/?dataset=imdb) | Sentiment Analysis | 2
+SST-2 | [`glue`](https://huggingface.co/datasets/viewer/?dataset=glue&config=sst2) | Sentiment Analysis | 2
+SNLI | [`snli`](https://huggingface.co/datasets/viewer/?dataset=snli) | Textual Entailment | 3
+QQP | [`glue`](https://huggingface.co/datasets/viewer/?dataset=glue&config=qqp) | Paraphrase Identification | 2
+[PAWS](https://github.com/google-research-datasets/paws) | [`paws`](https://huggingface.co/datasets/viewer/?dataset=paws&config=labeled_final) | Paraphrase Identification | 2
+[X-Stance](https://github.com/ZurichNLP/xstance) | [`x_stance`](https://huggingface.co/datasets/viewer/?dataset=x_stance) | Stance Detection | 2
+[HANS](https://github.com/tommccoy1/hans) | [`hans`](https://huggingface.co/datasets/viewer/?dataset=hans) | Textual Entailment | 2
+TREC | [`trec`](https://huggingface.co/datasets/viewer/?dataset=trec) | Question Classification | 6
+SQuAD 1.1 | [`squad`](https://huggingface.co/datasets/viewer/?dataset=squad) | Question Answering | -
 
 ## Downstream Models
-* BERT base (uncased) : [`bert-base-uncased`](https://huggingface.co/bert-base-uncased)
-* T5 (small) : [`t5-small`](https://huggingface.co/t5-small)
+Name | 🤗
+--- | ---
+BERT base (uncased) | [`bert-base-uncased`](https://huggingface.co/bert-base-uncased)
+T5 (small) | [`t5-small`](https://huggingface.co/t5-small)
 
 ## Explainers
-* Layer Integrated Gradients : [`captum.attr.LayerIntegratedGradients`](https://captum.ai/api/layer.html#layer-integrated-gradients)
-* Shapley Value Sampling : [`captum.attr.ShapleyValueSampling`](https://captum.ai/api/shapley_value_sampling.html)
+Name | captum
+--- | ---
+Layer Integrated Gradients | [`.attr.LayerIntegratedGradients`](https://captum.ai/api/layer.html#layer-integrated-gradients)
+Shapley Value Sampling | [`.attr.ShapleyValueSampling`](https://captum.ai/api/shapley_value_sampling.html)
 
 
 
 
 ## Usage
 
+**OUTDATED!**
+
 ```python
 from datasets import load_dataset
-from thermometer import load_map
+from thermostat import load_map
 
 imdb_train_data = load_dataset('imdb', split='train')
 imdb_ig_bert_map = load_map(dataset=imdb_train_data,
@@ -41,6 +49,8 @@ imdb_ig_bert_map.visualize()
 
 
 ## Config files
+
+**OUTDATED!**
 
 jsonnet config files have the following naming convention:
 `<DATASET_ID>_<EXPLAINER_ID>_<MODEL_ID>.jsonnet` where

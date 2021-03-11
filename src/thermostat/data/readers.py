@@ -1,8 +1,8 @@
-from datasets import load_dataset, load_from_disk
+from datasets import load_dataset, load_from_disk, Features, Value
 from transformers import AutoTokenizer
 from typing import Dict
 
-from thermometer.utils import read_path
+from thermostat.utils import read_path
 
 
 def download_dataset(config: Dict, logger):
@@ -51,3 +51,21 @@ def get_dataset_index_range(dataset, dataset_config):
         end = len(dataset)
 
     return range(start, end)
+
+
+def get_local_explanations(config: Dict):
+    """
+    :param config: visualization dict of config
+    :return:
+    """
+
+    dataset = load_dataset('json', data_files=read_path(config['path_in']))
+    dataset = dataset['train']  # todo: why is this necessary, why is a Dict returned?
+
+    def encode_local(instances):
+        res = {k: instances[k] for k in config['columns']}
+        return res
+
+    dataset = dataset.map(encode_local, batched=True)
+    dataset.set_format(type='torch', columns=config['columns'])
+    return dataset  # TODO: why is the train-indexing this necessary?
