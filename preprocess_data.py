@@ -1,7 +1,7 @@
 import logging
 
-from thermometer.data.preprocessors import PreprocessorSingleTextAutoTokenizer
-from thermometer.utils import get_logger, read_config
+from thermostat.data.preprocessors import PreprocessorSingleTextAutoTokenizer
+from thermostat.utils import get_logger, read_config
 
 
 config = read_config('configs/preprocess/roberta-base.jsonnet')

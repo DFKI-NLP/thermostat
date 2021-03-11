@@ -25,5 +25,8 @@
             "truncation": true,
             "special_tokens_mask": true,
         }
+    },
+    "visualization": {
+        "columns": ["attributions", "predictions", "input_ids", "labels"],
     }
 }

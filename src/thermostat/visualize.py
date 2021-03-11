@@ -9,7 +9,7 @@ from transformers import AutoTokenizer
 from typing import Dict, List
 
 from thermostat.data import get_local_explanations
-from thermostat.utils import detach_to_list, read_path, Configurable
+from thermostat.utils import detach_to_list, Configurable
 
 
 class RGB:
@@ -30,13 +30,13 @@ class Sequence:
         self.scores = scores
         self.size = len(words)
 
-    def words_rgb(self, gamma=1.0, token_pad=None, position_pad='back'):
+    def words_rgb(self, gamma=1.0, token_pad=None, position_pad='right'):
         rgbs = list(map(lambda tup: self.rgb(word=tup[0], score=tup[1], gamma=gamma), zip(self.words, self.scores)))
         if token_pad is not None:
             if token_pad in self.words:
-                if position_pad == 'back':
+                if position_pad == 'right':
                     return zip(self.words[:self.words.index(token_pad)], rgbs)
-                elif position_pad == 'front':
+                elif position_pad == 'left':
                     first_token_index = list(reversed(self.words)).index(token_pad)
                     return zip(self.words[-first_token_index:], rgbs[-first_token_index:])
                 else:
@@ -182,7 +182,7 @@ def run_visualize(config: Dict):
     dataset = get_local_explanations(config=visualization_config)
     dataloader = DataLoader(dataset=dataset, batch_size=1)
 
-    file_out = open(read_path(config['path_html']), 'w+')
+    file_out = open(config['path_html'], 'w+')
     for idx_instance, instance in enumerate(tqdm(dataloader)):
         tokens = [tokenizer.decode(token_ids=token_id) for token_id in instance['input_ids'][0]]
         atts = detach_to_list(instance['attributions'][0])
@@ -193,9 +193,11 @@ def run_visualize(config: Dict):
         html += f" Prediction: {detach_to_list(instance['predictions'][0])}"
         html += f" Sum o. Atts: {atts_sum}"
         html += f" Model: {config['model']['name']} | "
-        # TODO: <pad> is xlnet pad token
+
+        # TODO: Allow token_pad and position_pad to be set by the config
+        #  (tokenizer should determine this in most cases, though)
         words_rgb = sequence.words_rgb(token_pad=tokenizer.pad_token,
-                                       position_pad=config['visualization']['position_pad'])
+                                       position_pad=tokenizer.padding_side)
 
         html += '</h3><div style=\"border:3px solid #000;\">'
         for word, rgb in words_rgb:

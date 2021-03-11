@@ -7,9 +7,9 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-import thermometer.explainers as thermex
-from thermometer.data.readers import get_dataset
-from thermometer.utils import detach_to_list, get_logger, get_time, read_config, read_path
+import thermostat.explainers as thermex
+from thermostat.data.readers import get_dataset
+from thermostat.utils import detach_to_list, get_logger, get_time, read_config, read_path
 
 
 config = read_config('configs/exp-a01_imdb_LayerIntegratedGradients_textattack-roberta-base-imdb.jsonnet')
