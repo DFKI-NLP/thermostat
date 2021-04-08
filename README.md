@@ -21,14 +21,14 @@ SQuAD 1.1 | [`squad`](https://huggingface.co/datasets/viewer/?dataset=squad) | Q
 Name | 🤗
 --- | ---
 BERT base (uncased) | [`bert-base-uncased`](https://huggingface.co/bert-base-uncased)
-T5 (small) | [`t5-small`](https://huggingface.co/t5-small)
+RoBERTa base fine-tuned on IMDb | [`textattack/roberta-base-imdb`](https://huggingface.co/textattack/roberta-base-imdb)
 
 ## Explainers
 Name | captum
 --- | ---
 Layer Integrated Gradients | [`.attr.LayerIntegratedGradients`](https://captum.ai/api/layer.html#layer-integrated-gradients)
 Shapley Value Sampling | [`.attr.ShapleyValueSampling`](https://captum.ai/api/shapley_value_sampling.html)
-
+LIME | [`.attr.LimeBase`](https://captum.ai/api/lime.html)
 
 
 

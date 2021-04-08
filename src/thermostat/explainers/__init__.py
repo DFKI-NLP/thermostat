@@ -5,3 +5,7 @@ from .ig import (
 from .svs import (
     ExplainerShapleyValueSampling
 )
+
+from .lime import (
+    ExplainerLime
+)

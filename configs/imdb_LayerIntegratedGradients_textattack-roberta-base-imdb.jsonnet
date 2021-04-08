@@ -1,5 +1,5 @@
 {
-    "path": "$HOME/experiments/thermometer/exp-a01",
+    "path": "$HOME/experiments/thermostat/imdb_LayerIntegratedGradients_textattack-roberta-base-imdb",
     "dataset": {
         "name": "imdb",
         "split": "test",

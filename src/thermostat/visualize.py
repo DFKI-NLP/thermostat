@@ -186,6 +186,7 @@ def run_visualize(config: Dict):
     for idx_instance, instance in enumerate(tqdm(dataloader)):
         tokens = [tokenizer.decode(token_ids=token_id) for token_id in instance['input_ids'][0]]
         atts = detach_to_list(instance['attributions'][0])
+        # TODO: normalize https://github.com/rbtsbg/gxai/blob/a9df8ab6cdc453513bfd4193585ed37160ed8224/visualize.py#L145
         atts_sum = sum(atts)
         sequence = Sequence(words=tokens, scores=atts)
         html = f"<html><h3>"
