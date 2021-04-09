@@ -22,6 +22,7 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
         res = super().from_config(config)
         res.validate_config(config)
         res.internal_batch_size = config['explainer']['internal_batch_size']
+        res.n_samples = config['explainer']['n_samples']
 
         def similarity_kernel(
                 original_input: torch.Tensor,
