@@ -7,5 +7,5 @@ from .svs import (
 )
 
 from .lime import (
-    ExplainerLime
+    ExplainerLimeBase
 )

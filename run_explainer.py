@@ -12,7 +12,8 @@ from thermostat.data.readers import get_dataset
 from thermostat.utils import detach_to_list, get_logger, get_time, read_config, read_path
 
 
-config = read_config('configs/exp-a01_imdb_LayerIntegratedGradients_textattack-roberta-base-imdb.jsonnet')
+# TODO: argparser or other input handler instead of hard-coded config
+config = read_config('configs/imdb_LimeBase_textattack-roberta-base-imdb.jsonnet')
 
 logger = get_logger(name='explain', file_out='./pipeline.log', level=logging.INFO)
 
