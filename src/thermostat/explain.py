@@ -36,15 +36,14 @@ class ExplainerCaptum(Explainer):
             assert 'token_type_ids' in batch, f'Token type ids expected for model {name_model} but not found.'
             input_ids = batch['input_ids']
             additional_forward_args = (batch['attention_mask'], batch['token_type_ids'])
-            return input_ids, additional_forward_args
         elif name_model == 'textattack/roberta-base-imdb':
             assert 'input_ids' in batch, f'Input ids expected for {name_model} but not found.'
             assert 'attention_mask' in batch, f'Attention mask expected for {name_model} but not found.'
             input_ids = batch['input_ids']
             additional_forward_args = (batch['attention_mask'],)
-            return input_ids, additional_forward_args
         else:
             raise NotImplementedError
+        return input_ids, additional_forward_args
 
     @staticmethod
     def get_forward_func(name_model: str, model):
@@ -107,6 +106,9 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
     def from_config(cls, config):
         res = cls()
         res.validate_config(config)
+
+        # device
+        res.device = config['device']
 
         # model
         res.name_model = config['model']['name']

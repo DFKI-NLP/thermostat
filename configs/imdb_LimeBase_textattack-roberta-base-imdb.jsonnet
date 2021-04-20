@@ -1,16 +1,18 @@
 {
     "path": "$HOME/experiments/thermostat/imdb_LimeBase_textattack-roberta-base-imdb",
+    "device": "cuda",
     "dataset": {
         "name": "imdb",
         "split": "test",
         "columns": ['input_ids', 'special_tokens_mask', 'attention_mask', 'labels'],
-        "batch_size": 2,
+        "batch_size": 1,
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
     "explainer": {
         "name": "LimeBase",
-        "internal_batch_size": 2,
+        "internal_batch_size": 1,
         "n_samples": 50,
+        "kernel_width": 1.1,
     },
     "model": {
         "name": "textattack/roberta-base-imdb",

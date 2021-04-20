@@ -34,7 +34,10 @@ logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')
 
 # Device
 torch.cuda.empty_cache()
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+if 'device' in config.keys() and torch.cuda.is_available():
+    device = config['device']
+else:
+    device = 'cpu'
 logger.info(f'(Config) Explaining on device: {device}')
 
 # Dataset
