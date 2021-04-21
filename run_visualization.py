@@ -1,10 +1,12 @@
+import json
+import logging
 import os
 
-from thermostat.utils import read_config, read_path
+from thermostat.utils import get_logger, read_config, read_path
 from thermostat.visualize import run_visualize
 
 
-config = read_config('configs/exp-a01_imdb_LayerIntegratedGradients_textattack-roberta-base-imdb.jsonnet')
+config = read_config('configs/imdb_LimeBase_textattack-roberta-base-imdb.jsonnet')
 
 # Choose latest created file in experiment path
 experiment_path = read_path(config['path'])
@@ -22,5 +24,9 @@ if not os.path.isdir(vis_dir):
 
 # Add HTML output file to config
 config['path_html'] = os.path.join(vis_dir, f'{path_in.split("/")[-1]}.html')
+
+# Log config
+logger = get_logger(name='vis', file_out='./vis.log', level=logging.INFO)
+logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')
 
 run_visualize(config=config)

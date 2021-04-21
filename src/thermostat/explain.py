@@ -125,7 +125,10 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
             load_checkpoint(res.path_model, res.model)
 
         res.forward_func = res.get_forward_func(name_model=res.name_model, model=res.model)
-        res.pad_token_id = AutoTokenizer.from_pretrained(res.name_model).pad_token_id
+        tokenizer = AutoTokenizer.from_pretrained(res.name_model)
+        res.pad_token_id = tokenizer.pad_token_id
+        res.special_token_ids = tokenizer.all_special_ids
+        del tokenizer
         return res
 
     def to(self, device):

@@ -4,6 +4,7 @@ from captum._utils.models.linear_model import SkLearnLinearModel
 from typing import Any, Dict
 
 from thermostat.explain import ExplainerAutoModelInitializer
+from thermostat.utils import detach_to_list
 
 
 class ExplainerLimeBase(ExplainerAutoModelInitializer):
@@ -32,11 +33,6 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
                 **kwargs) -> torch.Tensor:
             """
             Following # https://github.com/PAIR-code/lit/blob/main/lit_nlp/components/citrus/lime.py#L74
-            :param original_input:
-            :param perturbed_input:
-            :param perturbed_interpretable_input:
-            :param kwargs:
-            :return:
             """
             l2_dist = torch.norm(original_input - perturbed_input)
             return torch.sqrt(torch.exp(- (l2_dist**2) / (res.kernel_width**2)))
@@ -48,13 +44,8 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
                 **kwargs) -> torch.Tensor:
             """
             Following https://github.com/copenlu/ALPS_2021
-            :param original_input:
-            :param perturbed_input:
-            :param perturbed_interpretable_input:
-            :param kwargs:
-            :return:
             """
-            return torch.sum(original_input == perturbed_input)
+            return torch.sum(original_input == perturbed_input)  # TODO: divide by len(original_input)
 
         # Sampling function
         def perturb_func(
@@ -62,34 +53,35 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
                 **kwargs: Any) -> torch.Tensor:
             """
             Following https://github.com/copenlu/ALPS_2021
-            :param original_input:
-            :param kwargs:
-            :return:
             """
             # Build mask for replacing random tokens with [PAD] token
-            mask = torch.randint(low=0, high=2, size=original_input.size()).to(res.device)
-            return original_input * mask + (1 - mask) * res.pad_token_id
+            mask_ = torch.randint(low=0, high=2, size=original_input.size()).to(res.device)
+            mask_special_token_ids = torch.Tensor([0 if id_ in res.special_token_ids else 1
+                                                   for id_ in detach_to_list(original_input[0])]).to(res.device)
+            mask = mask_ * mask_special_token_ids.int()
+            result = original_input * mask + (1 - mask) * res.pad_token_id
+            return result
 
         def to_interp_rep_transform_custom(curr_sample, original_input, **kwargs: Any):
             return curr_sample
 
         res.explainer = LimeBase(forward_func=res.forward_func,
-                                 interpretable_model=SkLearnLinearModel("linear_model.Ridge"),
+                                 interpretable_model=SkLearnLinearModel("linear_model.Ridge"),  # TODO: Other model?
                                  similarity_func=token_similarity_kernel,
                                  perturb_func=perturb_func,
-                                 perturb_interpretable_space=False,
-                                 from_interp_rep_transform=None,
-                                 to_interp_rep_transform=to_interp_rep_transform_custom)
+                                 perturb_interpretable_space=False,  # TODO: Understand
+                                 from_interp_rep_transform=None,  # TODO: Understand
+                                 to_interp_rep_transform=to_interp_rep_transform_custom)  # TODO: Understand
         return res
 
     def explain(self, batch):
         batch = {k: v.to(self.device) for k, v in batch.items()}
         inputs, additional_forward_args = self.get_inputs_and_additional_args(name_model=self.name_model, batch=batch)
         # TODO: Check if removing PAD tokens is necessary
-        #additional_forward_args += (inputs[0] != tokenizer.pad_token_id)
+        #additional_forward_args = (inputs[0] != self.pad_token_id, )
         predictions = self.forward_func(inputs, *additional_forward_args)
-        target = torch.argmax(predictions, dim=1)
-        base_line = self.get_baseline(batch=batch)
+        target = torch.argmax(predictions, dim=1)  # TODO: Is right target?
+        base_line = self.get_baseline(batch=batch)  # TODO: Why baseline?
         attributions = self.explainer.attribute(inputs=inputs,
                                                 n_samples=self.n_samples,
                                                 additional_forward_args=additional_forward_args,

@@ -188,6 +188,7 @@ def run_visualize(config: Dict):
         atts = detach_to_list(instance['attributions'][0])
         # TODO: normalize https://github.com/rbtsbg/gxai/blob/a9df8ab6cdc453513bfd4193585ed37160ed8224/visualize.py#L145
         atts_sum = sum(atts)
+        atts = [att/atts_sum for att in atts]
         sequence = Sequence(words=tokens, scores=atts)
         html = f"<html><h3>"
         html += f" Label: {instance['labels'].item()} | "

@@ -11,7 +11,7 @@
     "explainer": {
         "name": "LimeBase",
         "internal_batch_size": 1,
-        "n_samples": 50,
+        "n_samples": 200,
         "kernel_width": 1.1,
     },
     "model": {

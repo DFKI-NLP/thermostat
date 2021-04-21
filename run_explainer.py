@@ -53,7 +53,7 @@ batch_size = config['explainer']['internal_batch_size']
 logger.info(f'(Progress) Loaded explainer')
 
 # DataLoader
-dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=False)
+dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True)
 logger.info(f'(Progress) Initialized data loader')
 
 file_out = open(path_out, 'w+')
