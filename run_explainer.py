@@ -44,6 +44,7 @@ logger.info(f'(Config) Explaining on device: {device}')
 dataset_config = config['dataset']
 dataset_config['tokenizer'] = config['model']['tokenizer']
 dataset = get_dataset(config=dataset_config)
+#dataset = dataset.filter(lambda instance: detach_to_list(instance['input_ids'][0]).index(1) < 250)
 config['dataset']['num_labels'] = len(dataset.features['label'].names)
 
 # Explainer
