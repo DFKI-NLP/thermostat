@@ -44,7 +44,7 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
             Following https://github.com/copenlu/ALPS_2021
             """
             # Build mask for replacing random tokens with [PAD] token
-            mask_value_probs = torch.tensor([1, 7], dtype=torch.float)  # 1/8 chance of masking with 0
+            mask_value_probs = torch.tensor([3, 7], dtype=torch.float)  # 1/8 chance of masking with 0
             mask_multinomial_binary = torch.multinomial(mask_value_probs,
                                                         len(original_input[0]),
                                                         replacement=True)
@@ -55,7 +55,7 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
 
             # Merge the binary mask (12.5% masks) with the special_token_ids mask
             mask = torch.tensor([m + s if s == 0 else s for m, s in zip(
-                detach_to_list(mask_multinomial_binary), detach_to_list(mask_special_token_ids))]).to(res.device)
+                mask_multinomial_binary, mask_special_token_ids)]).to(res.device)
 
             # Apply mask to original input
             perturbed_input = original_input * mask + (1 - mask) * res.pad_token_id

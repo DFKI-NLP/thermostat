@@ -80,6 +80,7 @@ for idx_batch, batch in tqdm(enumerate(dataloader), total=len(dataloader)):
                   'explainer': config['explainer'],
                   'input_ids': ids,
                   'labels': labels,
+                  'label_names': dataset.features['label'].names,
                   'attributions': attrbs,
                   'predictions': preds,
                   'path_model': config['model']['path_model']}

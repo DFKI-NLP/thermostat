@@ -11,8 +11,7 @@
     "explainer": {
         "name": "LimeBase",
         "internal_batch_size": 1,
-        "n_samples": 200,
-        "kernel_width": 1.1,
+        "n_samples": 25,
     },
     "model": {
         "name": "bert-base-cased",
@@ -30,5 +29,6 @@
     "visualization": {
         "columns": ["attributions", "predictions", "input_ids", "labels"],
         "gamma": 2.0,
+        "normalize": true,
     }
 }

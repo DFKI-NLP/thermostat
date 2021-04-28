@@ -15,7 +15,7 @@ expath_files = sorted([os.path.join(experiment_path, file)
                        for file in os.listdir(experiment_path)],
                       key=os.path.getctime)
 path_in = [f for f in expath_files if os.path.isfile(f)][-1]
-config['visualization']['path_in'] = path_in  # Add filename to vis config
+config['visualization']['path_explanations'] = path_in  # Add filename to vis config
 
 # Create visualization dir in experiment path if it does not exist already
 vis_dir = os.path.join(experiment_path, 'vis')
@@ -30,4 +30,4 @@ config['path_html'] = os.path.join(vis_dir, f'{path_in.split("/")[-1]}.html')
 logger = get_logger(name='vis', file_out='./vis.log', level=logging.INFO)
 logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')
 
-run_visualize(config=config)
+run_visualize(config=config, logger=logger)

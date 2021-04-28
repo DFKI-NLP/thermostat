@@ -59,8 +59,8 @@ def get_local_explanations(config: Dict):
     :return:
     """
 
-    dataset = load_dataset('json', data_files=read_path(config['path_in']))
-    dataset = dataset['train']  # todo: why is this necessary, why is a Dict returned?
+    dataset = load_dataset('json', data_files=read_path(config['path_explanations']))
+    dataset = dataset['train']
 
     def encode_local(instances):
         res = {k: instances[k] for k in config['columns']}
@@ -68,4 +68,4 @@ def get_local_explanations(config: Dict):
 
     dataset = dataset.map(encode_local, batched=True)
     dataset.set_format(type='torch', columns=config['columns'])
-    return dataset  # TODO: why is the train-indexing this necessary?
+    return dataset
