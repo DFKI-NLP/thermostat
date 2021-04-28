@@ -6,10 +6,11 @@ from thermostat.utils import get_logger, read_config, read_path
 from thermostat.visualize import run_visualize
 
 
-config = read_config('configs/imdb_LimeBase_textattack-roberta-base-imdb.jsonnet')
+config = read_config('configs/imdb_LimeBase_bert-base-cased-ignite-imdb.jsonnet')
 
 # Choose latest created file in experiment path
 experiment_path = read_path(config['path'])
+
 expath_files = sorted([os.path.join(experiment_path, file)
                        for file in os.listdir(experiment_path)],
                       key=os.path.getctime)

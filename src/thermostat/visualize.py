@@ -199,7 +199,8 @@ def run_visualize(config: Dict):
         # TODO: Allow token_pad and position_pad to be set by the config
         #  (tokenizer should determine this in most cases, though)
         words_rgb = sequence.words_rgb(token_pad=tokenizer.pad_token,
-                                       position_pad=tokenizer.padding_side)
+                                       position_pad=tokenizer.padding_side,
+                                       gamma=visualization_config['gamma'])
 
         html += '</h3><div style=\"border:3px solid #000;\">'
         for word, rgb in words_rgb:

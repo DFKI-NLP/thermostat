@@ -1,10 +1,10 @@
 {
-    "path": "$HOME/experiments/thermostat/imdb_LimeBase_textattack-roberta-base-imdb",
+    "path": "$HOME/experiments/thermostat/imdb_LimeBase_bert-base-cased-ignite-imdb",
     "device": "cuda",
     "dataset": {
         "name": "imdb",
         "split": "test",
-        "columns": ['input_ids', 'special_tokens_mask', 'attention_mask', 'labels'],
+        "columns": ['input_ids', 'attention_mask', 'token_type_ids', 'labels'],
         "batch_size": 1,
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
@@ -15,11 +15,11 @@
         "kernel_width": 1.1,
     },
     "model": {
-        "name": "textattack/roberta-base-imdb",
-        "mode_load": "hf",
-        "path_model": null,
+        "name": "bert-base-cased",
+        "mode_load": "ignite",
+        "path_model": "$HOME/models/thermostat/2021-03-08-experiment-imdb/models/2021-03-08-16-13-44.bert-base-cased.huggingface.imdb_model_f1=0.9324.pt",
         "tokenizer": {
-            "name": "roberta-base",
+            "name": "bert-base-cased",
             "max_length": 512,
             "padding": "max_length",
             "return_tensors": "np",

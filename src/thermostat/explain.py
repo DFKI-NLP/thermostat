@@ -1,8 +1,8 @@
+import torch
+from ignite.handlers import ModelCheckpoint
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from typing import Dict, Callable
 
-
-from thermostat.train import load_checkpoint
 from thermostat.utils import read_path, Configurable
 
 
@@ -119,10 +119,18 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
         assert res.mode_load in ['hf', 'ignite']
 
         res.num_labels = config['dataset']['num_labels']
-        res.model = AutoModelForSequenceClassification.from_pretrained(res.name_model,
-                                                                       num_labels=res.num_labels)
-        if res.mode_load == 'ignite':
-            load_checkpoint(res.path_model, res.model)
+        if res.mode_load == 'huggingface':
+            print('Loading Hugging Face model...')
+            res.model = AutoModelForSequenceClassification.from_pretrained(res.name_model,
+                                                                           num_labels=res.num_labels)
+        elif res.mode_load == 'ignite':
+            print('Loading local ignite-trained model...')
+            res.model = AutoModelForSequenceClassification.from_pretrained(res.name_model,
+                                                                           num_labels=res.num_labels)
+            checkpoint = torch.load(res.path_model)
+            to_load = {'model': res.model}
+            ModelCheckpoint.load_objects(to_load=to_load,
+                                         checkpoint=checkpoint)  # overwrite pretrained weights w/ fine-tuned weights
 
         res.forward_func = res.get_forward_func(name_model=res.name_model, model=res.model)
         tokenizer = AutoTokenizer.from_pretrained(res.name_model)

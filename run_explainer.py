@@ -13,7 +13,7 @@ from thermostat.utils import detach_to_list, get_logger, get_time, read_config, 
 
 
 # TODO: argparser or other input handler instead of hard-coded config
-config = read_config('configs/imdb_LimeBase_textattack-roberta-base-imdb.jsonnet')
+config = read_config('configs/imdb_LimeBase_bert-base-cased-ignite-imdb.jsonnet')
 
 logger = get_logger(name='explain', file_out='./pipeline.log', level=logging.INFO)
 
@@ -24,6 +24,9 @@ _now = get_time()
 
 # File I/O
 experiment_path = read_path(config['path'])
+if not os.path.exists(experiment_path):
+    raise NotADirectoryError(f'{experiment_path}\nThis experiment path does not exist yet.')
+
 explainer_name = config['explainer']['name']
 path_out = f'{read_path(experiment_path)}/{_now}.{explainer_name}'
 logger.info(f'(File I/O) Output file: {path_out}')
