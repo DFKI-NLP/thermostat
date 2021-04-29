@@ -11,8 +11,8 @@
     "explainer": {
         "name": "LimeBase",
         "internal_batch_size": 1,
-        "n_samples": 200,
-        "kernel_width": 1.1,
+        "n_samples": 25,
+        "mask_prob": 0.3,
     },
     "model": {
         "name": "textattack/roberta-base-imdb",
@@ -30,5 +30,6 @@
     "visualization": {
         "columns": ["attributions", "predictions", "input_ids", "labels"],
         "gamma": 2.0,
+        "normalize": true,
     }
 }
