@@ -1,7 +1,6 @@
 import torch
 from captum.attr import LimeBase
 from captum._utils.models.linear_model import SkLearnLinearModel
-from functools import partial
 from typing import Any, Dict
 
 from thermostat.explain import ExplainerAutoModelInitializer
@@ -17,7 +16,9 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
     def validate_config(self, config: Dict) -> bool:
         super().validate_config(config)
         assert 'internal_batch_size' in config['explainer'], 'Define an internal batch size for the attribute method.'
-        assert 'n_samples' in config['explainer'], 'Set number of samples for attribution function'
+        assert 'n_samples' in config['explainer'], 'Set number of samples for attribution function.'
+        assert 'mask_prob' in config['explainer'], 'Set probability of masking a token in perturbation function.'
+        assert 0 <= config['explainer']['mask_prob'] <= 1, 'Mask probability must be between 0 and 1.'
 
     @classmethod
     def from_config(cls, config):
@@ -25,6 +26,7 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
         res.validate_config(config)
         res.internal_batch_size = config['explainer']['internal_batch_size']
         res.n_samples = config['explainer']['n_samples']
+        res.mask_prob = config['explainer']['mask_prob']
 
         def token_similarity_kernel(
                 original_input: torch.Tensor,
@@ -44,7 +46,7 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
             Following https://github.com/copenlu/ALPS_2021
             """
             # Build mask for replacing random tokens with [PAD] token
-            mask_value_probs = torch.tensor([3, 7], dtype=torch.float)  # 1/8 chance of masking with 0
+            mask_value_probs = torch.tensor([res.mask_prob, 1 - res.mask_prob])
             mask_multinomial_binary = torch.multinomial(mask_value_probs,
                                                         len(original_input[0]),
                                                         replacement=True)
@@ -67,12 +69,12 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
         res.interpretable_model = SkLearnLinearModel("linear_model.Ridge")
 
         res.explainer = LimeBase(forward_func=res.forward_func,
-                                 interpretable_model=res.interpretable_model,  # TODO: Other model?
+                                 interpretable_model=res.interpretable_model,
                                  similarity_func=token_similarity_kernel,
                                  perturb_func=perturb_func,
-                                 perturb_interpretable_space=False,  # TODO: Understand
-                                 from_interp_rep_transform=None,  # TODO: Understand
-                                 to_interp_rep_transform=to_interp_rep_transform_custom)  # TODO: Understand
+                                 perturb_interpretable_space=False,
+                                 from_interp_rep_transform=None,
+                                 to_interp_rep_transform=to_interp_rep_transform_custom)
         return res
 
     def explain(self, batch):

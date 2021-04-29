@@ -12,6 +12,7 @@
         "name": "LimeBase",
         "internal_batch_size": 1,
         "n_samples": 25,
+        "mask_prob": 0.3,
     },
     "model": {
         "name": "bert-base-cased",
