@@ -1,5 +1,6 @@
-from .ig import (
-    ExplainerLayerIntegratedGradients
+from .grad import (
+    ExplainerInputXGradient,
+    ExplainerLayerIntegratedGradients,
 )
 
 from .lime import (

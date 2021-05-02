@@ -10,9 +10,13 @@ def download_dataset(config: Dict, logger):
     :param config: "dataset" sub-config of a jsonnet config
     """
     assert all(x in config for x in ['name', 'split', 'root_dir'])
-    dataset = load_dataset(config['name'], split=config['split'])
     root_dir = read_path(config['root_dir'])
-    dataset.save_to_disk(dataset_path=f'{root_dir}/{config["name"]}')
+    if 'subset' in config:
+        dataset = load_dataset(config['name'], config['subset'], split=config['split'])
+        dataset.save_to_disk(dataset_path=f'{root_dir}/{config["name"]}_{config["subset"]}')
+    else:
+        dataset = load_dataset(config['name'], split=config['split'])
+        dataset.save_to_disk(dataset_path=f'{root_dir}/{config["name"]}')
     logger.info(f'(Progress) Terminated normally')
 
 
@@ -29,7 +33,14 @@ def get_dataset(config: Dict):
                          return_special_tokens_mask=tokenizer_config['special_tokens_mask'])
 
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_config['name'])
-    dataset = load_from_disk(f'{read_path(config["root_dir"])}/{config["name"]}')
+
+    # Handle datasets with subsets correctly, e.g. "glue" has "sst2" and "qqp" as their subsets
+    dataset_dir = f'{config["name"]}_{config["subset"]}' if 'subset' in config else config['name']
+    try:
+        dataset = load_from_disk(f'{read_path(config["root_dir"])}/{dataset_dir}')
+    except FileNotFoundError:
+        raise FileNotFoundError(f'Execute download_data.py to first store the missing dataset ({dataset_dir}) '
+                                f'locally.')
 
     dataset = dataset.select(indices=get_dataset_index_range(dataset, config))
 

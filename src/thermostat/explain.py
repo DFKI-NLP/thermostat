@@ -36,7 +36,8 @@ class ExplainerCaptum(Explainer):
             assert 'token_type_ids' in batch, f'Token type ids expected for model {base_model} but not found.'
             input_ids = batch['input_ids']
             additional_forward_args = (batch['attention_mask'], batch['token_type_ids'])
-        elif base_model == tlm.roberta.RobertaModel:
+        elif base_model in [tlm.roberta.RobertaModel,
+                            tlm.distilbert.DistilBertModel]:
             assert 'input_ids' in batch, f'Input ids expected for {base_model} but not found.'
             assert 'attention_mask' in batch, f'Attention mask expected for {base_model} but not found.'
             input_ids = batch['input_ids']
@@ -68,9 +69,10 @@ class ExplainerCaptum(Explainer):
         if type(model.base_model) in [tlm.bert.BertModel,
                                       tlm.xlnet.XLNetModel]:
             return bert_forward
-        elif type(model.base_model) == tlm.roberta.RobertaModel:
+        elif type(model.base_model) in [tlm.roberta.RobertaModel,
+                                        tlm.distilbert.DistilBertModel]:
             return roberta_forward
-        else:  # when adding a model, also update ExplainerCaptum.available_models
+        else:
             raise NotImplementedError(f'Unknown model {name_model}')
 
     def validate_config(self, config: Dict) -> bool:
