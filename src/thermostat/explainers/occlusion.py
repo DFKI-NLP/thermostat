@@ -1,38 +1,39 @@
 import torch
-from captum.attr import ShapleyValueSampling
+from captum.attr import Occlusion
 from typing import Dict
 
 from thermostat.explain import ExplainerAutoModelInitializer
 
 
-class ExplainerShapleyValueSampling(ExplainerAutoModelInitializer):
-
+class ExplainerOcclusion(ExplainerAutoModelInitializer):
     def __init__(self):
         super().__init__()
-        self.n_samples = None
+        self.internal_batch_size = None
+        self.sliding_window_shapes = None
 
     def validate_config(self, config: Dict) -> bool:
         super().validate_config(config)
-        assert 'n_samples' in config, 'Define how many samples to take along the straight line path from the baseline.'
+        assert 'internal_batch_size' in config['explainer'], 'Define an internal batch size for the attribute method.'
+        assert 'sliding_window_shapes' in config['explainer'], 'Set shape of patch to occlude each input.'
 
     @classmethod
     def from_config(cls, config):
         res = super().from_config(config)
-        res.n_samples = config['n_samples']
-        res.explainer = ShapleyValueSampling(res.forward_func)  # KernelShap(forward_func=res.forward_func)
+        res.validate_config(config)
+        res.internal_batch_size = config['explainer']['internal_batch_size']
+        res.sliding_window_shapes = tuple(config['explainer']['sliding_window_shapes'])
+        res.explainer = Occlusion(forward_func=res.forward_func)
         return res
 
     def explain(self, batch):
-        # todo: set model.eval() ? -> in a test self.model.training was False
         batch = {k: v.to(self.device) for k, v in batch.items()}
         inputs, additional_forward_args = self.get_inputs_and_additional_args(base_model=type(self.model.base_model),
                                                                               batch=batch)
+
         predictions = self.forward_func(inputs, *additional_forward_args)
         target = torch.argmax(predictions, dim=1)
-        base_line = self.get_baseline(batch=batch)
         attributions = self.explainer.attribute(inputs=inputs,
-                                                n_samples=self.n_samples,
+                                                sliding_window_shapes=self.sliding_window_shapes,
                                                 additional_forward_args=additional_forward_args,
-                                                target=target,
-                                                baselines=base_line)
+                                                target=target)
         return attributions, predictions

@@ -1,4 +1,5 @@
 import torch
+import transformers.models as tlm
 from ignite.handlers import ModelCheckpoint
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from typing import Dict, Callable
@@ -22,32 +23,30 @@ class Explainer(Configurable):
 
 
 class ExplainerCaptum(Explainer):
-    available_models = ['bert-base-cased', 'xlnet-base-cased', 'textattack/roberta-base-imdb']
 
     def __init__(self):
         super().__init__()
 
     @staticmethod
-    def get_inputs_and_additional_args(name_model: str, batch):
-        assert name_model in ExplainerCaptum.available_models, f'Unknown model: {name_model}'
-        if name_model in ['bert-base-cased', 'xlnet-base-cased']:
-            assert 'input_ids' in batch, f'Input ids expected for {name_model} but not found.'
-            assert 'attention_mask' in batch, f'Attention mask expected for {name_model} but not found.'
-            assert 'token_type_ids' in batch, f'Token type ids expected for model {name_model} but not found.'
+    def get_inputs_and_additional_args(base_model, batch):
+        if base_model in [tlm.bert.BertModel,
+                          tlm.xlnet.XLNetModel]:
+            assert 'input_ids' in batch, f'Input ids expected for {base_model} but not found.'
+            assert 'attention_mask' in batch, f'Attention mask expected for {base_model} but not found.'
+            assert 'token_type_ids' in batch, f'Token type ids expected for model {base_model} but not found.'
             input_ids = batch['input_ids']
             additional_forward_args = (batch['attention_mask'], batch['token_type_ids'])
-        elif name_model == 'textattack/roberta-base-imdb':
-            assert 'input_ids' in batch, f'Input ids expected for {name_model} but not found.'
-            assert 'attention_mask' in batch, f'Attention mask expected for {name_model} but not found.'
+        elif base_model == tlm.roberta.RobertaModel:
+            assert 'input_ids' in batch, f'Input ids expected for {base_model} but not found.'
+            assert 'attention_mask' in batch, f'Attention mask expected for {base_model} but not found.'
             input_ids = batch['input_ids']
             additional_forward_args = (batch['attention_mask'],)
         else:
-            raise NotImplementedError
+            raise NotImplementedError(f'Unknown model: {base_model}')
         return input_ids, additional_forward_args
 
     @staticmethod
     def get_forward_func(name_model: str, model):
-        assert name_model in ExplainerCaptum.available_models, f'Unknown model: {name_model}'
 
         def bert_forward(input_ids, attention_mask, token_type_ids):
             input_model = {
@@ -66,9 +65,10 @@ class ExplainerCaptum(Explainer):
             output_model = model(**input_model)[0]
             return output_model
 
-        if name_model in ['bert-base-cased', 'xlnet-base-cased']:
+        if type(model.base_model) in [tlm.bert.BertModel,
+                                      tlm.xlnet.XLNetModel]:
             return bert_forward
-        elif name_model == 'textattack/roberta-base-imdb':
+        elif type(model.base_model) == tlm.roberta.RobertaModel:
             return roberta_forward
         else:  # when adding a model, also update ExplainerCaptum.available_models
             raise NotImplementedError(f'Unknown model {name_model}')
@@ -96,8 +96,7 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
         self.device = None
 
     def validate_config(self, config: Dict) -> bool:
-        assert 'name' in config['model'], f'Provide the name of the model to explain. Available models: ' \
-                                          f'{ExplainerCaptum.available_models}'
+        assert 'name' in config['model'], f'Provide the name of the model to explain.'
         assert 'path_model' in config['model'], f'Provide a path to the model which should be explained.'
         assert 'mode_load' in config['model'], f'Should the model be loaded using the ignite framework or huggingface?'
         return True

@@ -50,7 +50,8 @@ class ExplainerLayerIntegratedGradients(ExplainerAutoModelInitializer):
         self.model.eval()
         self.model.zero_grad()
         batch = {k: v.to(self.device) for k, v in batch.items()}
-        inputs, additional_forward_args = self.get_inputs_and_additional_args(name_model=self.name_model, batch=batch)
+        inputs, additional_forward_args = self.get_inputs_and_additional_args(base_model=type(self.model.base_model),
+                                                                              batch=batch)
         predictions = self.forward_func(inputs, *additional_forward_args)
         target = torch.argmax(predictions, dim=1)
         base_line = self.get_baseline(batch=batch)

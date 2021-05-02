@@ -9,15 +9,14 @@
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
     "explainer": {
-        "name": "LimeBase",
+        "name": "Occlusion",
         "internal_batch_size": 1,
-        "n_samples": 25,
-        "mask_prob": 0.3,
+        "sliding_window_shapes": [3],
     },
     "model": {
-        "name": "bert-base-cased",
-        "mode_load": "ignite",
-        "path_model": "$HOME/models/thermostat/2021-03-08-experiment-imdb/models/2021-03-08-16-13-44.bert-base-cased.huggingface.imdb_model_f1=0.9324.pt",
+        "name": "textattack/bert-base-uncased-imdb",
+        "mode_load": "hf",
+        "path_model": null,
         "tokenizer": {
             "max_length": 512,
             "padding": "max_length",

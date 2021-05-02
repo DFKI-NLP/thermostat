@@ -1,5 +1,5 @@
 {
-    "path": "$HOME/experiments/thermostat/imdb_LimeBase_textattack-roberta-base-imdb",
+    "path": "$HOME/experiments/thermostat",
     "device": "cuda",
     "dataset": {
         "name": "imdb",
@@ -19,7 +19,6 @@
         "mode_load": "hf",
         "path_model": null,
         "tokenizer": {
-            "name": "roberta-base",
             "max_length": 512,
             "padding": "max_length",
             "return_tensors": "np",

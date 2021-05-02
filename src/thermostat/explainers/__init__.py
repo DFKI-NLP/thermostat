@@ -2,10 +2,15 @@ from .ig import (
     ExplainerLayerIntegratedGradients
 )
 
-from .svs import (
-    ExplainerShapleyValueSampling
+from .lime import (
+    ExplainerLimeBase,
+    ExplainerKernelShap,
 )
 
-from .lime import (
-    ExplainerLimeBase
+from .occlusion import (
+    ExplainerOcclusion
+)
+
+from .svs import (
+    ExplainerShapleyValueSampling
 )

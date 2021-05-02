@@ -11,28 +11,28 @@ from thermostat.data.readers import get_dataset
 from thermostat.utils import detach_to_list, get_logger, get_time, read_config, read_path
 
 
-# TODO: argparser or other input handler instead of hard-coded config
-config = read_config('configs/imdb_LimeBase_bert-base-cased-ignite-imdb.jsonnet')
-
 logger = get_logger(name='explain', file_out='./pipeline.log', level=logging.INFO)
 
-torch.manual_seed(123)
-np.random.seed(123)
+# Config handling
+config_file = 'configs/imdb_Occlusion_bert.jsonnet'
+config = read_config(config_file)
+logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')  # Log config
 
-_now = get_time()
+experiment_path = f'{read_path(config["path"])}' \
+                  f'/{config_file.split("/")[-1].split(".jsonnet")[0]}'
 
-# File I/O
-experiment_path = read_path(config['path'])
 if not os.path.exists(experiment_path):
     raise NotADirectoryError(f'{experiment_path}\nThis experiment path does not exist yet.')
 
+# Output file naming
 explainer_name = config['explainer']['name']
-path_out = f'{read_path(experiment_path)}/{_now}.{explainer_name}'
+path_out = f'{read_path(experiment_path)}/{get_time()}.{explainer_name}'
 logger.info(f'(File I/O) Output file: {path_out}')
 assert not os.path.isfile(path_out), f'File {path_out} already exists!'
 
-# Log config
-logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')
+# Random seeds
+torch.manual_seed(123)
+np.random.seed(123)
 
 # Device
 torch.cuda.empty_cache()
@@ -45,8 +45,8 @@ logger.info(f'(Config) Explaining on device: {device}')
 # Dataset
 dataset_config = config['dataset']
 dataset_config['tokenizer'] = config['model']['tokenizer']
+dataset_config['tokenizer']['name'] = config['model']['name']
 dataset = get_dataset(config=dataset_config)
-#dataset = dataset.filter(lambda instance: detach_to_list(instance['input_ids'][0]).index(1) < 250)
 config['dataset']['num_labels'] = len(dataset.features['label'].names)
 
 # Explainer

@@ -6,10 +6,17 @@ from thermostat.utils import get_logger, read_config, read_path
 from thermostat.visualize import run_visualize
 
 
-config = read_config('configs/imdb_LimeBase_bert-base-cased-ignite-imdb.jsonnet')
+# Log config
+logger = get_logger(name='vis', file_out='./vis.log', level=logging.INFO)
+
+# Config handling
+config_file = 'configs/imdb_Occlusion_bert.jsonnet'
+config = read_config(config_file)
+logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')
 
 # Choose latest created file in experiment path
-experiment_path = read_path(config['path'])
+experiment_path = f'{read_path(config["path"])}' \
+                  f'/{config_file.split("/")[-1].split(".jsonnet")[0]}'
 
 expath_files = sorted([os.path.join(experiment_path, file)
                        for file in os.listdir(experiment_path)],
@@ -25,9 +32,5 @@ if not os.path.isdir(vis_dir):
 
 # Add HTML output file to config
 config['path_html'] = os.path.join(vis_dir, f'{path_in.split("/")[-1]}.html')
-
-# Log config
-logger = get_logger(name='vis', file_out='./vis.log', level=logging.INFO)
-logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')
 
 run_visualize(config=config, logger=logger)

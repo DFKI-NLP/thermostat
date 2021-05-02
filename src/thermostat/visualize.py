@@ -101,7 +101,7 @@ def append_heatmap(tokens, scores, latex, gamma, caption, pad_token, formatting=
 def run_visualize(config: Dict, logger):
     logger.info("(Progress) Generating visualizations")
     logger.info(f"(Config) Received config \n{json.dumps(config, indent=2)}")
-    tokenizer = AutoTokenizer.from_pretrained(config['model']['tokenizer']['name'])
+    tokenizer = AutoTokenizer.from_pretrained(config['model']['name'])
     visualization_config = config['visualization']
 
     dataset = get_local_explanations(config=visualization_config)
@@ -129,6 +129,7 @@ def run_visualize(config: Dict, logger):
                                        gamma=visualization_config['gamma'])
 
         summary = {}
+        summary['Sum of Attribution Scores'] = str(sum(atts))
         number_of_non_special_tokens = sequence.compute_length_without_pad_tokens(
             special_tokens=tokenizer.all_special_tokens)
         summary['Non-special tokens'] = number_of_non_special_tokens
