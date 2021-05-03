@@ -33,10 +33,11 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
         res.explainer = LimeBase(forward_func=res.forward_func,
                                  interpretable_model=res.interpretable_model,
                                  similarity_func=cls.token_similarity_kernel,
-                                 perturb_func=partial(cls.perturb_func,
+                                 perturb_func=partial(ExplainerLimeBase.perturb_func,
                                                       res.mask_prob,
                                                       res.special_token_ids,
-                                                      res.pad_token_id),
+                                                      res.pad_token_id,
+                                                      res.device),
                                  perturb_interpretable_space=False,
                                  from_interp_rep_transform=None,
                                  to_interp_rep_transform=cls.to_interp_rep_transform_custom)
@@ -54,10 +55,17 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
         return torch.sum(original_input == perturbed_input) / len(original_input)
 
     @staticmethod
-    def build_mask(
-            original_input: torch.Tensor,
+    def perturb_func(
             mask_prob: float,
-            special_token_ids: List[int]) -> torch.Tensor:
+            special_token_ids: List[int],
+            pad_token_id: int,
+            device: str,
+            original_input: torch.Tensor,  # always needs to be last argument before **kwargs due to "partial"
+            **kwargs: Any) -> torch.Tensor:
+        """
+        Sampling function
+        Following https://github.com/copenlu/ALPS_2021
+        """
         # Build mask for replacing random tokens with [PAD] token
         mask_value_probs = torch.tensor([mask_prob, 1 - mask_prob])
         mask_multinomial_binary = torch.multinomial(mask_value_probs,
@@ -69,21 +77,9 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
                                                for id_ in detach_to_list(original_input[0])]).int()
 
         # Merge the binary mask (12.5% masks) with the special_token_ids mask
-        return torch.tensor([m + s if s == 0 else s for m, s in zip(
-            mask_multinomial_binary, mask_special_token_ids)])
-
-    def perturb_func(
-            self,
-            original_input: torch.Tensor,
-            mask_prob: float,
-            special_token_ids: List[int],
-            pad_token_id: int,
-            **kwargs: Any) -> torch.Tensor:
-        """
-        Sampling function
-        Following https://github.com/copenlu/ALPS_2021
-        """
-        mask = self.build_mask(original_input, mask_prob, special_token_ids).to(self.device)
+        mask = torch.tensor([m + s if s == 0 else s for m, s in zip(
+            mask_multinomial_binary, mask_special_token_ids)]).to(device)
+        # TODO: Would it be faster if the other tensors above were also on the device (cuda)?
 
         # Apply mask to original input
         perturbed_input = original_input * mask + (1 - mask) * pad_token_id

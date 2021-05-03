@@ -1,7 +1,9 @@
 import torch
 import transformers.models as tlm
 from ignite.handlers import ModelCheckpoint
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
+from transformers import (
+    AutoModelForSequenceClassification, AutoTokenizer,
+    BertForSequenceClassification, RobertaForSequenceClassification, XLNetForSequenceClassification)
 from typing import Dict, Callable
 
 from thermostat.utils import read_path, Configurable
@@ -51,7 +53,7 @@ class ExplainerCaptum(Explainer):
 
         def bert_forward(input_ids, attention_mask, token_type_ids):
             input_model = {
-                'input_ids': input_ids.long(),
+                'input_ids': input_ids.long(),  # TODO: Is the cast to long necessary?
                 'attention_mask': attention_mask.long(),
                 'token_type_ids': token_type_ids.long(),
             }
@@ -84,13 +86,16 @@ class ExplainerCaptum(Explainer):
     def explain(self, input):
         raise NotImplementedError
 
+    def to(self, device):
+        raise NotImplementedError
+
 
 class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a mixin rather
 
     def __init__(self):
         super().__init__()
         self.name_model: str = None
-        self.model: AutoModelForSequenceClassification = None
+        self.model = None  # AutoModelForSequenceClassification per default, but changes into TLM-specific class
         self.path_model: str = None
         self.forward_func: Callable = None
         self.pad_token_id = None
@@ -120,6 +125,8 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
         assert res.mode_load in ['hf', 'ignite']
 
         res.num_labels = config['dataset']['num_labels']
+        # TODO: Assert that num_labels in dataset corresponds to classification head in model
+
         if res.mode_load == 'hf':
             print('Loading Hugging Face model...')
             res.model = AutoModelForSequenceClassification.from_pretrained(res.name_model,
@@ -137,6 +144,7 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
 
         res.forward_func = res.get_forward_func(name_model=res.name_model, model=res.model)
         tokenizer = AutoTokenizer.from_pretrained(res.name_model)
+        # TODO: Replace loading a new tokenizer with something more efficient
         res.pad_token_id = tokenizer.pad_token_id
         res.special_token_ids = tokenizer.all_special_ids
         del tokenizer
@@ -145,6 +153,17 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
     def to(self, device):
         self.device = device
         self.model.to(self.device)
+
+    @staticmethod
+    def get_embedding_layer_name(model):  # TODO: Look for attribute in res.model that gets rid of this method
+        if isinstance(model, BertForSequenceClassification):
+            return 'bert.embeddings'
+        elif isinstance(model, XLNetForSequenceClassification):
+            return 'transformer.word_embedding'
+        elif isinstance(model, RobertaForSequenceClassification):
+            return 'roberta.embeddings'
+        else:
+            raise NotImplementedError
 
     def get_baseline(self, batch):
         if self.pad_token_id == 0:

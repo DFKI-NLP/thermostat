@@ -1,11 +1,12 @@
 from .grad import (
+    ExplainerGuidedBackprop,
     ExplainerInputXGradient,
     ExplainerLayerIntegratedGradients,
 )
 
 from .lime import (
-    ExplainerLimeBase,
     ExplainerKernelShap,
+    ExplainerLimeBase,
 )
 
 from .occlusion import (

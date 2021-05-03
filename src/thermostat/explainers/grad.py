@@ -1,6 +1,8 @@
 import torch
-from captum.attr import InputXGradient, LayerIntegratedGradients
-from transformers import BertForSequenceClassification, RobertaForSequenceClassification, XLNetForSequenceClassification
+from captum.attr import (
+    GuidedBackprop, InputXGradient, LayerIntegratedGradients,
+    configure_interpretable_embedding_layer, remove_interpretable_embedding_layer)
+from transformers import XLNetForSequenceClassification
 from typing import Dict
 
 from thermostat.explain import ExplainerAutoModelInitializer
@@ -9,21 +11,20 @@ from thermostat.explain import ExplainerAutoModelInitializer
 class ExplainerInputXGradient(ExplainerAutoModelInitializer):
     def __init__(self):
         super().__init__()
-        self.internal_batch_size = None
 
     def validate_config(self, config: Dict) -> bool:
         super().validate_config(config)
-        assert 'internal_batch_size' in config['explainer'], 'Define an internal batch size for the attribute method.'
 
     @classmethod
     def from_config(cls, config):
         res = super().from_config(config)
         res.validate_config(config)
-        res.internal_batch_size = config['explainer']['internal_batch_size']
         res.explainer = InputXGradient(forward_func=res.forward_func)
         return res
 
     def explain(self, batch):
+        self.model.eval()
+        self.model.zero_grad()
         batch = {k: v.to(self.device) for k, v in batch.items()}
         inputs, additional_forward_args = self.get_inputs_and_additional_args(base_model=type(self.model.base_model),
                                                                               batch=batch)
@@ -49,17 +50,6 @@ class ExplainerLayerIntegratedGradients(ExplainerAutoModelInitializer):
         assert 'n_samples' in config['explainer'], \
             'Define how many samples to take along the straight line path from the baseline.'
         assert 'internal_batch_size' in config['explainer'], 'Define an internal batch size for the attribute method.'
-
-    @staticmethod
-    def get_embedding_layer_name(model):
-        if isinstance(model, BertForSequenceClassification):
-            return 'bert.embeddings'
-        elif isinstance(model, XLNetForSequenceClassification):
-            return 'transformer.word_embedding'
-        elif isinstance(model, RobertaForSequenceClassification):
-            return 'roberta.embeddings'
-        else:
-            raise NotImplementedError
 
     @classmethod
     def from_config(cls, config):
@@ -97,3 +87,54 @@ class ExplainerLayerIntegratedGradients(ExplainerAutoModelInitializer):
             # but [batch_dim, seq_len] is assumed
             attributions = attributions.T
         return attributions, predictions  # xlnet: [130, 1]
+
+
+class ExplainerGuidedBackprop(ExplainerAutoModelInitializer):
+    def __init__(self):
+        super().__init__()
+
+    def validate_config(self, config: Dict) -> bool:
+        super().validate_config(config)
+
+    @classmethod
+    def from_config(cls, config):
+        res = super().from_config(config)
+        res.validate_config(config)
+        res.explainer = GuidedBackprop(res.model)  # Input to GBP is not the forward function but the model
+        res.explainer.forward_func = res.forward_func  # Forward func needs be overridden afterwards
+        return res
+
+    def explain(self, batch):
+        batch = {k: v.to(self.device) for k, v in batch.items()}
+        inputs, additional_forward_args = self.get_inputs_and_additional_args(base_model=type(self.model.base_model),
+                                                                              batch=batch)
+
+        predictions = self.forward_func(inputs, *additional_forward_args)
+        target = torch.argmax(predictions, dim=1)
+
+        class EmbedsWrapper(torch.nn.Module):
+            def __init__(self, transformer):
+                super().__init__()
+                self.transformer = transformer
+
+            def forward(self, input_ids, attention_mask, token_type_ids):
+                # Following
+                # https://github.com/copenlu/ALPS_2021/blob/2d1a500be8affaf874da688ebcbb544f66ecb5e4/tutorial_src/
+                # model_builders.py#L162
+                output_model = self.transformer(inputs_embeds=input_ids,
+                                                attention_mask=attention_mask)['logits']
+                return output_model
+
+        # TODO: Something's not quite right here
+        from transformers import AutoModelForSequenceClassification
+        m = AutoModelForSequenceClassification.from_pretrained(self.name_model,
+                                                               num_labels=self.num_labels).to(self.device)
+        wrapped_model = EmbedsWrapper(m)
+        new_explainer = GuidedBackprop(wrapped_model)
+        inputs_embeds = m.base_model.embeddings(inputs)
+
+        attributions = new_explainer.attribute(inputs=inputs_embeds,
+                                               additional_forward_args=additional_forward_args,
+                                               target=target)
+        # TODO: Fix Attributions shape (1 x 512 x 768)
+        return attributions, predictions

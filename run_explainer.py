@@ -14,7 +14,7 @@ from thermostat.utils import detach_to_list, get_logger, get_time, read_config, 
 logger = get_logger(name='explain', file_out='./pipeline.log', level=logging.INFO)
 
 # Config handling
-config_file = 'configs/sst-2_InputXGradient_distilbert.jsonnet'
+config_file = 'configs/sst-2_GuidedBackprop_bert.jsonnet'
 config = read_config(config_file)
 logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')  # Log config
 

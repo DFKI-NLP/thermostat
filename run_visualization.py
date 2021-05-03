@@ -10,7 +10,7 @@ from thermostat.visualize import run_visualize
 logger = get_logger(name='vis', file_out='./vis.log', level=logging.INFO)
 
 # Config handling
-config_file = 'configs/imdb_Occlusion_bert.jsonnet'
+config_file = 'configs/sst-2_GuidedBackprop_bert.jsonnet'
 config = read_config(config_file)
 logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')
 
