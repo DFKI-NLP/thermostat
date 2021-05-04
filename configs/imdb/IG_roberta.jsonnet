@@ -18,7 +18,6 @@
         "mode_load": "hf",
         "path_model": null,
         "tokenizer": {
-            "name": "roberta-base",
             "max_length": 512,
             "padding": "max_length",
             "return_tensors": "np",

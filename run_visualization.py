@@ -2,7 +2,7 @@ import json
 import logging
 import os
 
-from thermostat.utils import get_logger, read_config, read_path
+from thermostat.utils import get_logger, read_config
 from thermostat.visualize import run_visualize
 
 
@@ -10,14 +10,13 @@ from thermostat.visualize import run_visualize
 logger = get_logger(name='vis', file_out='./vis.log', level=logging.INFO)
 
 # Config handling
-config_file = 'configs/sst-2_GuidedBackprop_bert.jsonnet'
+config_file = 'configs/sst2/GradientXActivation_bert.jsonnet'
 config = read_config(config_file)
 logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')
 
-# Choose latest created file in experiment path
-experiment_path = f'{read_path(config["path"])}' \
-                  f'/{config_file.split("/")[-1].split(".jsonnet")[0]}'
 
+# Choose latest created file in experiment path
+experiment_path = config['experiment_path']
 expath_files = sorted([os.path.join(experiment_path, file)
                        for file in os.listdir(experiment_path)],
                       key=os.path.getctime)

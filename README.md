@@ -9,13 +9,12 @@
 ## Explainers
 Name | captum | Tested
 --- | --- | ---
+Layer Gradient x Activation | [`.attr.LayerGradientXActivation`](https://captum.ai/api/layer.html#layer-gradient-x-activation) | ✅
 Layer Integrated Gradients | [`.attr.LayerIntegratedGradients`](https://captum.ai/api/layer.html#layer-integrated-gradients) | ✅
+Occlusion | [`.attr.Occlusion`](https://captum.ai/api/occlusion.html) | ✅
 Shapley Value Sampling | [`.attr.ShapleyValueSampling`](https://captum.ai/api/shapley_value_sampling.html) | ✅
 LIME | [`.attr.LimeBase`](https://captum.ai/api/lime.html) | ✅
 KernelSHAP | [`.attr.KernelShap`](https://captum.ai/api/kernel_shap.html)
-Occlusion | [`.attr.Occlusion`](https://captum.ai/api/occlusion.html)
-Gradient x Input | [`.attr.InputXGradient`](https://captum.ai/api/input_x_gradient.html)
-Guided Backprop | [`.attr.GuidedBackprop`](https://captum.ai/api/guided_backprop.html)
 
 
 ## Fine-tuned Models
@@ -32,21 +31,22 @@ BERT | [`textattack/bert-based-uncased-imdb`](https://huggingface.co/textattack/
 BERT | [emp-exp bert-base-uncased](https://github.com/DFKI-NLP/emp-exp#download-our-data-models-and-logs) | ✅
 DistilBERT | [`textattack/distilbert-base-uncased-imdb`](https://huggingface.co/textattack/distilbert-base-uncased-imdb)
 RoBERTa | [`textattack/roberta-base-imdb`](https://huggingface.co/textattack/roberta-base-imdb) | ✅
-T5 | [`t5-base-finetuned-imdb-sentiment`](https://huggingface.co/mrm8488/t5-base-finetuned-imdb-sentiment)
 XLNet | [`textattack/xlnet-base-cased-imdb`](https://huggingface.co/textattack/xlnet-base-cased-imdb)
 
 
 ### SST-2
 
 SST-2 is a sentiment analysis dataset with 2 classes and part of the [`glue`](https://huggingface.co/datasets/viewer/?dataset=glue&config=sst2) benchmark.
+
 Name | 🤗 | Tested
 --- | --- | ---
-ALBERT | [`textattack/albert-base-v2-sst-2`](https://huggingface.co/textattack/albert-base-v2-SST-2)
-BART | [`textattack/facebook-bart-large-sst-2`](https://huggingface.co/textattack/facebook-bart-large-SST-2)
-BERT | [`textattack/bert-base-uncased-sst-2`](https://huggingface.co/textattack/bert-base-uncased-SST-2)
+ALBERT | [`textattack/albert-base-v2-SST-2`](https://huggingface.co/textattack/albert-base-v2-SST-2)
+BART | [`textattack/facebook-bart-large-SST-2`](https://huggingface.co/textattack/facebook-bart-large-SST-2)
+BERT | [`textattack/bert-base-uncased-SST-2`](https://huggingface.co/textattack/bert-base-uncased-SST-2) | ✅
 DistilBERT | [`distilbert-base-uncased-finetuned-sst-2-english`](https://huggingface.co/distilbert-base-uncased-finetuned-sst-2-english)
-RoBERTa | [`textattack/roberta-base-sst-2`](https://huggingface.co/textattack/roberta-base-SST-2)
-XLNet | [`textattack/xlnet-base-cased-sst-2`](https://huggingface.co/textattack/xlnet-base-cased-SST-2)
+ELECTRA | [`howey/electra-base-sst2`](https://huggingface.co/howey/electra-base-sst2)
+RoBERTa | [`textattack/roberta-base-SST-2`](https://huggingface.co/textattack/roberta-base-SST-2)
+XLNet | [`textattack/xlnet-base-cased-SST-2`](https://huggingface.co/textattack/xlnet-base-cased-SST-2)
 
 
 ### MNLI
@@ -57,13 +57,14 @@ BART | [`facebook/bart-large-mnli`](https://huggingface.co/facebook/bart-large-m
 BERT | [`textattack/bert-base-uncased-mnli`](https://huggingface.co/textattack/bert-base-uncased-MNLI)
 DeBERTa | [`microsoft/deberta-xlarge-mnli`](https://huggingface.co/microsoft/deberta-xlarge-mnli)
 DistilBERT | [`textattack/distilbert-base-uncased-mnli`](https://huggingface.co/textattack/distilbert-base-uncased-MNLI)
+ELECTRA | [`howey/electra-base-mnli`](https://huggingface.co/howey/electra-base-mnli)
 RoBERTa | [`textattack/roberta-base-mnli`](https://huggingface.co/textattack/roberta-base-MNLI)
 XLNet | [`textattack/xlnet-base-cased-mnli`](https://huggingface.co/textattack/xlnet-base-cased-MNLI)
 
 
 ### SNLI
 
-[`snli`](https://huggingface.co/datasets/viewer/?dataset=snli) is a textual entailment dataset with 3 classes (`entailment`, `neutral` and `contradiction`). ✅
+[`snli`](https://huggingface.co/datasets/viewer/?dataset=snli) is a textual entailment dataset with 3 classes (`entailment`, `neutral` and `contradiction`).
 
 Name | 🤗 | Tested
 --- | --- | ---
@@ -81,6 +82,7 @@ Name | 🤗 | Tested
 ALBERT | [`textattack/albert-base-v2-qqp`](https://huggingface.co/textattack/albert-base-v2-QQP)
 BERT | [`textattack/bert-base-uncased-qqp`](https://huggingface.co/textattack/bert-base-uncased-QQP)
 DistilBERT | [`textattack/distilbert-base-uncased-qqp`](https://huggingface.co/textattack/distilbert-base-uncased-QQP)
+ELECTRA | [`howey/electra-base-qqp`](https://huggingface.co/howey/electra-base-qqp)
 XLNet | [`textattack/xlnet-base-cased-qqp`](https://huggingface.co/textattack/xlnet-base-cased-QQP)
 
 
@@ -92,17 +94,6 @@ Name | 🤗 | Tested
 --- | --- | ---
 BERT | [`aychang/bert-base-cased-trec-coarse`](https://huggingface.co/aychang/bert-base-cased-trec-coarse)
 DistilBERT | [`aychang/distilbert-base-cased-trec-coarse`](https://huggingface.co/aychang/distilbert-base-cased-trec-coarse)
-
-
-### Other datasets
-
-Currently, none of these datasets have fine-tuned models available in the transformers model hub.
-
-Name | 🤗 | Task | #Cls | Tested
---- | --- | --- | --- | ---
-[X-Stance](https://github.com/ZurichNLP/xstance) | [`x_stance`](https://huggingface.co/datasets/viewer/?dataset=x_stance) | Stance Detection | 2
-[HANS](https://github.com/tommccoy1/hans) | [`hans`](https://huggingface.co/datasets/viewer/?dataset=hans) | Textual Entailment | 2
-
 
 
 ## Usage

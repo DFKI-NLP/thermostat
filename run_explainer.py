@@ -14,19 +14,13 @@ from thermostat.utils import detach_to_list, get_logger, get_time, read_config, 
 logger = get_logger(name='explain', file_out='./pipeline.log', level=logging.INFO)
 
 # Config handling
-config_file = 'configs/sst-2_GuidedBackprop_bert.jsonnet'
+config_file = 'configs/sst2/GradientXActivation_bert.jsonnet'
 config = read_config(config_file)
 logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')  # Log config
 
-experiment_path = f'{read_path(config["path"])}' \
-                  f'/{config_file.split("/")[-1].split(".jsonnet")[0]}'
-
-if not os.path.exists(experiment_path):
-    raise NotADirectoryError(f'{experiment_path}\nThis experiment path does not exist yet.')
-
 # Output file naming
 explainer_name = config['explainer']['name']
-path_out = f'{read_path(experiment_path)}/{get_time()}.{explainer_name}'
+path_out = f'{read_path(config["experiment_path"])}/{get_time()}.{explainer_name}'
 logger.info(f'(File I/O) Output file: {path_out}')
 assert not os.path.isfile(path_out), f'File {path_out} already exists!'
 
@@ -50,9 +44,9 @@ dataset = get_dataset(config=dataset_config)
 config['dataset']['num_labels'] = len(dataset.features['label'].names)
 
 # Explainer
-explainer = getattr(thermex, f'Explainer{explainer_name}').from_config(config=config)
+explainer = getattr(thermex, f'Explainer{config["explainer"]["name"]}').from_config(config=config)
 explainer.to(device)
-batch_size = config['explainer']['internal_batch_size']
+batch_size = config['explainer']['internal_batch_size'] if 'internal_batch_size' in config['explainer'] else 1
 logger.info(f'(Progress) Loaded explainer')
 
 # DataLoader
@@ -61,7 +55,7 @@ logger.info(f'(Progress) Initialized data loader')
 
 file_out = open(path_out, 'w+')
 
-for idx_batch, batch in tqdm(enumerate(dataloader), total=len(dataloader)):
+for idx_batch, batch in tqdm(enumerate(dataloader), total=len(dataloader), position=0, leave=True):
     logger.info(f'(Progress) Processing batch {idx_batch} / instance {idx_batch * batch_size}')
     attribution, predictions = explainer.explain(batch)
 

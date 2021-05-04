@@ -1,6 +1,5 @@
 from .grad import (
-    ExplainerGuidedBackprop,
-    ExplainerInputXGradient,
+    ExplainerLayerGradientXActivation,
     ExplainerLayerIntegratedGradients,
 )
 

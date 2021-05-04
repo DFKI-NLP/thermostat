@@ -6,16 +6,15 @@
         "subset": "sst2",
         "split": "test",
         "text_field": "sentence",
-        "columns": ['input_ids', 'special_tokens_mask', 'attention_mask', 'labels'],
+        "columns": ['input_ids', 'attention_mask', 'token_type_ids', 'labels'],
         "batch_size": 1,
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
     "explainer": {
-        "name": "InputXGradient",
-        "internal_batch_size": 1,
+        "name": "LayerGradientXActivation",
     },
     "model": {
-        "name": "distilbert-base-uncased-finetuned-sst-2-english",
+        "name": "textattack/bert-base-uncased-SST-2",
         "mode_load": "hf",
         "path_model": null,
         "tokenizer": {

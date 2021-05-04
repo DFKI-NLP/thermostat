@@ -105,7 +105,10 @@ def run_visualize(config: Dict, logger):
     visualization_config = config['visualization']
 
     dataset = get_local_explanations(config=visualization_config)
-    str_dataset_name = f'{config["dataset"]["name"]} ({config["dataset"]["split"]})'
+    dataset_name = f'{config["dataset"]["name"]}' \
+                   f': {config["dataset"]["subset"]}' if 'subset' in config['dataset'] else \
+        config['dataset']['name']
+    str_dataset_name = f'{dataset_name} ({config["dataset"]["split"]})'
 
     file_out = open(read_path(config['path_html']), 'w+')
 
@@ -120,6 +123,15 @@ def run_visualize(config: Dict, logger):
         instance = dataset[idx_instance]
         tokens = [tokenizer.decode(token_ids=token_id) for token_id in instance['input_ids']]
         atts = detach_to_list(instance['attributions'])
+        if 'special_tokens_attribution' not in visualization_config:
+            atts_special_tokens_zero = []
+            for att, inp in zip(atts, instance['input_ids']):
+                if inp in tokenizer.all_special_ids:
+                    atts_special_tokens_zero.append(0.0)
+                else:
+                    atts_special_tokens_zero.append(att)
+            atts = atts_special_tokens_zero
+
         if visualization_config['normalize']:
             max_abs_score = max(max(atts), abs(min(atts)))
             atts = [(score / max_abs_score) for score in atts]
@@ -128,8 +140,7 @@ def run_visualize(config: Dict, logger):
                                        position_pad=tokenizer.padding_side,
                                        gamma=visualization_config['gamma'])
 
-        summary = {}
-        summary['Sum of Attribution Scores'] = str(sum(atts))
+        summary = {'Sum of Attribution Scores': str(sum(atts))}
         number_of_non_special_tokens = sequence.compute_length_without_pad_tokens(
             special_tokens=tokenizer.all_special_tokens)
         summary['Non-special tokens'] = number_of_non_special_tokens

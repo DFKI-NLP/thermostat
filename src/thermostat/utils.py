@@ -1,6 +1,7 @@
 import json
 import _jsonnet
 import logging
+import os
 
 from datetime import datetime
 from os.path import expanduser
@@ -73,7 +74,17 @@ def get_time():
 
 def read_config(path) -> Dict:
     config = json.loads(_jsonnet.evaluate_file(path))
+    config['experiment_path'] = set_experiment_path(config, path)
     return config
+
+
+def set_experiment_path(config, config_path) -> str:
+    experiment_path = f'{read_path(config["path"])}' \
+        f'/{config["dataset"]["subset"] if "subset" in config["dataset"] else config["dataset"]["name"]}' \
+        f'_{config_path.split("/")[-1].split(".jsonnet")[0]}'
+    if not os.path.exists(experiment_path):
+        raise NotADirectoryError(f'{experiment_path}\nThis experiment path does not exist yet.')
+    return experiment_path
 
 
 def read_path(path):
