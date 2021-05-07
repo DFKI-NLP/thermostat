@@ -154,23 +154,6 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
         self.device = device
         self.model.to(self.device)
 
-    @staticmethod
-    def get_embedding_layer(model):  # TODO: Look for attribute in res.model that gets rid of this method
-        if isinstance(model, BertForSequenceClassification):
-            name_layer = 'bert.embeddings'
-        elif isinstance(model, XLNetForSequenceClassification):
-            name_layer = 'transformer.word_embedding'
-        elif isinstance(model, RobertaForSequenceClassification):
-            name_layer = 'roberta.embeddings'
-        else:
-            raise NotImplementedError
-        for name, model_layer in model.named_modules():
-            if name == name_layer:
-                layer = model_layer
-                break
-        assert layer is not None, f'Layer {name_layer} not found.'
-        return layer
-
     def get_baseline(self, batch):
         if self.pad_token_id == 0:
             # all non-special token ids are replaced by 0, the pad id

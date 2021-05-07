@@ -1,4 +1,3 @@
-import json
 import math
 import numpy as np
 import os
@@ -100,7 +99,6 @@ def append_heatmap(tokens, scores, latex, gamma, caption, pad_token, formatting=
 
 def run_visualize(config: Dict, logger):
     logger.info("(Progress) Generating visualizations")
-    logger.info(f"(Config) Received config \n{json.dumps(config, indent=2)}")
     tokenizer = AutoTokenizer.from_pretrained(config['model']['name'])
     visualization_config = config['visualization']
 
@@ -115,7 +113,7 @@ def run_visualize(config: Dict, logger):
     for idx_instance in tqdm(range(len(dataset))):
         html = f"<html><h3>"
         html += f"<h2>Instance: {idx_instance} | Dataset: {str_dataset_name} |" \
-                f" Model: {config['model']['name']}"
+                f" Model: {config['model']['name']} | Tokenizer: {str(tokenizer)}"
         html += '</h3><div style=\"border:3px solid #000;\">'
 
         html += "<div>"

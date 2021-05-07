@@ -77,6 +77,7 @@ for idx_batch, batch in tqdm(enumerate(dataloader), total=len(dataloader), posit
                   'attributions': attrbs,
                   'predictions': preds,
                   'path_model': config['model']['path_model']}
+        # TODO: Add GPU runtime,
 
         file_out.write(json.dumps(result) + os.linesep)
 

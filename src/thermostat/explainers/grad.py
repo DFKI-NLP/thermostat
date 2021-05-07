@@ -27,13 +27,8 @@ class ExplainerLayerIntegratedGradients(ExplainerAutoModelInitializer):
         res.validate_config(config)
         res.n_samples = config['explainer']['n_samples']
         res.internal_batch_size = config['explainer']['internal_batch_size']
-        res.name_layer = res.get_embedding_layer_name(res.model)
-        for name, layer in res.model.named_modules():
-            if name == res.name_layer:
-                res.layer = layer
-                break
-        assert res.layer is not None, f'Layer {res.name_layer} not found.'
-        res.explainer = LayerIntegratedGradients(forward_func=res.forward_func, layer=res.layer)
+        res.explainer = LayerIntegratedGradients(forward_func=res.forward_func,
+                                                 layer=res.model.base_model.embeddings)
         return res
 
     def explain(self, batch):
