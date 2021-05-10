@@ -52,7 +52,8 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
         """
         Following https://github.com/copenlu/ALPS_2021
         """
-        return torch.sum(original_input == perturbed_input) / len(original_input)
+        assert original_input.shape[0] == perturbed_input.shape[0] == 1
+        return torch.sum(original_input[0] == perturbed_input[0]) / len(original_input[0])
 
     @staticmethod
     def perturb_func(

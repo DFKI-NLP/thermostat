@@ -2,8 +2,7 @@ import torch
 import transformers.models as tlm
 from ignite.handlers import ModelCheckpoint
 from transformers import (
-    AutoModelForSequenceClassification, AutoTokenizer,
-    BertForSequenceClassification, RobertaForSequenceClassification, XLNetForSequenceClassification)
+    AutoModelForSequenceClassification, AutoTokenizer)
 from typing import Dict, Callable
 
 from thermostat.utils import read_path, Configurable
@@ -124,7 +123,7 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
         res.mode_load = config['model']['mode_load']
         assert res.mode_load in ['hf', 'ignite']
 
-        res.num_labels = config['dataset']['num_labels']
+        res.num_labels = len(config['dataset']['label_names'])
         # TODO: Assert that num_labels in dataset corresponds to classification head in model
 
         if res.mode_load == 'hf':
@@ -143,11 +142,8 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
             raise NotImplementedError('"hf" and "ignite" values are supported for config field "mode_load".')
 
         res.forward_func = res.get_forward_func(name_model=res.name_model, model=res.model)
-        tokenizer = AutoTokenizer.from_pretrained(res.name_model)
-        # TODO: Replace loading a new tokenizer with something more efficient
-        res.pad_token_id = tokenizer.pad_token_id
-        res.special_token_ids = tokenizer.all_special_ids
-        del tokenizer
+        res.pad_token_id = config['tokenizer'].pad_token_id
+        res.special_token_ids = config['tokenizer'].all_special_ids
         return res
 
     def to(self, device):

@@ -23,32 +23,33 @@ def download_dataset(config: Dict, logger):
 def get_dataset(config: Dict):
     """ Returns a pytorch dataset from a config. """
     assert 'tokenizer' in config
-    tokenizer_config = config['tokenizer']
+    tokenizer = config['tokenizer']
+    dataset_config = config['dataset']
+    tokenization_config = config['model']['tokenization']
 
     def encode(instances):
         return tokenizer(instances[text_field],
-                         truncation=tokenizer_config['truncation'],
-                         padding=tokenizer_config['padding'],
-                         max_length=tokenizer_config['max_length'],
-                         return_special_tokens_mask=tokenizer_config['special_tokens_mask'])
-
-    tokenizer = AutoTokenizer.from_pretrained(tokenizer_config['name'])
+                         truncation=tokenization_config['truncation'],
+                         padding=tokenization_config['padding'],
+                         max_length=tokenization_config['max_length'],
+                         return_special_tokens_mask=tokenization_config['special_tokens_mask'])
 
     # Handle datasets with subsets correctly, e.g. "glue" has "sst2" and "qqp" as their subsets
-    dataset_dir = f'{config["name"]}_{config["subset"]}' if 'subset' in config else config['name']
+    dataset_dir = f'{dataset_config["name"]}_' \
+                  f'{dataset_config["subset"]}' if 'subset' in dataset_config else dataset_config['name']
     try:
-        dataset = load_from_disk(f'{read_path(config["root_dir"])}/{dataset_dir}')
+        dataset = load_from_disk(f'{read_path(dataset_config["root_dir"])}/{dataset_dir}')
     except FileNotFoundError:
         raise FileNotFoundError(f'Execute download_data.py to first store the missing dataset ({dataset_dir}) '
                                 f'locally.')
 
-    dataset = dataset.select(indices=get_dataset_index_range(dataset, config))
+    dataset = dataset.select(indices=get_dataset_index_range(dataset, dataset_config))
 
-    text_field = 'text' if 'text_field' not in config else config['text_field']
-    dataset = dataset.map(encode, batched=True, batch_size=config['batch_size'])
+    text_field = 'text' if 'text_field' not in dataset_config else dataset_config['text_field']
+    dataset = dataset.map(encode, batched=True, batch_size=dataset_config['batch_size'])
     dataset = dataset.map(lambda examples: {'labels': examples['label']},
-                          batched=True, batch_size=config['batch_size'])
-    dataset.set_format(type='torch', columns=config['columns'])
+                          batched=True, batch_size=dataset_config['batch_size'])
+    dataset.set_format(type='torch', columns=dataset_config['columns'])
     return dataset
 
 
@@ -80,3 +81,12 @@ def get_local_explanations(config: Dict):
     dataset = dataset.map(encode_local, batched=True)
     dataset.set_format(type='torch', columns=config['columns'])
     return dataset
+
+
+def get_tokenizer(config: Dict):
+    """
+    :param config: model sub-config
+    :return:
+    """
+    tokenizer = AutoTokenizer.from_pretrained(config['name'])
+    return tokenizer

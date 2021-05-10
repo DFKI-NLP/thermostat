@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 import thermostat.explainers as thermex
-from thermostat.data.readers import get_dataset
+from thermostat.data.readers import get_dataset, get_tokenizer
 from thermostat.utils import detach_to_list, get_logger, get_time, read_config, read_path
 
 
@@ -36,12 +36,14 @@ else:
     device = 'cpu'
 logger.info(f'(Config) Explaining on device: {device}')
 
+# Tokenizer
+tokenizer = get_tokenizer(config['model'])
+config['tokenizer'] = tokenizer
+
 # Dataset
-dataset_config = config['dataset']
-dataset_config['tokenizer'] = config['model']['tokenizer']
-dataset_config['tokenizer']['name'] = config['model']['name']
-dataset = get_dataset(config=dataset_config)
-config['dataset']['num_labels'] = len(dataset.features['label'].names)
+dataset = get_dataset(config=config)
+config['dataset']['label_names'] = dataset.features['label'].names
+config['dataset']['version'] = str(dataset.version)
 
 # Explainer
 explainer = getattr(thermex, f'Explainer{config["explainer"]["name"]}').from_config(config=config)
@@ -52,6 +54,8 @@ logger.info(f'(Progress) Loaded explainer')
 # DataLoader
 dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True)
 logger.info(f'(Progress) Initialized data loader')
+
+config['model']['tokenizer'] = str(tokenizer)  # Overwrite the actual tokenizer with a string of the config
 
 file_out = open(path_out, 'w+')
 
@@ -66,17 +70,16 @@ for idx_batch, batch in tqdm(enumerate(dataloader), total=len(dataloader), posit
         labels = detach_to_list(batch['labels'][idx_instance])
         attrbs = detach_to_list(attribution[idx_instance])
         preds = detach_to_list(predictions[idx_instance])
-        result = {'dataset': dataset_config,
+        result = {'dataset': config['dataset'],
+                  'model': config['model'],
+                  'explainer': config['explainer'],
                   'batch': idx_batch,
                   'instance': idx_instance,
                   'index_running': idx_instance_running,
-                  'explainer': config['explainer'],
                   'input_ids': ids,
                   'labels': labels,
-                  'label_names': dataset.features['label'].names,
                   'attributions': attrbs,
-                  'predictions': preds,
-                  'path_model': config['model']['path_model']}
+                  'predictions': preds}
         # TODO: Add GPU runtime,
 
         file_out.write(json.dumps(result) + os.linesep)
