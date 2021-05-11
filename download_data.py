@@ -5,5 +5,5 @@ from thermostat.utils import get_logger, read_config
 
 
 logger = get_logger(name='download', file_out='./download.log', level=logging.INFO)
-config = read_config('configs/sst-2_InputXGradient_distilbert.jsonnet')
+config = read_config('configs/sst2/GradientXActivation_bert.jsonnet')
 path_out = download_dataset(config['dataset'], logger)

@@ -9,16 +9,13 @@
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
     "explainer": {
-        "name": "KernelShap",
-        "internal_batch_size": 1,
-        "n_samples": 25,
-        "mask_prob": 0.3,
+        "name": "LayerGradientXActivation",
     },
     "model": {
         "name": "textattack/bert-base-uncased-imdb",
         "mode_load": "hf",
         "path_model": null,
-        "tokenizer": {
+        "tokenization": {
             "max_length": 512,
             "padding": "max_length",
             "return_tensors": "np",

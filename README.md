@@ -26,7 +26,7 @@ LIME | [`.attr.LimeBase`](https://captum.ai/api/lime.html) | ✅
 Name | 🤗 | GxA | IG | Occ | SVS | LIME 
 --- | --- | --- | --- | --- | --- | ---
 ALBERT | [`textattack/albert-base-v2-imdb`](https://huggingface.co/textattack/albert-base-v2-imdb)
-BERT | [`textattack/bert-based-uncased-imdb`](https://huggingface.co/textattack/bert-base-uncased-imdb) | | | ✅ | | ✅  
+BERT | [`textattack/bert-base-uncased-imdb`](https://huggingface.co/textattack/bert-base-uncased-imdb) | | | ✅ | | ✅  
 DistilBERT | [`textattack/distilbert-base-uncased-imdb`](https://huggingface.co/textattack/distilbert-base-uncased-imdb)
 ELECTRA | [`monologg/electra-small-finetuned-imdb`](https://huggingface.co/monologg/electra-small-finetuned-imdb)
 RoBERTa | [`textattack/roberta-base-imdb`](https://huggingface.co/textattack/roberta-base-imdb) | | | | |✅
@@ -36,6 +36,7 @@ XLNet | [`textattack/xlnet-base-cased-imdb`](https://huggingface.co/textattack/x
 ### SST-2
 
 SST-2 is a sentiment analysis dataset with 2 classes and part of the [`glue`](https://huggingface.co/datasets/viewer/?dataset=glue&config=sst2) benchmark.
+There are no labels available for the test set.
 
 Name | 🤗 | GxA | IG | Occ | SVS | LIME 
 --- | --- | --- | --- | --- | --- | ---
@@ -48,6 +49,8 @@ XLNet | [`textattack/xlnet-base-cased-SST-2`](https://huggingface.co/textattack/
 
 
 ### MNLI
+
+There are no labels available for the test set.
 
 Name | 🤗 | GxA | IG | Occ | SVS | LIME 
 --- | --- | --- | --- | --- | --- | ---
