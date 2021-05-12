@@ -165,3 +165,6 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
 
     def explain(self, input):
         raise NotImplementedError
+
+    def __str__(self):
+        return str(self.explainer)

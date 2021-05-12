@@ -65,7 +65,21 @@ XLNet | [`textattack/xlnet-base-cased-mnli`](https://huggingface.co/textattack/x
 
 ## Usage
 
-More info soon.
+```python
+from datasets import load_dataset
+
+# This will use the dataset script ("thermostat.py") in the "thermostat" directory
+dataset = load_dataset("thermostat")
+# Select the subset "LayerGradientXActivation"
+gxa_dataset = dataset['LayerGradientXActivation']
+
+```
+
+`gxa_dataset` then provides a subset with features/columns
+* `attributions` (the attributions for each token for each data point; type: List of floats) : `[-0.18760254979133606, -0.0315956249833107, 0.04854373633861542, 0.00658783596009016, 0.017869707196950912,` ...
+* `input_ids` (the token IDs of the original dataset; type: List of ints) :  `[101, 2092, 1010, 1045, 7166, 2000,` ...
+* `label` (the label of the original dataset; type: int) : `1`
+* `predictions` (the class logits of the classifier/downstream model; type: List of floats) : `[-3.4371631145477295, 4.042327404022217]`
 
 ### Downloading a heatmap
 
