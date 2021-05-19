@@ -14,7 +14,7 @@ from thermostat.utils import detach_to_list, get_logger, get_time, read_config, 
 logger = get_logger(name='explain', file_out='./pipeline.log', level=logging.INFO)
 
 # Config handling
-config_file = 'configs/imdb/bert/LayerGradientXActivation.jsonnet'
+config_file = 'configs/imdb/bert/LayerIntegratedGradients.jsonnet'
 config = read_config(config_file)
 logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')  # Log config
 
@@ -60,7 +60,8 @@ config['model']['tokenizer'] = str(tokenizer)  # Overwrite the actual tokenizer 
 file_out = open(path_out, 'w+')
 
 for idx_batch, batch in tqdm(enumerate(dataloader), total=len(dataloader), position=0, leave=True):
-    logger.info(f'(Progress) Processing batch {idx_batch} / instance {idx_batch * batch_size}')
+    if idx_batch % 1000 == 0:
+        logger.info(f'(Progress) Processing batch {idx_batch} / instance {idx_batch * batch_size}')
     attribution, predictions = explainer.explain(batch)
 
     for idx_instance in range(len(batch['input_ids'])):
@@ -80,8 +81,7 @@ for idx_batch, batch in tqdm(enumerate(dataloader), total=len(dataloader), posit
                   'label': label,
                   'attributions': attrbs,
                   'predictions': preds}
-        # TODO: Add GPU runtime,
-        # TODO: Keep tokens, labels, logits, attrbs as they are. All other fields should only appear once in the output
+        # TODO: Add GPU runtime
 
         file_out.write(json.dumps(result) + os.linesep)
 

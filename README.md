@@ -65,6 +65,8 @@ XLNet | [`textattack/xlnet-base-cased-mnli`](https://huggingface.co/textattack/x
 
 ## Usage
 
+Clone this repo and then from the top level directory (where the "thermostat" folder exists) you can call the following script:
+
 ```python
 from datasets import load_dataset
 
