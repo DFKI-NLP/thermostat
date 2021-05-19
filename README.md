@@ -26,7 +26,7 @@ LIME | [`.attr.LimeBase`](https://captum.ai/api/lime.html) | ✅
 Name | 🤗 | GxA | IG | Occ | SVS | LIME 
 --- | --- | --- | --- | --- | --- | ---
 ALBERT | [`textattack/albert-base-v2-imdb`](https://huggingface.co/textattack/albert-base-v2-imdb)
-BERT | [`textattack/bert-base-uncased-imdb`](https://huggingface.co/textattack/bert-base-uncased-imdb) | | | ✅ | | ✅  
+BERT | [`textattack/bert-base-uncased-imdb`](https://huggingface.co/textattack/bert-base-uncased-imdb) | ✅ | ✅ | ✅ | | ✅  
 DistilBERT | [`textattack/distilbert-base-uncased-imdb`](https://huggingface.co/textattack/distilbert-base-uncased-imdb)
 ELECTRA | [`monologg/electra-small-finetuned-imdb`](https://huggingface.co/monologg/electra-small-finetuned-imdb)
 RoBERTa | [`textattack/roberta-base-imdb`](https://huggingface.co/textattack/roberta-base-imdb) | | | | |✅
@@ -71,38 +71,40 @@ Clone this repo and then from the top level directory (where the "thermostat" fo
 from datasets import load_dataset
 
 # This will use the dataset script ("thermostat.py") in the "thermostat" directory
-dataset = load_dataset("thermostat")
-# Select the subset "LayerGradientXActivation"
-gxa_dataset = dataset['LayerGradientXActivation']
+data = load_dataset("thermostat", "imdb-bert-lgxa", split="test")
+# Print the first instance of 
+# IMDb-BERT-LayerGradientXActivation attributions
+print(data[0])
 
 ```
 
-`gxa_dataset` then provides a subset with features/columns
+`data` then provides a subset with features/columns
 * `attributions` (the attributions for each token for each data point; type: List of floats) : `[-0.18760254979133606, -0.0315956249833107, 0.04854373633861542, 0.00658783596009016, 0.017869707196950912,` ...
 * `input_ids` (the token IDs of the original dataset; type: List of ints) :  `[101, 2092, 1010, 1045, 7166, 2000,` ...
 * `label` (the label of the original dataset; type: int) : `1`
 * `predictions` (the class logits of the classifier/downstream model; type: List of floats) : `[-3.4371631145477295, 4.042327404022217]`
+* `dataset.description` provides the actual names of the dataset, the explainer and the model
 
-### Downloading a heatmap
+### Visualizing attributions as a heatmap
 
-
+Coming soon: `to_html` function.
 
 ### Tools for analysis
 
+Coming soon:
+* `to_words` function for casting `input_ids` back to tokens.
 
 ### Config files
 
 jsonnet config files have the following naming convention:
-`<DATASET_ID>_<EXPLAINER_ID>_<MODEL_ID>.jsonnet` where
+`<DATASET_ID>/<EXPLAINER_ID>/<MODEL_ID>.jsonnet` where
 * `<DATASET_ID>` corresponds to a dataset (from `datasets` package by default, but can be any other locally stored dataset),
 * `<EXPLAINER_ID>` corresponds to an explainability method (usually provided through the `captum` package) and
 * `<MODEL_ID>` corresponds to a model (from `transformers` package by default)
 
 
 ### Visualization adapters
+Coming soon:
 * Displacy
 * ecco
 * captum
-
-
-## Contribute

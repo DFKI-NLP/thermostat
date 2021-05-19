@@ -17,38 +17,45 @@
 
 import datasets
 import json
-import textwrap
 
 
 # TODO: Add BibTeX citation
 # Find for instance the citation on arxiv or on the dataset repo/website
-_CITATION = """\
-Coming soon.
-"""
+_CITATION = "Coming soon."
+
+_DESCRIPTION = "Coming soon."
 
 # TODO: Add a link to an official homepage for the dataset here
-_HOMEPAGE = ''
+_HOMEPAGE = 'https://github.com/nfelnlp/thermostat'
 
 # TODO: Add the licence for the dataset here if you can find it
 _LICENSE = ''
 
-_EXPLAINERS = [  # TODO: Uncomment later
-    "LayerGradientXActivation",  # "LayerIntegratedGradients", "LIME", "Occlusion", "ShapleyValueSampling"
-]
+_VERSION = datasets.Version('1.0.0', '')
 
 
-# Base arguments for IMDb dataset
-_IMDB_BASE_KWARGS = dict(
+# Base arguments for any dataset
+_BASE_KWARGS = dict(
     features={
         "attributions": "attributions",
         "predictions": "predictions",
         "input_ids": "input_ids",
     },
+    citation="Coming soon.",
+    url="https://github.com/nfelnlp/thermostat",
+)
+
+# Base arguments for IMDb dataset
+_IMDB_KWARGS = dict(
+    dataset="imdb",
     label_classes=["neg", "pos"],
     label_column="label",
-    data_url="https://cloud.dfki.de/owncloud/index.php/s/nztfgJWrYgyzG5M/download",  # TODO
-    citation="",
-    url="",
+    **_BASE_KWARGS,
+)
+
+_IMDB_BERT_KWARGS = dict(
+    model="textattack/bert-base-uncased-imdb",
+    **_IMDB_KWARGS,
 )
 
 
@@ -57,7 +64,9 @@ class ThermostatConfig(datasets.BuilderConfig):
 
     def __init__(
         self,
-        classifier,
+        explainer,
+        model,
+        dataset,
         features,
         label_column,
         label_classes,
@@ -66,18 +75,10 @@ class ThermostatConfig(datasets.BuilderConfig):
         url,
         **kwargs,
     ):
-        """
-        Args:
-            classifier: Downstream model (e.g. "bert"),
-            features,
-            label_column,
-            label_classes,
-            data_url,
-            citation,
-            url,
-        """
-        super(ThermostatConfig, self).__init__(version=datasets.Version('1.0.0', ''), **kwargs)
-        self.classifier = classifier
+        super(ThermostatConfig, self).__init__(version=_VERSION, **kwargs)
+        self.explainer = explainer
+        self.model = model
+        self.dataset = dataset
         self.features = features
         self.label_column = label_column
         self.label_classes = label_classes
@@ -87,29 +88,27 @@ class ThermostatConfig(datasets.BuilderConfig):
 
 
 class Thermostat(datasets.GeneratorBasedBuilder):
-    """One config (e.g. 'imdb_bert') contains the attribution scores of all available explainers applied on the IMDb
-    dataset classified by a BERT downstream model. """
+    """One config (e.g. 'imdb-bert-lgxa') contains the attribution scores of a Layer Gradient x Activation explainer
+    applied on the IMDb dataset that has been classified by a BERT downstream model. """
 
     BUILDER_CONFIGS = [
         ThermostatConfig(
-            name='imdb_bert',
-            description=textwrap.dedent(
-                """\
-                IMDb dataset explanations by a BERT model
-                """
-            ),
-            classifier='textattack/bert-base-uncased-imdb',
-            **_IMDB_BASE_KWARGS),
+            name="imdb-bert-lgxa",
+            description="IMDb dataset, BERT model, Layer Gradient x Activation explanations",
+            explainer="LayerGradientXActivation",
+            data_url="https://cloud.dfki.de/owncloud/index.php/s/nztfgJWrYgyzG5M/download",
+            **_IMDB_BERT_KWARGS,
+        ),
+        ThermostatConfig(
+            name="imdb-bert-lig",
+            description="IMDb dataset, BERT model, Layer Integrated Gradients explanations",
+            explainer="LayerIntegratedGradients",
+            data_url="https://cloud.dfki.de/owncloud/index.php/s/Zp2HZrbxAFm8GS4/download",
+            **_IMDB_BERT_KWARGS,
+        ),
     ]
 
     def _info(self):
-        self.description = ''
-
-        self.features = {
-            "attributions": None,
-            "predictions": None,
-            "input_ids": None,
-        }
         features = {}
         if self.config.label_classes:
             features["label"] = datasets.features.ClassLabel(names=self.config.label_classes)
@@ -120,32 +119,29 @@ class Thermostat(datasets.GeneratorBasedBuilder):
         # Thermostat-specific fields: Explainer outputs
         features["attributions"] = datasets.Sequence(datasets.Value("float32"))
         features["predictions"] = datasets.Sequence(datasets.Value("float32"))
-
         features["input_ids"] = datasets.Sequence(datasets.Value("int32"))
 
         return datasets.DatasetInfo(
-            description=self.description,
+            description=self.config.description + f'\nExplainer: {self.config.explainer}\nModel: {self.config.model}'
+                                                  f'\nDataset: {self.config.dataset}',
             features=datasets.Features(features),
-            homepage=self.config.url,
-            citation=self.config.citation + "\n" + _CITATION,
+            homepage=_HOMEPAGE,
+            citation=_CITATION,
         )
 
     def _split_generators(self, dl_manager):
         """Returns SplitGenerators."""
         # This method is tasked with downloading/extracting the data and defining the splits depending on the
         #  configuration
-        # TODO: Decide if the downloaded file is a .zip folder containing multiple files or not
-        # For debugging, dl_path variable is a single .json file
         dl_path = dl_manager.download(self.config.data_url)
         return [
             datasets.SplitGenerator(
-                name=explainer,
+                name=datasets.Split.TEST,
                 gen_kwargs={
                     "data_file": dl_path,
-                    "split": explainer,
+                    "split": "test",
                 }
             )
-            for explainer in _EXPLAINERS
         ]
 
     def _generate_examples(
@@ -153,19 +149,11 @@ class Thermostat(datasets.GeneratorBasedBuilder):
     ):
         """ Yields examples as (key, example) tuples. """
         # This method handles input defined in _split_generators to yield (key, example) tuples from the dataset.
-        # The `key` is here for legacy reason (tfds) and is not important in itself.
 
         with open(data_file, encoding="utf-8") as f:
             for id_, row in enumerate(f):
-                data = json.loads(row)  # TODO: Unpack data
-                if id_ == 0:  # TODO: Only once per .jsonl file in the future
-                    self.dataset_config = data['dataset']
-                    self.model_config = data['model']
-                    self.explainer_config = data['explainer']
-                    # Construct description from various fields
-                    self.description = f'{self.dataset_config}\n{self.model_config}\n{self.explainer_config}'
+                data = json.loads(row)
                 example = {feat: data[col] for feat, col in self.config.features.items()}
                 example["idx"] = id_
                 example["label"] = data["label"]
-                # TODO: Use 'split' for selecting explainer subset
                 yield example["idx"], example
