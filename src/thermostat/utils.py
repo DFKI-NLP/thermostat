@@ -2,6 +2,7 @@ import json
 import _jsonnet
 import logging
 import os
+import torch
 
 from datetime import datetime
 from os.path import expanduser
@@ -39,7 +40,7 @@ class Configurable:
 
 
 def detach_to_list(t):
-    return t.detach().cpu().numpy().tolist()
+    return t.detach().cpu().numpy().tolist() if type(t) == torch.Tensor else t
 
 
 def get_logger(name: str, file_out: str = None, level: int = None):

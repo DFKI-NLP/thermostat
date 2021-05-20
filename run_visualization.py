@@ -32,4 +32,5 @@ if not os.path.isdir(vis_dir):
 # Add HTML output file to config
 config['path_html'] = os.path.join(vis_dir, f'{path_in.split("/")[-1]}.html')
 
-run_visualize(config=config, logger=logger)
+logger.info("(Progress) Generating visualizations")
+run_visualize(config=config)

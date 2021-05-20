@@ -123,7 +123,7 @@ class Thermostat(datasets.GeneratorBasedBuilder):
 
         return datasets.DatasetInfo(
             description=self.config.description + f'\nExplainer: {self.config.explainer}\nModel: {self.config.model}'
-                                                  f'\nDataset: {self.config.dataset}',
+                                                  f'\nDataset: {self.config.dataset}\n',
             features=datasets.Features(features),
             homepage=_HOMEPAGE,
             citation=_CITATION,

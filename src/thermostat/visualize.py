@@ -97,12 +97,12 @@ def append_heatmap(tokens, scores, latex, gamma, caption, pad_token, formatting=
     return latex
 
 
-def run_visualize(config: Dict, logger):
-    logger.info("(Progress) Generating visualizations")
+def run_visualize(config: Dict, dataset=None):
     tokenizer = AutoTokenizer.from_pretrained(config['model']['name'])
     visualization_config = config['visualization']
 
-    dataset = get_local_explanations(config=visualization_config)
+    if not dataset:
+        dataset = get_local_explanations(config=visualization_config)
     dataset_name = f'{config["dataset"]["name"]}' \
                    f': {config["dataset"]["subset"]}' if 'subset' in config['dataset'] else \
         config['dataset']['name']
@@ -119,7 +119,7 @@ def run_visualize(config: Dict, logger):
         html += "<div>"
 
         instance = dataset[idx_instance]
-        tokens = [tokenizer.decode(token_ids=token_id) for token_id in instance['input_ids']]
+        tokens = [tokenizer.decode(token_ids=token_ids) for token_ids in instance['input_ids']]
         atts = detach_to_list(instance['attributions'])
         if 'special_tokens_attribution' not in visualization_config:
             atts_special_tokens_zero = []
@@ -143,14 +143,16 @@ def run_visualize(config: Dict, logger):
             special_tokens=tokenizer.all_special_tokens)
         summary['Non-special tokens'] = number_of_non_special_tokens
 
-        label_names = dataset['label_names'][0]
+        label_names = dataset['label_names'][0] if 'label_names' in dataset else dataset.info.features['label'].names
         if 'labels' in instance:
             label = detach_to_list(instance['labels'])
             summary['True Label Index'] = str(label)
             summary['True Label'] = str(label_names[label])
         if 'predictions' in instance:
-            summary['Logits'] = detach_to_list(instance['predictions'])
-            preds_max_detached = detach_to_list(torch.argmax(instance['predictions']))
+            preds = instance['predictions']
+            summary['Logits'] = detach_to_list(preds)
+            preds_max = torch.argmax(preds) if type(preds) == torch.Tensor else preds.index(max(preds))
+            preds_max_detached = detach_to_list(preds_max)
             summary['Predicted Label'] = str(label_names[preds_max_detached])
         html += summarize(summary)
 

@@ -16,7 +16,7 @@ Shapley Value Sampling (*SVS*) | [`.attr.ShapleyValueSampling`](https://captum.a
 LIME | [`.attr.LimeBase`](https://captum.ai/api/lime.html) | ✅
 
 
-## Fine-tuned Models
+## Datasets + Models
 
 
 ### IMDb
