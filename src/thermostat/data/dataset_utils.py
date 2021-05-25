@@ -26,8 +26,15 @@ def get_tokens(thermostat_dataset: Dataset) -> List:
     return [tokenizer.decode(token_ids=token_ids) for token_ids in thermostat_dataset['input_ids']]
 
 
-def to_html(thermostat_dataset: Dataset, out_html: str):
+# TODO: Wrappable function
+def _to_html(dataset, model_name, path_out, gamma, normalize):
+    raise NotImplementedError
+
+
+def to_html(thermostat_dataset: Dataset, out_html: str, gamma=1.0):
     """ Run the visualization script on a Thermostat dataset """
+    # TODO: Pass filehandler and check if valid
+
     config = dict()
     config["path_html"] = out_html
     config["dataset"] = {"name": get_coordinate(thermostat_dataset, coordinate="Dataset"),
@@ -35,7 +42,7 @@ def to_html(thermostat_dataset: Dataset, out_html: str):
                          }
     config["model"] = {"name": get_coordinate(thermostat_dataset, coordinate="Model")}
     config["visualization"] = {"columns": ["attributions", "predictions", "input_ids", "labels"],
-                               "gamma": 2.0,
+                               "gamma": gamma,
                                "normalize": True}
 
     run_visualize(config=config, dataset=thermostat_dataset)
@@ -76,9 +83,6 @@ def explainer_agreement_stat(thermostat_datasets: List) -> List:
 
     model_id = get_coordinate(thermostat_datasets[0], coordinate='Model')
     tokenizer = AutoTokenizer.from_pretrained(model_id)
-
-    # Start idx in zipped structure for values
-    val_idx = len(list(all_explainers_atts.keys()))+1
 
     # Dissimilarity dict for tokens and their contexts
     tokens_dissim = {}

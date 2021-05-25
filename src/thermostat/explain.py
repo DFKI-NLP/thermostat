@@ -30,6 +30,7 @@ class ExplainerCaptum(Explainer):
     @staticmethod
     def get_inputs_and_additional_args(base_model, batch):
         if base_model in [tlm.bert.BertModel,
+                          tlm.electra.ElectraModel,
                           tlm.xlnet.XLNetModel]:
             assert 'input_ids' in batch, f'Input ids expected for {base_model} but not found.'
             assert 'attention_mask' in batch, f'Attention mask expected for {base_model} but not found.'
@@ -67,6 +68,7 @@ class ExplainerCaptum(Explainer):
             return output_model
 
         if type(model.base_model) in [tlm.bert.BertModel,
+                                      tlm.electra.ElectraModel,
                                       tlm.xlnet.XLNetModel]:
             return bert_forward
         elif type(model.base_model) in [tlm.roberta.RobertaModel,

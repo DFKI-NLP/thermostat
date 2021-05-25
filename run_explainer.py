@@ -14,7 +14,7 @@ from thermostat.utils import detach_to_list, get_logger, get_time, read_config, 
 logger = get_logger(name='explain', file_out='./pipeline.log', level=logging.INFO)
 
 # Config handling
-config_file = 'configs/imdb/bert/LayerIntegratedGradients.jsonnet'
+config_file = 'configs/imdb/electra/Occlusion.jsonnet'
 config = read_config(config_file)
 logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')  # Log config
 

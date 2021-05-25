@@ -18,7 +18,7 @@
         "name": "textattack/roberta-base-imdb",
         "mode_load": "hf",
         "path_model": null,
-        "tokenizer": {
+        "tokenization": {
             "max_length": 512,
             "padding": "max_length",
             "return_tensors": "np",
