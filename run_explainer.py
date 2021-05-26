@@ -1,3 +1,4 @@
+import argparse
 import json
 import logging
 import numpy as np
@@ -11,10 +12,16 @@ from thermostat.data.readers import get_dataset, get_tokenizer
 from thermostat.utils import detach_to_list, get_logger, get_time, read_config, read_path
 
 
+# Argument parser
+parser = argparse.ArgumentParser()
+parser.add_argument('-c', help='Config file',
+                    default='configs/imdb/xlnet/LIME.jsonnet')
+args = parser.parse_args()
+config_file = args.c
+
 logger = get_logger(name='explain', file_out='./pipeline.log', level=logging.INFO)
 
 # Config handling
-config_file = 'configs/imdb/electra/Occlusion.jsonnet'
 config = read_config(config_file)
 logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')  # Log config
 
