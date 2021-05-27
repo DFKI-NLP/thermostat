@@ -5,18 +5,15 @@
         "name": "multi_nli",
         "text_field": ["premise", "hypothesis"],
         "split": "validation_matched",
-        "columns": ['input_ids', 'attention_mask', 'token_type_ids', 'special_tokens_mask', 'labels'],
-        "batch_size": 2,
+        "columns": ['input_ids', 'special_tokens_mask', 'attention_mask', 'labels'],
+        "batch_size": 1,
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
     "explainer": {
-        "name": "ShapleyValueSampling",
-        "internal_batch_size": 2,
-        "n_samples": 25,
-        "early_stopping": -1,
+        "name": "LayerGradientXActivation",
     },
     "model": {
-        "name": "textattack/bert-base-uncased-MNLI",
+        "name": "textattack/roberta-base-MNLI",
         "mode_load": "hf",
         "path_model": null,
         "tokenization": {

@@ -130,11 +130,9 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
         # TODO: Assert that num_labels in dataset corresponds to classification head in model
 
         if res.mode_load == 'hf':
-            print('Loading Hugging Face model...')
             res.model = AutoModelForSequenceClassification.from_pretrained(res.name_model,
                                                                            num_labels=res.num_labels)
         elif res.mode_load == 'ignite':
-            print('Loading local ignite-trained model...')
             res.model = AutoModelForSequenceClassification.from_pretrained(res.name_model,
                                                                            num_labels=res.num_labels)
             checkpoint = torch.load(res.path_model)
