@@ -1,8 +1,10 @@
 captum~=0.3.1
 datasets~=1.5.0
+jsonnet
 numpy~=1.20.2
 overrides~=3.1.0
 protobuf
+pytorch-ignite
 sentencepiece
 torch
 tqdm~=4.49.0
