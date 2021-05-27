@@ -13,12 +13,13 @@ class ExplainerShapleyValueSampling(ExplainerAutoModelInitializer):
 
     def validate_config(self, config: Dict) -> bool:
         super().validate_config(config)
-        assert 'n_samples' in config, 'Define how many samples to take along the straight line path from the baseline.'
+        assert 'n_samples' in config['explainer'], 'Define how many samples to take along the straight line path ' \
+                                                   'from the baseline.'
 
     @classmethod
     def from_config(cls, config):
         res = super().from_config(config)
-        res.n_samples = config['n_samples']
+        res.n_samples = config['explainer']['n_samples']
         res.explainer = ShapleyValueSampling(res.forward_func)  # KernelShap(forward_func=res.forward_func)
         return res
 

@@ -41,11 +41,12 @@ LIME (`lime`) | [`.attr.LimeBase`](https://captum.ai/api/lime.html) | ✅
 
 ## Datasets + Models
 
+✅ = Dataset is downloadable
 📜 = Config exists
 
 ### IMDb
 
-[`imdb`](https://huggingface.co/datasets/viewer/?dataset=imdb) is a sentiment analysis dataset with 2 classes (`pos` and `neg`).
+[`imdb`](https://huggingface.co/datasets/viewer/?dataset=imdb) is a sentiment analysis dataset with 2 classes (`pos` and `neg`). The `test` subset contains 25k examples.
 
 Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs`  
 --- | --- | --- | --- | --- | --- | ---
@@ -53,37 +54,22 @@ ALBERT (`albert`) | [`textattack/albert-base-v2-imdb`](https://huggingface.co/te
 BERT (`bert`) | [`textattack/bert-base-uncased-imdb`](https://huggingface.co/textattack/bert-base-uncased-imdb) | ✅ | ✅ | | |  
 DistilBERT (`distilbert`) | [`textattack/distilbert-base-uncased-imdb`](https://huggingface.co/textattack/distilbert-base-uncased-imdb) | - | - | - | - | -
 ELECTRA (`electra`) | [`monologg/electra-small-finetuned-imdb`](https://huggingface.co/monologg/electra-small-finetuned-imdb) | | | | 📜
-RoBERTa (`roberta`) | [`textattack/roberta-base-imdb`](https://huggingface.co/textattack/roberta-base-imdb) | | | | |
+RoBERTa (`roberta`) | [`textattack/roberta-base-imdb`](https://huggingface.co/textattack/roberta-base-imdb) | | | | | 📜
 XLNet (`xlnet`) | [`textattack/xlnet-base-cased-imdb`](https://huggingface.co/textattack/xlnet-base-cased-imdb) | | | 📜
-
-
-### SST-2
-
-SST-2 is a sentiment analysis dataset with 2 classes and part of the [`glue`](https://huggingface.co/datasets/viewer/?dataset=glue&config=sst2) benchmark.
-There are no labels available for the test set.
-
-Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs` 
---- | --- | --- | --- | --- | --- | ---
-ALBERT (`albert`) | [`textattack/albert-base-v2-SST-2`](https://huggingface.co/textattack/albert-base-v2-SST-2)
-BERT (`bert`) | [`textattack/bert-base-uncased-SST-2`](https://huggingface.co/textattack/bert-base-uncased-SST-2) |
-DistilBERT (`distilbert`) | [`distilbert-base-uncased-finetuned-sst-2-english`](https://huggingface.co/distilbert-base-uncased-finetuned-sst-2-english) | - | - | - | - | -
-ELECTRA (`electra`) | [`howey/electra-base-sst2`](https://huggingface.co/howey/electra-base-sst2)
-RoBERTa (`roberta`) | [`textattack/roberta-base-SST-2`](https://huggingface.co/textattack/roberta-base-SST-2)
-XLNet (`xlnet`) | [`textattack/xlnet-base-cased-SST-2`](https://huggingface.co/textattack/xlnet-base-cased-SST-2)
 
 
 ### MNLI
 
-There are no labels available for the test set.
+[`multi_nli`](https://huggingface.co/datasets/viewer/?dataset=multi_nli) is a textual entailment dataset. The `validation_matched` subset contains 9815 examples.
 
 Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs` 
 --- | --- | --- | --- | --- | --- | ---
-ALBERT (`albert`) | [`prajjwal1/albert-base-v2-mnli`](https://huggingface.co/prajjwal1/albert-base-v2-mnli)
-BERT (`bert`) | [`textattack/bert-base-uncased-mnli`](https://huggingface.co/textattack/bert-base-uncased-MNLI)
-DistilBERT (`distilbert`) | [`textattack/distilbert-base-uncased-mnli`](https://huggingface.co/textattack/distilbert-base-uncased-MNLI) | - | - | - | - | -
-ELECTRA (`electra`) | [`howey/electra-base-mnli`](https://huggingface.co/howey/electra-base-mnli)
-RoBERTa (`roberta`) | [`textattack/roberta-base-mnli`](https://huggingface.co/textattack/roberta-base-MNLI)
-XLNet (`xlnet`) | [`textattack/xlnet-base-cased-mnli`](https://huggingface.co/textattack/xlnet-base-cased-MNLI)
+ALBERT (`albert`) | [`prajjwal1/albert-base-v2-mnli`](https://huggingface.co/prajjwal1/albert-base-v2-mnli) | | | | 📜
+BERT (`bert`) | [`textattack/bert-base-uncased-MNLI`](https://huggingface.co/textattack/bert-base-uncased-MNLI) | | | | | 📜
+DistilBERT (`distilbert`) | [`textattack/distilbert-base-uncased-MNLI`](https://huggingface.co/textattack/distilbert-base-uncased-MNLI) | - | - | - | - | -
+ELECTRA (`electra`) | [`howey/electra-base-mnli`](https://huggingface.co/howey/electra-base-mnli) | | 📜
+RoBERTa (`roberta`) | [`textattack/roberta-base-MNLI`](https://huggingface.co/textattack/roberta-base-MNLI) | | | ⚠️
+XLNet (`xlnet`) | [`textattack/xlnet-base-cased-MNLI`](https://huggingface.co/textattack/xlnet-base-cased-MNLI) | 📜
 
 
 ### Visualizing attributions as a heatmap

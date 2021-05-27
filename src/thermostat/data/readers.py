@@ -31,6 +31,14 @@ def get_dataset(config: Dict):
                          max_length=tokenization_config['max_length'],
                          return_special_tokens_mask=tokenization_config['special_tokens_mask'])
 
+    def encode_pair(instances):
+        return tokenizer(instances[text_field[0]],
+                         instances[text_field[1]],
+                         truncation=tokenization_config['truncation'],
+                         padding=tokenization_config['padding'],
+                         max_length=tokenization_config['max_length'],
+                         return_special_tokens_mask=tokenization_config['special_tokens_mask'])
+
     # Handle datasets with subsets correctly, e.g. "glue" has "sst2" and "qqp" as their subsets
     dataset_dir = f'{dataset_config["name"]}_' \
                   f'{dataset_config["subset"]}' if 'subset' in dataset_config else dataset_config['name']
@@ -42,8 +50,13 @@ def get_dataset(config: Dict):
 
     dataset = dataset.select(indices=get_dataset_index_range(dataset, dataset_config))
 
-    text_field = 'text' if 'text_field' not in dataset_config else dataset_config['text_field']
-    dataset = dataset.map(encode, batched=True, batch_size=dataset_config['batch_size'])
+    if 'text_field' in dataset_config:
+        text_field = dataset_config['text_field']
+    else:
+        text_field = 'text'
+    encode_fn = encode_pair if type(text_field) == list and len(text_field) else encode
+
+    dataset = dataset.map(encode_fn, batched=True, batch_size=dataset_config['batch_size'])
     dataset = dataset.map(lambda examples: {'labels': examples['label']},
                           batched=True, batch_size=dataset_config['batch_size'])
     dataset.set_format(type='torch', columns=dataset_config['columns'])
