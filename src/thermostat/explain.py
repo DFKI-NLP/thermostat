@@ -29,7 +29,8 @@ class ExplainerCaptum(Explainer):
 
     @staticmethod
     def get_inputs_and_additional_args(base_model, batch):
-        if base_model in [tlm.bert.BertModel,
+        if base_model in [tlm.albert.AlbertModel,
+                          tlm.bert.BertModel,
                           tlm.electra.ElectraModel,
                           tlm.xlnet.XLNetModel]:
             assert 'input_ids' in batch, f'Input ids expected for {base_model} but not found.'
@@ -67,7 +68,8 @@ class ExplainerCaptum(Explainer):
             output_model = model(**input_model)[0]
             return output_model
 
-        if type(model.base_model) in [tlm.bert.BertModel,
+        if type(model.base_model) in [tlm.albert.AlbertModel,
+                                      tlm.bert.BertModel,
                                       tlm.electra.ElectraModel,
                                       tlm.xlnet.XLNetModel]:
             return bert_forward
@@ -119,7 +121,7 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
         # model
         res.name_model = config['model']['name']
         if config['model']['path_model']:  # can be empty when loading a HF model!
-            res.path_model = read_path(config['model']['path_model'])
+            res.path_model = config['model']['path_model']
 
         res.mode_load = config['model']['mode_load']
         assert res.mode_load in ['hf', 'ignite']

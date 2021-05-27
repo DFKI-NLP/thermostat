@@ -2,21 +2,18 @@ from datasets import load_dataset, load_from_disk
 from transformers import AutoTokenizer
 from typing import Dict
 
-from thermostat.utils import read_path
-
 
 def download_dataset(config: Dict, logger):
     """
     :param config: "dataset" sub-config of a jsonnet config
     """
     assert all(x in config for x in ['name', 'split', 'root_dir'])
-    root_dir = read_path(config['root_dir'])
     if 'subset' in config:
         dataset = load_dataset(config['name'], config['subset'], split=config['split'])
-        dataset.save_to_disk(dataset_path=f'{root_dir}/{config["name"]}_{config["subset"]}')
+        dataset.save_to_disk(dataset_path=f'{config["root_dir"]}/{config["name"]}_{config["subset"]}')
     else:
         dataset = load_dataset(config['name'], split=config['split'])
-        dataset.save_to_disk(dataset_path=f'{root_dir}/{config["name"]}')
+        dataset.save_to_disk(dataset_path=f'{config["root_dir"]}/{config["name"]}')
     logger.info(f'(Progress) Terminated normally')
 
 
@@ -38,7 +35,7 @@ def get_dataset(config: Dict):
     dataset_dir = f'{dataset_config["name"]}_' \
                   f'{dataset_config["subset"]}' if 'subset' in dataset_config else dataset_config['name']
     try:
-        dataset = load_from_disk(f'{read_path(dataset_config["root_dir"])}/{dataset_dir}')
+        dataset = load_from_disk(f'{dataset_config["root_dir"]}/{dataset_dir}')
     except FileNotFoundError:
         raise FileNotFoundError(f'Execute download_data.py to first store the missing dataset ({dataset_dir}) '
                                 f'locally.')
@@ -71,7 +68,7 @@ def get_local_explanations(config: Dict):
     :return:
     """
 
-    dataset = load_dataset('json', data_files=read_path(config['path_explanations']))
+    dataset = load_dataset('json', data_files=config['path_explanations'])
     dataset = dataset['train']
 
     def encode_local(instances):

@@ -1,3 +1,4 @@
+import argparse
 import json
 import logging
 import os
@@ -6,14 +7,20 @@ from thermostat.utils import get_logger, read_config
 from thermostat.visualize import run_visualize
 
 
+# Argument parser
+parser = argparse.ArgumentParser()
+parser.add_argument('-c', help='Config file', default='configs/imdb/xlnet/LIME.jsonnet')
+parser.add_argument('-home', help='Home directory', default=None)
+args = parser.parse_args()
+config_file = args.c
+home_dir = args.home
+
 # Log config
 logger = get_logger(name='vis', file_out='./vis.log', level=logging.INFO)
 
 # Config handling
-config_file = 'configs/sst2/GradientXActivation_bert.jsonnet'
-config = read_config(config_file)
+config = read_config(config_file, home_dir)
 logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')
-
 
 # Choose latest created file in experiment path
 experiment_path = config['experiment_path']

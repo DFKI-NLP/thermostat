@@ -9,25 +9,26 @@ from tqdm import tqdm
 
 import thermostat.explainers as thermex
 from thermostat.data.readers import get_dataset, get_tokenizer
-from thermostat.utils import detach_to_list, get_logger, get_time, read_config, read_path
+from thermostat.utils import detach_to_list, get_logger, get_time, read_config
 
 
 # Argument parser
 parser = argparse.ArgumentParser()
-parser.add_argument('-c', help='Config file',
-                    default='configs/imdb/xlnet/LIME.jsonnet')
+parser.add_argument('-c', help='Config file', default='configs/imdb/xlnet/LIME.jsonnet')
+parser.add_argument('-home', help='Home directory', default=None)
 args = parser.parse_args()
 config_file = args.c
+home_dir = args.home
 
 logger = get_logger(name='explain', file_out='./pipeline.log', level=logging.INFO)
 
 # Config handling
-config = read_config(config_file)
+config = read_config(config_file, home_dir=home_dir)
 logger.info(f'(Config) Config: \n{json.dumps(config, indent=2)}')  # Log config
 
 # Output file naming
 explainer_name = config['explainer']['name']
-path_out = f'{read_path(config["experiment_path"])}/{get_time()}.{explainer_name}.jsonl'  # TODO: Decide on CSV vs JSON
+path_out = f'{config["experiment_path"]}/{get_time()}.{explainer_name}.jsonl'  # TODO: Decide on CSV vs JSON
 logger.info(f'(File I/O) Output file: {path_out}')
 assert not os.path.isfile(path_out), f'File {path_out} already exists!'
 
@@ -93,4 +94,4 @@ for idx_batch, batch in tqdm(enumerate(dataloader), total=len(dataloader), posit
         file_out.write(json.dumps(result) + os.linesep)
 
 logger.info('(Progress) Terminated normally.')
-logger.info(f'(Progress) Done training {str(explainer)} explainer; wrote model weights to {path_out}')
+logger.info(f'(Progress) Output file: {path_out}')

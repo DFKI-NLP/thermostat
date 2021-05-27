@@ -73,22 +73,27 @@ def get_time():
     return now
 
 
-def read_config(path) -> Dict:
-    config = json.loads(_jsonnet.evaluate_file(path))
-    config['experiment_path'] = set_experiment_path(config, path)
-    return config
+def read_config(config_path, home_dir=None) -> Dict:
+    config = json.loads(_jsonnet.evaluate_file(config_path))
 
+    # Config fields where $HOME needs to be resolved to a real directory
+    config["path"] = read_path(config["path"], home=home_dir)
+    config["dataset"]["root_dir"] = read_path(config["dataset"]["root_dir"], home=home_dir)
+    config["model"]["path_model"] = read_path(config["model"]["path_model"], home=home_dir)
 
-def set_experiment_path(config, config_path) -> str:
-    experiment_path = f'{read_path(config["path"])}' \
+    # Set experiment path
+    experiment_path = f'{config["path"]}' \
         f'/{config["dataset"]["subset"] if "subset" in config["dataset"] else config["dataset"]["name"]}' \
         f'/{"/".join(config_path.split("/")[2:]).split(".jsonnet")[0]}'
     if not os.path.exists(experiment_path):
         raise NotADirectoryError(f'{experiment_path}\nThis experiment path does not exist yet.')
-    return experiment_path
+
+    config['experiment_path'] = experiment_path
+    return config
 
 
-def read_path(path):
-    """Replaces $HOME w/ home directory."""
-    home = expanduser("~")
-    return path.replace("$HOME", home)
+def read_path(path, home=None):
+    """Replaces $HOME in a path (str) with the home directory"""
+    if not home:
+        home = expanduser("~")
+    return path.replace("$HOME", home) if path else path
