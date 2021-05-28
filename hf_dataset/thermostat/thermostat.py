@@ -53,8 +53,18 @@ _IMDB_KWARGS = dict(
     **_BASE_KWARGS,
 )
 
+_IMDB_ALBERT_KWARGS = dict(
+    model="textattack/albert-base-v2-imdb",
+    **_IMDB_KWARGS,
+)
+
 _IMDB_BERT_KWARGS = dict(
     model="textattack/bert-base-uncased-imdb",
+    **_IMDB_KWARGS,
+)
+
+_IMDB_XLNET_KWARGS = dict(
+    model="textattack/xlnet-base-cased-imdb",
     **_IMDB_KWARGS,
 )
 
@@ -93,6 +103,13 @@ class Thermostat(datasets.GeneratorBasedBuilder):
 
     BUILDER_CONFIGS = [
         ThermostatConfig(
+            name="imdb-albert-lgxa",
+            description="IMDb dataset, ALBERT model, Layer Gradient x Activation explanations",
+            explainer="LayerGradientXActivation",
+            data_url="https://cloud.dfki.de/owncloud/index.php/s/b9HFFJPFxaEy5ZX/download",
+            **_IMDB_ALBERT_KWARGS,
+        ),
+        ThermostatConfig(
             name="imdb-bert-lgxa",
             description="IMDb dataset, BERT model, Layer Gradient x Activation explanations",
             explainer="LayerGradientXActivation",
@@ -105,6 +122,13 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             explainer="LayerIntegratedGradients",
             data_url="https://cloud.dfki.de/owncloud/index.php/s/Zp2HZrbxAFm8GS4/download",
             **_IMDB_BERT_KWARGS,
+        ),
+        ThermostatConfig(
+            name="imdb-xlnet-lime",
+            description="IMDb dataset, XLNet model, LIME explanations",
+            explainer="LimeBase",
+            data_url="https://cloud.dfki.de/owncloud/index.php/s/KQWoPRktycR93Kf/download",
+            **_IMDB_XLNET_KWARGS,
         ),
     ]
 

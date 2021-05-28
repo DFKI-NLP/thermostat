@@ -8,7 +8,7 @@ from thermostat.utils import get_logger, read_config
 # Argument parser
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', help='Config file',
-                    default='configs/imdb/xlnet/LIME.jsonnet')
+                    default='configs/mnli/roberta/lime.jsonnet')
 parser.add_argument('-home', help='Home directory', default=None)
 args = parser.parse_args()
 config_file = args.c
