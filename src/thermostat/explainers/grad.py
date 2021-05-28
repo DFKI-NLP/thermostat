@@ -28,7 +28,7 @@ class ExplainerLayerIntegratedGradients(ExplainerAutoModelInitializer):
         res.n_samples = config['explainer']['n_samples']
         res.internal_batch_size = config['explainer']['internal_batch_size']
         res.explainer = LayerIntegratedGradients(forward_func=res.forward_func,
-                                                 layer=res.model.base_model.embeddings)
+                                                 layer=res.get_embedding_layer(res.model))
         return res
 
     def explain(self, batch):
@@ -68,7 +68,7 @@ class ExplainerLayerGradientXActivation(ExplainerAutoModelInitializer):
         res = super().from_config(config)
         res.validate_config(config)
         res.explainer = LayerGradientXActivation(forward_func=res.forward_func,
-                                                 layer=res.model.base_model.embeddings)
+                                                 layer=res.get_embedding_layer(res.model))
         return res
 
     def explain(self, batch):

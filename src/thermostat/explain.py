@@ -79,6 +79,14 @@ class ExplainerCaptum(Explainer):
         else:
             raise NotImplementedError(f'Unknown model {name_model}')
 
+    @staticmethod
+    def get_embedding_layer(model):
+        """ Used for LIG and LGXA in explainers/grad.py """
+        if type(model.base_model) == tlm.xlnet.XLNetModel:
+            return model.base_model.word_embedding
+        else:
+            return model.base_model.embeddings
+
     def validate_config(self, config: Dict) -> bool:
         raise NotImplementedError
 
