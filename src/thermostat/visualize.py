@@ -20,6 +20,9 @@ class RGB:
     def __str__(self):
         return 'rgb({},{},{})'.format(self.red, self.green, self.blue)
 
+    def hex(self):
+        return '#%02x%02x%02x' % (int(self.red), int(self.green), int(self.blue))
+
 
 class Sequence:
     def __init__(self, words, scores):
@@ -97,6 +100,21 @@ def append_heatmap(tokens, scores, latex, gamma, caption, pad_token, formatting=
     return latex
 
 
+def zero_special_tokens(attributions, input_ids, tokenizer):
+    atts_special_tokens_zero = []
+    for att, inp in zip(attributions, input_ids):
+        if inp in tokenizer.all_special_ids:
+            atts_special_tokens_zero.append(0.0)
+        else:
+            atts_special_tokens_zero.append(att)
+    return atts_special_tokens_zero
+
+
+def normalize_attributions(attributions):
+    max_abs_score = max(max(attributions), abs(min(attributions)))
+    return [(score / max_abs_score) for score in attributions]
+
+
 def run_visualize(config: Dict, dataset=None):
     tokenizer = AutoTokenizer.from_pretrained(config['model']['name'])
     visualization_config = config['visualization']
@@ -121,18 +139,12 @@ def run_visualize(config: Dict, dataset=None):
         instance = dataset[idx_instance]
         tokens = [tokenizer.decode(token_ids=token_ids) for token_ids in instance['input_ids']]
         atts = detach_to_list(instance['attributions'])
-        if 'special_tokens_attribution' not in visualization_config:
-            atts_special_tokens_zero = []
-            for att, inp in zip(atts, instance['input_ids']):
-                if inp in tokenizer.all_special_ids:
-                    atts_special_tokens_zero.append(0.0)
-                else:
-                    atts_special_tokens_zero.append(att)
-            atts = atts_special_tokens_zero
 
+        if 'special_tokens_attribution' not in visualization_config:
+            atts = zero_special_tokens(atts, instance['input_ids'], tokenizer)
         if visualization_config['normalize']:
-            max_abs_score = max(max(atts), abs(min(atts)))
-            atts = [(score / max_abs_score) for score in atts]
+            atts = normalize_attributions(atts)
+
         sequence = Sequence(words=tokens, scores=atts)
         words_rgb = sequence.words_rgb(token_pad=tokenizer.pad_token,
                                        position_pad=tokenizer.padding_side,

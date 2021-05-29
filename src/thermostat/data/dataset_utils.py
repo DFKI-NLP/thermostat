@@ -3,7 +3,7 @@ from datasets import Dataset
 from transformers import AutoTokenizer
 from typing import List
 
-from thermostat.visualize import run_visualize
+from thermostat.visualize import Sequence, normalize_attributions, run_visualize, zero_special_tokens
 
 
 def get_coordinate(thermostat_dataset: Dataset, coordinate: str) -> str:
@@ -19,11 +19,26 @@ def get_coordinate(thermostat_dataset: Dataset, coordinate: str) -> str:
     return coord_value
 
 
-def get_tokens(thermostat_dataset: Dataset) -> List:
-    """ Decode input ids from a Thermostat dataset and return tokens """
+def get_heatmap(thermostat_dataset: Dataset) -> List:
+    """ Generate a list of tuples in the form of <token,color> for each data point of a Thermostat dataset """
     model_id = get_coordinate(thermostat_dataset, coordinate='Model')
     tokenizer = AutoTokenizer.from_pretrained(model_id)
-    return [tokenizer.decode(token_ids=token_ids) for token_ids in thermostat_dataset['input_ids']]
+
+    heatmap = []
+    for instance in thermostat_dataset:
+        atts = zero_special_tokens(instance['attributions'], instance['input_ids'], tokenizer)
+        atts = normalize_attributions(atts)
+        tokens = [tokenizer.decode(token_ids=token_ids) for token_ids in instance['input_ids']]
+
+        sequence = Sequence(words=tokens, scores=atts)
+        words_rgbs = sequence.words_rgb(token_pad=tokenizer.pad_token,
+                                        position_pad=tokenizer.padding_side,
+                                        gamma=2.0)
+        instance_heatmap = []
+        for word, rgb in words_rgbs:
+            instance_heatmap.append((word, rgb.hex()))
+        heatmap.append(instance_heatmap)
+    return heatmap
 
 
 # TODO: Wrappable function

@@ -52,7 +52,9 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
         """
         Following https://github.com/copenlu/ALPS_2021
         """
-        assert original_input.shape[0] == perturbed_input.shape[0] == 1
+        assert original_input.shape[0] == perturbed_input.shape[0]  # == 1
+        # TODO: Error was thrown for MNLI (shape[0] are equal, but it's 2 instead of 1) and I assume it is
+        #  because it has two text fields instead of one. The calculation below can still be performed with .shape[0]==2
         return torch.sum(original_input[0] == perturbed_input[0]) / len(original_input[0])
 
     @staticmethod

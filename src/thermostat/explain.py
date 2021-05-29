@@ -4,7 +4,7 @@ from ignite.handlers import ModelCheckpoint
 from transformers import AutoModelForSequenceClassification
 from typing import Dict, Callable
 
-from thermostat.utils import read_path, Configurable
+from thermostat.utils import Configurable
 
 
 class Explainer(Configurable):
