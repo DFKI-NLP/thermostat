@@ -5,15 +5,18 @@
         "name": "multi_nli",
         "text_field": ["premise", "hypothesis"],
         "split": "validation_matched",
-        "columns": ['input_ids', 'attention_mask', 'token_type_ids', 'labels'],
+        "columns": ['input_ids', 'special_tokens_mask', 'attention_mask', 'labels'],
         "batch_size": 1,
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
     "explainer": {
-        "name": "LayerGradientXActivation",
+        "name": "LayerIntegratedGradients",
+        "internal_batch_size": 1,
+        "n_samples": 5,
+        "early_stopping": -1,
     },
     "model": {
-        "name": "textattack/xlnet-base-cased-MNLI",
+        "name": "textattack/roberta-base-MNLI",
         "mode_load": "hf",
         "path_model": null,
         "tokenization": {
