@@ -56,11 +56,11 @@ px = Priority (p1 is next)
 
 Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs`  
 --- | --- | --- | --- | --- | --- | ---
-ALBERT (`albert`) | [`textattack/albert-base-v2-imdb`](https://huggingface.co/textattack/albert-base-v2-imdb) | ✅ | | (✅) | | 🔄x2/5
+ALBERT (`albert`) | [`textattack/albert-base-v2-imdb`](https://huggingface.co/textattack/albert-base-v2-imdb) | ✅ | | (✅) | | 🔄x5
 BERT (`bert`) | [`textattack/bert-base-uncased-imdb`](https://huggingface.co/textattack/bert-base-uncased-imdb) | ✅ | ✅ | | 🔄
-ELECTRA (`electra`) | [`monologg/electra-small-finetuned-imdb`](https://huggingface.co/monologg/electra-small-finetuned-imdb) | p7 | | | (✅)
-RoBERTa (`roberta`) | [`textattack/roberta-base-imdb`](https://huggingface.co/textattack/roberta-base-imdb) | | p9 | | 🔄 | 🔄x5
-XLNet (`xlnet`) | [`textattack/xlnet-base-cased-imdb`](https://huggingface.co/textattack/xlnet-base-cased-imdb) | | p6 | ✅
+ELECTRA (`electra`) | [`monologg/electra-small-finetuned-imdb`](https://huggingface.co/monologg/electra-small-finetuned-imdb) | (✅) | | | (✅)
+RoBERTa (`roberta`) | [`textattack/roberta-base-imdb`](https://huggingface.co/textattack/roberta-base-imdb) | | p4 | | 🔄 | 🔄x5
+XLNet (`xlnet`) | [`textattack/xlnet-base-cased-imdb`](https://huggingface.co/textattack/xlnet-base-cased-imdb) | | (✅) | ✅ | | p1
 DistilBERT (`distilbert`) | [`textattack/distilbert-base-uncased-imdb`](https://huggingface.co/textattack/distilbert-base-uncased-imdb) |
 
 
@@ -70,13 +70,15 @@ DistilBERT (`distilbert`) | [`textattack/distilbert-base-uncased-imdb`](https://
 
 Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs`
 --- | --- | --- | --- | --- | --- | ---
-ALBERT (`albert`) | [`prajjwal1/albert-base-v2-mnli`](https://huggingface.co/prajjwal1/albert-base-v2-mnli) | | p8 | | (✅)
-BERT (`bert`) | [`textattack/bert-base-uncased-MNLI`](https://huggingface.co/textattack/bert-base-uncased-MNLI) | | | 🔄 | | 🔄
-ELECTRA (`electra`) | [`howey/electra-base-mnli`](https://huggingface.co/howey/electra-base-mnli) | | (✅) | | | 🔄
-RoBERTa (`roberta`) | [`textattack/roberta-base-MNLI`](https://huggingface.co/textattack/roberta-base-MNLI) | (✅) | (✅) | 🔄
-XLNet (`xlnet`) | [`textattack/xlnet-base-cased-MNLI`](https://huggingface.co/textattack/xlnet-base-cased-MNLI) | (✅) | | 🔄 | 🔄
+ALBERT (`albert`) | [`prajjwal1/albert-base-v2-mnli`](https://huggingface.co/prajjwal1/albert-base-v2-mnli) | p5 | p2 | | (✅)
+BERT (`bert`) | [`textattack/bert-base-uncased-MNLI`](https://huggingface.co/textattack/bert-base-uncased-MNLI) | | | (✅) | p6 | 🔄
+ELECTRA (`electra`) | [`howey/electra-base-mnli`](https://huggingface.co/howey/electra-base-mnli) | | (✅) | p3 | | 🔄
+RoBERTa (`roberta`) | [`textattack/roberta-base-MNLI`](https://huggingface.co/textattack/roberta-base-MNLI) | (✅) | (✅) | (✅)
+XLNet (`xlnet`) | [`textattack/xlnet-base-cased-MNLI`](https://huggingface.co/textattack/xlnet-base-cased-MNLI) | (✅) | | (✅) | (✅)
 DistilBERT (`distilbert`) | [`textattack/distilbert-base-uncased-MNLI`](https://huggingface.co/textattack/distilbert-base-uncased-MNLI)
 
+
+## Helper functions
 
 ### Visualizing attributions as a heatmap
 ```python
@@ -92,7 +94,15 @@ Recommendation: Using the `split` parameter of the `load_dataset` function.
 
 
 ### Helper functions
-Importable via `from thermostat import x`:
+
+```python
+from datasets import load_dataset
+from thermostat import to_html
+
+lgxa = load_dataset("thermostat", "imdb-bert-lgxa", split="test[:1%]")
+to_html(lgxa, "imdb-bert-lgxa_heatmaps.html")
+```
+
 * `get_coordinate(thermostat_dataset: Dataset, coordinate: str) -> str`  
   takes a Thermostat dataset and a coordinate string (`'Model'`, `'Dataset'` or `'Explainer'`, pay attention to capitalization!) and returns the requested value of the coordinate as string, e.g. `LayerIntegratedGradients` for `Explainer`
 * `get_heatmap(thermostat_dataset: Dataset) -> List`  

@@ -160,6 +160,7 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
         self.model.to(self.device)
 
     def get_baseline(self, batch):
+        assert 'special_tokens_mask' in batch
         if self.pad_token_id == 0:
             # all non-special token ids are replaced by 0, the pad id
             baseline = batch['input_ids'] * batch['special_tokens_mask']
