@@ -11,12 +11,10 @@ from thermostat.utils import detach_to_list
 class ExplainerLimeBase(ExplainerAutoModelInitializer):
     def __init__(self):
         super().__init__()
-        self.internal_batch_size = None
         self.n_samples = None
 
     def validate_config(self, config: Dict) -> bool:
         super().validate_config(config)
-        assert 'internal_batch_size' in config['explainer'], 'Define an internal batch size for the attribute method.'
         assert 'n_samples' in config['explainer'], 'Set number of samples for attribution function.'
         assert 'mask_prob' in config['explainer'], 'Set probability of masking a token in perturbation function.'
         assert 0 <= config['explainer']['mask_prob'] <= 1, 'Mask probability must be between 0 and 1.'
@@ -25,7 +23,6 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
     def from_config(cls, config):
         res = super().from_config(config)
         res.validate_config(config)
-        res.internal_batch_size = config['explainer']['internal_batch_size']
         res.n_samples = config['explainer']['n_samples']
         res.mask_prob = config['explainer']['mask_prob']
         res.interpretable_model = SkLearnLinearModel("linear_model.Ridge")
@@ -52,9 +49,7 @@ class ExplainerLimeBase(ExplainerAutoModelInitializer):
         """
         Following https://github.com/copenlu/ALPS_2021
         """
-        assert original_input.shape[0] == perturbed_input.shape[0]  # == 1
-        # TODO: Error was thrown for MNLI (shape[0] are equal, but it's 2 instead of 1) and I assume it is
-        #  because it has two text fields instead of one. The calculation below can still be performed with .shape[0]==2
+        assert original_input.shape[0] == perturbed_input.shape[0] == 1, 'Batch size for LIME needs to be 1'
         return torch.sum(original_input[0] == perturbed_input[0]) / len(original_input[0])
 
     @staticmethod

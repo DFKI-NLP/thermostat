@@ -128,10 +128,11 @@ def run_visualize(config: Dict, dataset=None):
 
     file_out = open(read_path(config['path_html']), 'w+')
 
+    tokenizer_str = str(type(tokenizer)).split('.')[-1].strip("'>")
     for idx_instance in tqdm(range(len(dataset))):
         html = f"<html><h3>"
         html += f"<h2>Instance: {idx_instance} | Dataset: {str_dataset_name} |" \
-                f" Model: {config['model']['name']} | Tokenizer: {str(tokenizer)}"
+                f" Model: {config['model']['name']} | Tokenizer: {tokenizer_str}"
         html += '</h3><div style=\"border:3px solid #000;\">'
 
         html += "<div>"
@@ -155,7 +156,11 @@ def run_visualize(config: Dict, dataset=None):
             special_tokens=tokenizer.all_special_tokens)
         summary['Non-special tokens'] = number_of_non_special_tokens
 
-        label_names = dataset['label_names'][0] if 'label_names' in dataset else dataset.info.features['label'].names
+        dataset_config = dataset['dataset'][0]
+        if 'label_names' in dataset_config:
+            label_names = dataset_config['label_names']
+        else:
+            label_names = dataset.info.features['label'].names
         if 'labels' in instance:
             label = detach_to_list(instance['labels'])
             summary['True Label Index'] = str(label)

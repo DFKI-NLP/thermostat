@@ -9,7 +9,7 @@ from thermostat.visualize import run_visualize
 
 # Argument parser
 parser = argparse.ArgumentParser()
-parser.add_argument('-c', help='Config file', default='configs/imdb/xlnet/LIME.jsonnet')
+parser.add_argument('-c', help='Config file', default='configs/qqp/bert/lgxa.jsonnet')
 parser.add_argument('-home', help='Home directory', default=None)
 args = parser.parse_args()
 config_file = args.c

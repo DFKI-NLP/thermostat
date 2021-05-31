@@ -57,11 +57,10 @@ px = Priority (p1 is next)
 Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs`  
 --- | --- | --- | --- | --- | --- | ---
 ALBERT (`albert`) | [`textattack/albert-base-v2-imdb`](https://huggingface.co/textattack/albert-base-v2-imdb) | ✅ | | (✅) | | 🔄x5
-BERT (`bert`) | [`textattack/bert-base-uncased-imdb`](https://huggingface.co/textattack/bert-base-uncased-imdb) | ✅ | ✅ | | 🔄
+BERT (`bert`) | [`textattack/bert-base-uncased-imdb`](https://huggingface.co/textattack/bert-base-uncased-imdb) | ✅ | ✅ | | (✅)
 ELECTRA (`electra`) | [`monologg/electra-small-finetuned-imdb`](https://huggingface.co/monologg/electra-small-finetuned-imdb) | (✅) | | | (✅)
 RoBERTa (`roberta`) | [`textattack/roberta-base-imdb`](https://huggingface.co/textattack/roberta-base-imdb) | | p4 | | 🔄 | 🔄x5
 XLNet (`xlnet`) | [`textattack/xlnet-base-cased-imdb`](https://huggingface.co/textattack/xlnet-base-cased-imdb) | | (✅) | ✅ | | p1
-DistilBERT (`distilbert`) | [`textattack/distilbert-base-uncased-imdb`](https://huggingface.co/textattack/distilbert-base-uncased-imdb) |
 
 
 ### MNLI
@@ -75,7 +74,6 @@ BERT (`bert`) | [`textattack/bert-base-uncased-MNLI`](https://huggingface.co/tex
 ELECTRA (`electra`) | [`howey/electra-base-mnli`](https://huggingface.co/howey/electra-base-mnli) | | (✅) | p3 | | 🔄
 RoBERTa (`roberta`) | [`textattack/roberta-base-MNLI`](https://huggingface.co/textattack/roberta-base-MNLI) | (✅) | (✅) | (✅)
 XLNet (`xlnet`) | [`textattack/xlnet-base-cased-MNLI`](https://huggingface.co/textattack/xlnet-base-cased-MNLI) | (✅) | | (✅) | (✅)
-DistilBERT (`distilbert`) | [`textattack/distilbert-base-uncased-MNLI`](https://huggingface.co/textattack/distilbert-base-uncased-MNLI)
 
 
 ## Helper functions

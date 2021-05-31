@@ -2,20 +2,17 @@
     "path": "$HOME/experiments/thermostat",
     "device": "cuda",
     "dataset": {
-        "name": "multi_nli",
-        "text_field": ["premise", "hypothesis"],
-        "split": "validation_matched",
-        "columns": ['input_ids', 'attention_mask', 'token_type_ids', 'special_tokens_mask', 'labels'],
-        "batch_size": 2,
+        "name": "ag_news",
+        "split": "test",
+        "columns": ['input_ids', 'attention_mask', 'token_type_ids', 'labels'],
+        "batch_size": 1,
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
     "explainer": {
-        "name": "Occlusion",
-        "internal_batch_size": 1,
-        "sliding_window_shapes": [3],
+        "name": "LayerGradientXActivation",
     },
     "model": {
-        "name": "prajjwal1/albert-base-v2-mnli",
+        "name": "textattack/bert-base-uncased-ag-news",
         "mode_load": "hf",
         "path_model": null,
         "tokenization": {
@@ -27,7 +24,7 @@
         }
     },
     "visualization": {
-        "columns": ["attributions", "predictions", "input_ids", "label"],
+        "columns": ["attributions", "predictions", "input_ids", "labels"],
         "gamma": 2.0,
         "normalize": true,
     }
