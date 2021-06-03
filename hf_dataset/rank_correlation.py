@@ -14,10 +14,10 @@ for explainer_1, explainer_2 in itertools.product(explainers, explainers):
         continue
     attributions_1 = np.array(load_dataset("thermostat", explainer_1, split="test[:100]")['attributions']).flatten()
     attributions_2 = np.array(load_dataset("thermostat", explainer_2, split="test[:100]")['attributions']).flatten()
-    coef_s, p_s = spearmanr(attributions_1 / np.linalg.norm(attributions_1),
-                            attributions_2 / np.linalg.norm(attributions_2))
+    attributions_1 = attributions_1 / np.linalg.norm(attributions_1)
+    attributions_2 = attributions_2 / np.linalg.norm(attributions_2)
+    coef_s, p_s = spearmanr(attributions_1, attributions_2)
     print(f"Spearman Correlation btw. {explainer_1} and {explainer_2}: {coef_s}, p value: {p_s}")
-    coef_k, p_k = kendalltau(attributions_1 / np.linalg.norm(attributions_1),
-                            attributions_2 / np.linalg.norm(attributions_2))
+    coef_k, p_k = kendalltau(attributions_1, attributions_2)
     print(f"Kendall Tau btw. {explainer_1} and {explainer_2}: {coef_k}, p value: {p_k}")
     seen.append((explainer_1, explainer_2))
