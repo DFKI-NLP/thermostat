@@ -11,7 +11,7 @@ Thermostat datasets always consist of three basic coordinates: Dataset, Model, E
 
 At the moment, Thermostat is only available via this repository (it will be published to Hugging Face soon).
 
-Clone this repo and then from the */hf_dataset* directory, you can use the Thermostat dataset like this:
+Clone this repo and then from the root directory, you can use the Thermostat dataset like this:
 
 ```python
 from datasets import load_dataset
@@ -48,7 +48,6 @@ LIME (`lime`) | [`.attr.LimeBase`](https://captum.ai/api/lime.html) | ✅
 ⚠️ = Issue  
 🔄 = Currently running on cluster (x n = number of jobs/screens)  
 📜 = Config exists  
-px = Priority (p1 is next)  
 
 ### IMDb
 
@@ -56,11 +55,11 @@ px = Priority (p1 is next)
 
 Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs`  
 --- | --- | --- | --- | --- | --- | ---
-ALBERT (`albert`) | [`textattack/albert-base-v2-imdb`](https://huggingface.co/textattack/albert-base-v2-imdb) | ✅ | | (✅) | | 🔄x5
-BERT (`bert`) | [`textattack/bert-base-uncased-imdb`](https://huggingface.co/textattack/bert-base-uncased-imdb) | ✅ | ✅ | | (✅)
-ELECTRA (`electra`) | [`monologg/electra-small-finetuned-imdb`](https://huggingface.co/monologg/electra-small-finetuned-imdb) | (✅) | | | (✅)
-RoBERTa (`roberta`) | [`textattack/roberta-base-imdb`](https://huggingface.co/textattack/roberta-base-imdb) | | p4 | | 🔄 | 🔄x5
-XLNet (`xlnet`) | [`textattack/xlnet-base-cased-imdb`](https://huggingface.co/textattack/xlnet-base-cased-imdb) | | (✅) | ✅ | | p1
+ALBERT (`albert`) | [`textattack/albert-base-v2-imdb`](https://huggingface.co/textattack/albert-base-v2-imdb) | ✅ | | ✅ | | 🔄x5
+BERT (`bert`) | [`textattack/bert-base-uncased-imdb`](https://huggingface.co/textattack/bert-base-uncased-imdb) | ✅ | ✅ | | ✅
+ELECTRA (`electra`) | [`monologg/electra-small-finetuned-imdb`](https://huggingface.co/monologg/electra-small-finetuned-imdb) | ✅ | | |
+RoBERTa (`roberta`) | [`textattack/roberta-base-imdb`](https://huggingface.co/textattack/roberta-base-imdb) | ✅ | | | ✅ | 🔄x5
+XLNet (`xlnet`) | [`textattack/xlnet-base-cased-imdb`](https://huggingface.co/textattack/xlnet-base-cased-imdb) | ✅ | ✅ | ✅ | |
 
 
 ### MNLI
@@ -69,11 +68,22 @@ XLNet (`xlnet`) | [`textattack/xlnet-base-cased-imdb`](https://huggingface.co/te
 
 Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs`
 --- | --- | --- | --- | --- | --- | ---
-ALBERT (`albert`) | [`prajjwal1/albert-base-v2-mnli`](https://huggingface.co/prajjwal1/albert-base-v2-mnli) | p5 | p2 | | (✅)
-BERT (`bert`) | [`textattack/bert-base-uncased-MNLI`](https://huggingface.co/textattack/bert-base-uncased-MNLI) | | | (✅) | p6 | 🔄
-ELECTRA (`electra`) | [`howey/electra-base-mnli`](https://huggingface.co/howey/electra-base-mnli) | | (✅) | p3 | | 🔄
-RoBERTa (`roberta`) | [`textattack/roberta-base-MNLI`](https://huggingface.co/textattack/roberta-base-MNLI) | (✅) | (✅) | (✅)
-XLNet (`xlnet`) | [`textattack/xlnet-base-cased-MNLI`](https://huggingface.co/textattack/xlnet-base-cased-MNLI) | (✅) | | (✅) | (✅)
+ALBERT (`albert`) | [`prajjwal1/albert-base-v2-mnli`](https://huggingface.co/prajjwal1/albert-base-v2-mnli) | ✅ | | | ✅
+BERT (`bert`) | [`textattack/bert-base-uncased-MNLI`](https://huggingface.co/textattack/bert-base-uncased-MNLI) | ✅ | | ✅ | | 🔄
+ELECTRA (`electra`) | [`howey/electra-base-mnli`](https://huggingface.co/howey/electra-base-mnli) | ✅ | ✅ | | | 🔄
+RoBERTa (`roberta`) | [`textattack/roberta-base-MNLI`](https://huggingface.co/textattack/roberta-base-MNLI) | ✅ | ✅ | ✅
+XLNet (`xlnet`) | [`textattack/xlnet-base-cased-MNLI`](https://huggingface.co/textattack/xlnet-base-cased-MNLI) | ✅ | | ✅ | ✅
+
+
+### AG News
+
+[`ag_news`](https://huggingface.co/datasets/viewer/?dataset=ag_news) is a news topic classification dataset. The `test` subset contains 7600 examples.
+
+Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs`
+--- | --- | --- | --- | --- | --- | ---
+ALBERT (`albert`) | [`textattack/albert-base-v2-ag-news`](https://huggingface.co/textattack/albert-base-v2-ag-news) | ✅
+BERT (`bert`) | [`textattack/bert-base-uncased-ag-news`](https://huggingface.co/textattack/bert-base-uncased-ag-news) | ✅
+RoBERTa (`roberta`) | [`textattack/roberta-base-ag-news`](https://huggingface.co/textattack/roberta-base-ag-news) | ✅
 
 
 ## Helper functions
