@@ -9,3 +9,4 @@ sentencepiece
 torch
 tqdm~=4.49.0
 transformers~=4.5.1
+scipy
