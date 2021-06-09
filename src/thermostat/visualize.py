@@ -130,14 +130,15 @@ def run_visualize(config: Dict, dataset=None):
 
     tokenizer_str = str(type(tokenizer)).split('.')[-1].strip("'>")
     for idx_instance in tqdm(range(len(dataset))):
+        instance = dataset[idx_instance]
+
         html = f"<html><h3>"
-        html += f"<h2>Instance: {idx_instance} | Dataset: {str_dataset_name} |" \
+        html += f"<h2>Instance: {instance['idx']} | Dataset: {str_dataset_name} |" \
                 f" Model: {config['model']['name']} | Tokenizer: {tokenizer_str}"
         html += '</h3><div style=\"border:3px solid #000;\">'
 
         html += "<div>"
 
-        instance = dataset[idx_instance]
         tokens = [tokenizer.decode(token_ids=token_ids) for token_ids in instance['input_ids']]
         atts = detach_to_list(instance['attributions'])
 
@@ -156,13 +157,15 @@ def run_visualize(config: Dict, dataset=None):
             special_tokens=tokenizer.all_special_tokens)
         summary['Non-special tokens'] = number_of_non_special_tokens
 
-        dataset_config = dataset['dataset'][0]
-        if 'label_names' in dataset_config:
-            label_names = dataset_config['label_names']
+        if 'dataset' in dataset:
+            label_names = dataset['dataset'][0]['label_names']
         else:
             label_names = dataset.info.features['label'].names
-        if 'labels' in instance:
-            label = detach_to_list(instance['labels'])
+        if 'labels' in instance or 'label' in instance:
+            if 'labels' in instance:
+                label = detach_to_list(instance['labels'])
+            else:
+                label = instance['label']
             summary['True Label Index'] = str(label)
             summary['True Label'] = str(label_names[label])
         if 'predictions' in instance:
