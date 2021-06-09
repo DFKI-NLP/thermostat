@@ -220,6 +220,13 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             **_IMDB_ELECTRA_KWARGS,
         ),
         ThermostatConfig(
+            name="imdb-electra-occ",
+            description="IMDb dataset, ELECTRA model, Occlusion explanations",
+            explainer="Occlusion",
+            data_url="https://drive.google.com/file/d/1rnQ0cj6csGW_UvJiD7gCrtBxK_YPdUtR/",
+            **_IMDB_ELECTRA_KWARGS,
+        ),
+        ThermostatConfig(
             name="imdb-roberta-lgxa",
             description="IMDb dataset, RoBERTa model, Layer Gradient x Activation explanations",
             explainer="LayerGradientXActivation",

@@ -81,10 +81,14 @@ def read_config(config_path, home_dir=None) -> Dict:
     config["dataset"]["root_dir"] = read_path(config["dataset"]["root_dir"], home=home_dir)
     config["model"]["path_model"] = read_path(config["model"]["path_model"], home=home_dir)
 
+    if 'subset' in config['dataset']:
+        dataset_name = f'{config["dataset"]["name"]}-{config["dataset"]["subset"]}'
+    else:
+        dataset_name = config['dataset']['name']
+
     # Set experiment path
     experiment_path = f'{config["path"]}' \
-        f'/{config["dataset"]["subset"] if "subset" in config["dataset"] else config["dataset"]["name"]}' \
-        f'/{"/".join(config_path.split("/")[2:]).split(".jsonnet")[0]}'
+        f'/{dataset_name}/{"/".join(config_path.split("/")[2:]).split(".jsonnet")[0]}'
     if not os.path.exists(experiment_path):
         raise NotADirectoryError(f'{experiment_path}\nThis experiment path does not exist yet.')
 
