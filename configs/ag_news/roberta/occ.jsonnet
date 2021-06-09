@@ -4,15 +4,17 @@
     "dataset": {
         "name": "ag_news",
         "split": "test",
-        "columns": ['input_ids', 'attention_mask', 'token_type_ids', 'special_tokens_mask', 'labels'],
+        "columns": ['input_ids', 'attention_mask', 'special_tokens_mask', 'labels'],
         "batch_size": 1,
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
     "explainer": {
-        "name": "LayerGradientXActivation",
+        "name": "Occlusion",
+        "internal_batch_size": 1,
+        "sliding_window_shapes": [3],
     },
     "model": {
-        "name": "textattack/bert-base-uncased-ag-news",
+        "name": "textattack/roberta-base-ag-news",
         "mode_load": "hf",
         "path_model": null,
         "tokenization": {

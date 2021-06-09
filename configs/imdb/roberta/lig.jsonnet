@@ -5,14 +5,13 @@
         "name": "imdb",
         "split": "test",
         "columns": ['input_ids', 'special_tokens_mask', 'attention_mask', 'labels'],
-        "batch_size": 2,
+        "batch_size": 1,
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
     "explainer": {
         "name": "LayerIntegratedGradients",
-        "internal_batch_size": 2,
+        "internal_batch_size": 1,
         "n_samples": 5,
-        "early_stopping": -1,
     },
     "model": {
         "name": "textattack/roberta-base-imdb",

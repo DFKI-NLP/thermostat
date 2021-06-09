@@ -2,17 +2,21 @@
     "path": "$HOME/experiments/thermostat",
     "device": "cuda",
     "dataset": {
-        "name": "ag_news",
-        "split": "test",
-        "columns": ['input_ids', 'attention_mask', 'token_type_ids', 'special_tokens_mask', 'labels'],
+        "name": "multi_nli",
+        "text_field": ["premise", "hypothesis"],
+        "split": "validation_matched",
+        "columns": ['input_ids', 'attention_mask', 'special_tokens_mask', 'token_type_ids', 'labels'],
         "batch_size": 1,
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
     "explainer": {
-        "name": "LayerGradientXActivation",
+        "name": "LimeBase",
+        "internal_batch_size": 1,
+        "n_samples": 25,
+        "mask_prob": 0.3,
     },
     "model": {
-        "name": "textattack/bert-base-uncased-ag-news",
+        "name": "textattack/bert-base-uncased-MNLI",
         "mode_load": "hf",
         "path_model": null,
         "tokenization": {
