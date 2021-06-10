@@ -12,7 +12,7 @@
         "name": "LayerGradientXActivation",
     },
     "model": {
-        "name": "textattack/bert-base-uncased-ag-news",
+        "name": "textattack/albert-base-v2-ag-news",
         "mode_load": "hf",
         "path_model": null,
         "tokenization": {

@@ -9,7 +9,9 @@
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
     "explainer": {
-        "name": "LayerGradientXActivation",
+        "name": "LayerIntegratedGradients",
+        "internal_batch_size": 1,
+        "n_samples": 5,
     },
     "model": {
         "name": "textattack/bert-base-uncased-ag-news",

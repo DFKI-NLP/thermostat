@@ -2,9 +2,12 @@
     "path": "$HOME/experiments/thermostat",
     "device": "cuda",
     "dataset": {
-        "name": "ag_news",
+        "name": "glue",
+        "subset": "qqp",
         "split": "test",
-        "columns": ['input_ids', 'attention_mask', 'token_type_ids', 'special_tokens_mask', 'labels'],
+        "end": 5000,
+        "text_field": ["question1", "question2"],
+        "columns": ['input_ids', 'attention_mask', 'token_type_ids', 'labels'],
         "batch_size": 1,
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
@@ -12,7 +15,7 @@
         "name": "LayerGradientXActivation",
     },
     "model": {
-        "name": "textattack/bert-base-uncased-ag-news",
+        "name": "textattack/bert-base-uncased-QQP",
         "mode_load": "hf",
         "path_model": null,
         "tokenization": {
@@ -24,7 +27,7 @@
         }
     },
     "visualization": {
-        "columns": ["attributions", "predictions", "input_ids", "labels"],
+        "columns": ["attributions", "predictions", "input_ids", "label"],
         "gamma": 2.0,
         "normalize": true,
     }
