@@ -185,6 +185,13 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             **_IMDB_ALBERT_KWARGS,
         ),
         ThermostatConfig(
+            name="imdb-albert-lig",
+            description="IMDb dataset, ALBERT model, Layer Integrated Gradients explanations",
+            explainer="LayerIntegratedGradients",
+            data_url="https://drive.google.com/file/d/1KbxK1h6n6V-LtGowfo0KvgxW3Fd0kbgp/view",
+            **_IMDB_ALBERT_KWARGS,
+        ),
+        ThermostatConfig(
             name="imdb-albert-lime",
             description="IMDb dataset, ALBERT model, LIME explanations",
             explainer="LimeBase",
@@ -206,6 +213,13 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             **_IMDB_BERT_KWARGS,
         ),
         ThermostatConfig(
+            name="imdb-bert-lime",
+            description="IMDb dataset, BERT model, LIME explanations",
+            explainer="LimeBase",
+            data_url="https://drive.google.com/file/d/1CDkMP134G3ff0M-eYxk5UMNt93Qk_2vW/",
+            **_IMDB_BERT_KWARGS,
+        ),
+        ThermostatConfig(
             name="imdb-bert-occ",
             description="IMDb dataset, BERT model, Occlusion explanations",
             explainer="Occlusion",
@@ -220,6 +234,20 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             **_IMDB_ELECTRA_KWARGS,
         ),
         ThermostatConfig(
+            name="imdb-electra-lig",
+            description="IMDb dataset, ELECTRA model, Layer Integrated Gradients explanations",
+            explainer="LayerIntegratedGradients",
+            data_url="https://drive.google.com/file/d/1aixqSw0SWIvC3CakmiXUninaVNp1uMeN/",
+            **_IMDB_ELECTRA_KWARGS,
+        ),
+        ThermostatConfig(
+            name="imdb-electra-lime",
+            description="IMDb dataset, ELECTRA model, LIME explanations",
+            explainer="LimeBase",
+            data_url="https://drive.google.com/file/d/187WrG8jESn715rwRFtdYw0vKUXGTkPR_/",
+            **_IMDB_ELECTRA_KWARGS,
+        ),
+        ThermostatConfig(
             name="imdb-electra-occ",
             description="IMDb dataset, ELECTRA model, Occlusion explanations",
             explainer="Occlusion",
@@ -231,6 +259,20 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             description="IMDb dataset, RoBERTa model, Layer Gradient x Activation explanations",
             explainer="LayerGradientXActivation",
             data_url="https://drive.google.com/file/d/1tBtkNfywAM6yDbxuE_vd6Zh4C0pgCGJi/",
+            **_IMDB_ROBERTA_KWARGS,
+        ),
+        ThermostatConfig(
+            name="imdb-roberta-lig",
+            description="IMDb dataset, RoBERTa model, Layer Integrated Gradients explanations",
+            explainer="LayerIntegratedGradients",
+            data_url="https://drive.google.com/file/d/1n0RVCaewoi_krWIDElLhXE7VRrL57Iuy/",
+            **_IMDB_ROBERTA_KWARGS,
+        ),
+        ThermostatConfig(
+            name="imdb-roberta-lime",
+            description="IMDb dataset, RoBERTa model, LIME explanations",
+            explainer="LimeBase",
+            data_url="https://drive.google.com/file/d/1iKErSwjJpv1CGzaq7mwXeBa6mmQKq9kk/",
             **_IMDB_ROBERTA_KWARGS,
         ),
         ThermostatConfig(
@@ -269,6 +311,20 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             **_MNLI_ALBERT_KWARGS,
         ),
         ThermostatConfig(
+            name="mnli-albert-lig",
+            description="MNLI dataset, ALBERT model, Layer Integrated Gradients explanations",
+            explainer="LayerIntegratedGradients",
+            data_url="https://drive.google.com/file/d/1fLLRQv3eQ7ueMLIA-4JO3S3H6zxDWDPV/",
+            **_MNLI_ALBERT_KWARGS,
+        ),
+        ThermostatConfig(
+            name="mnli-albert-lime",
+            description="MNLI dataset, ALBERT model, LIME explanations",
+            explainer="LimeBase",
+            data_url="https://drive.google.com/file/d/1tp_4lfy_P4-bc96xlVbKSxNpuaveVIDY/",
+            **_MNLI_ALBERT_KWARGS,
+        ),
+        ThermostatConfig(
             name="mnli-albert-occ",
             description="MNLI dataset, ALBERT model, Occlusion explanations",
             explainer="Occlusion",
@@ -280,6 +336,13 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             description="MNLI dataset, BERT model, Layer Gradient x Activation explanations",
             explainer="LayerGradientXActivation",
             data_url="https://drive.google.com/file/d/1cacYK4UBtu3JefTg3Nk8uvonYGdsCefm/",
+            **_MNLI_BERT_KWARGS,
+        ),
+        ThermostatConfig(
+            name="mnli-bert-lig",
+            description="MNLI dataset, BERT model, Layer Integrated Gradients explanations",
+            explainer="LayerIntegratedGradients",
+            data_url="https://drive.google.com/file/d/1a_uKz5kxFsHQWAY7POnbCYj1n-rRqTtr/",
             **_MNLI_BERT_KWARGS,
         ),
         ThermostatConfig(
@@ -301,6 +364,13 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             description="MNLI dataset, ELECTRA model, Layer Integrated Gradients explanations",
             explainer="LayerIntegratedGradients",
             data_url="https://drive.google.com/file/d/1DLw-4KYkDmKpHFseUjeDEbd64qv3odB6/",
+            **_MNLI_ELECTRA_KWARGS,
+        ),
+        ThermostatConfig(
+            name="mnli-electra-lime",
+            description="MNLI dataset, ELECTRA model, LIME explanations",
+            explainer="LimeBase",
+            data_url="https://drive.google.com/file/d/1ooFw0kM-OFRBl0LCLHQ0P-0V_mEZhVXz/view?usp=sharing",
             **_MNLI_ELECTRA_KWARGS,
         ),
         ThermostatConfig(
@@ -329,6 +399,13 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             description="MNLI dataset, XLNet model, Layer Gradient x Activation explanations",
             explainer="LayerGradientXActivation",
             data_url="https://drive.google.com/file/d/1T6nF_0II6jtXVjuOAYKVnQ4WTn6550sP/",
+            **_MNLI_XLNET_KWARGS,
+        ),
+        ThermostatConfig(
+            name="mnli-xlnet-lig",
+            description="MNLI dataset, XLNet model, Layer Integrated Gradients explanations",
+            explainer="LayerIntegratedGradients",
+            data_url="https://drive.google.com/file/d/13O6ht9Z4F3ao6buC4bjG0RZV2whYXEkD/",
             **_MNLI_XLNET_KWARGS,
         ),
         ThermostatConfig(
