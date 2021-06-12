@@ -192,7 +192,7 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             **_AGNEWS_ALBERT_KWARGS,
         ),
         ThermostatConfig(
-            name="ag_news-albert-lgxa",
+            name="ag_news-albert-lig",
             description="AG News dataset, ALBERT model, Layer Integrated Gradients explanations",
             explainer="LayerIntegratedGradients",
             data_url="https://drive.google.com/file/d/15P7dcvxv0kR0lZac5GrJzOsskzWV4R8y/",

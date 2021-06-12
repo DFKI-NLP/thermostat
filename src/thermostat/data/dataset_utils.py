@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datasets import Dataset
+from spacy import displacy
 from transformers import AutoTokenizer
 from typing import List
 
@@ -19,35 +20,140 @@ def get_coordinate(thermostat_dataset: Dataset, coordinate: str) -> str:
     return coord_value
 
 
-def get_heatmap(thermostat_dataset: Dataset) -> List:
-    """ Generate a list of tuples in the form of <token,color> for each data point of a Thermostat dataset """
-    model_id = get_coordinate(thermostat_dataset, coordinate='Model')
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
+class Thermopack:
+    def __init__(self, hf_dataset):
+        # Model
+        self.model_name = get_coordinate(hf_dataset, 'Model')
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
 
-    heatmap = []
-    for instance in thermostat_dataset:
-        atts = zero_special_tokens(instance['attributions'], instance['input_ids'], tokenizer)
-        atts = normalize_attributions(atts)
-        tokens = [tokenizer.decode(token_ids=token_ids) for token_ids in instance['input_ids']]
+        # Dataset
+        self.dataset_name = get_coordinate(hf_dataset, 'Dataset')
+        self.label_names = hf_dataset.info.features['label'].names
 
-        sequence = Sequence(words=tokens, scores=atts)
-        words_rgbs = sequence.words_rgb(token_pad=tokenizer.pad_token,
-                                        position_pad=tokenizer.padding_side,
-                                        gamma=2.0)
+        # Explainer
+        self.explainer_name = get_coordinate(hf_dataset, 'Explainer')
+
+        # Create Thermounits for every instance
+        self.data = []
+        for instance in hf_dataset:
+            # Decode labels and predictions
+            true_label_index = instance['label']
+            true_label = {'index': true_label_index,
+                          'name': self.label_names[true_label_index]}
+
+            predicted_label_index = instance['predictions'].index(max(instance['predictions']))
+            predicted_label = {'index': predicted_label_index,
+                               'name': self.label_names[predicted_label_index]}
+
+            self.data.append(Thermounit(
+                instance, true_label, predicted_label,
+                self.model_name, self.dataset_name, self.explainer_name, self.tokenizer))
+
+    def __getitem__(self, idx):
+        """ Indexing a Thermopack returns a Thermounit """
+        return self.data[idx]
+
+
+class Thermounit:
+    """ Processed single instance of a Thermopack (Thermostat dataset/configuration) """
+    def __init__(self, instance, true_label, predicted_label, model_name, dataset_name, explainer_name, tokenizer):
+        self.instance = instance
+        self.index = self.instance['idx']
+        self.true_label = true_label
+        self.predicted_label = predicted_label
+
+        self.model_name = model_name
+        self.dataset_name = dataset_name
+        self.explainer_name = explainer_name
+        self.tokenizer = tokenizer
+
+        self.tokens = [self.tokenizer.decode(token_ids=token_ids) for token_ids in self.instance['input_ids']]
+        self.heatmap = self.get_heatmap()
+
+    def get_heatmap(self, gamma=2.0, normalize=True) -> List:
+        """ Generate a list of tuples in the form of <token,color> for a single data point of a Thermostat dataset """
+
+        atts = zero_special_tokens(self.instance['attributions'],
+                                   self.instance['input_ids'],
+                                   self.tokenizer)
+        if normalize:
+            atts = normalize_attributions(atts)
+
+        sequence = Sequence(words=self.tokens, scores=atts)
+        words_rgbs = sequence.words_rgb(token_pad=self.tokenizer.pad_token,
+                                        position_pad=self.tokenizer.padding_side,
+                                        gamma=gamma)
         instance_heatmap = []
         for word, rgb in words_rgbs:
-            instance_heatmap.append((word, rgb.hex()))
-        heatmap.append(instance_heatmap)
-    return heatmap
+            instance_heatmap.append({'token': word,
+                                     'color': rgb.hex()})
 
+        return instance_heatmap
 
-# TODO: Wrappable function
-def _to_html(dataset, model_name, path_out, gamma, normalize):
-    raise NotImplementedError
+    def render(self):
+        """ """  # TODO
+        ents = []
+        ii = 0
+        for itok in range(len(self.tokens)):
+            ff = ii + len(self.tokens[itok])
+
+            att = self.instance['attributions'][itok]
+            if att < 0:
+                scaled_att = (-4 / min(self.instance['attributions'])) * att
+            elif att > 0:
+                scaled_att = (4 / max(self.instance['attributions'])) * att
+            else:
+                scaled_att = att
+
+            ent = {
+                'start': ii,
+                'end': ff,
+                'label': str(round(scaled_att)),
+            }
+            ents.append(ent)
+            ii = ff
+
+        to_render = {
+            'text': ''.join(self.tokens),
+            'ents': ents,
+        }
+
+        TPL_ENT = """
+        <mark class="entity" style="background: {bg}; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 2; 
+        border-radius: 0.35em; box-decoration-break: clone; -webkit-box-decoration-break: clone">
+            {text}
+            <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; text-transform: 
+            uppercase; vertical-align: middle; margin-left: 0.5rem">{label}</span>
+        </mark>
+        """
+
+        colors = {
+            '-4': '#b2182b',
+            '-3': '#d6604d',
+            '-2': '#f4a582',
+            '-1': '#fddbc7',
+            '0': '#f7f7f7',
+            '1': '#d1e5f0',
+            '2': '#92c5de',
+            '3': '#4393c3',
+            '4': '#2166ac',
+        }
+
+        html = displacy.render(
+            to_render,
+            style='ent',
+            manual=True,
+            jupyter=False,
+            options={'template': TPL_ENT,
+                     'colors': colors,
+                     }
+        )
+        return html
 
 
 def to_html(thermostat_dataset: Dataset, out_html: str, gamma=1.0):
-    """ Run the visualization script on a Thermostat dataset """
+    """ Run the visualization script on a Thermostat dataset
+        FIXME: soon to be deprecated. """
     # TODO: Pass filehandler and check if valid
 
     config = dict()
