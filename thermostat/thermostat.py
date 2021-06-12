@@ -234,10 +234,38 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             **_AGNEWS_BERT_KWARGS,
         ),
         ThermostatConfig(
+            name="ag_news-bert-occlusion",
+            description="AG News dataset, BERT model, Occlusion explanations",
+            explainer="Occlusion",
+            data_url="https://drive.google.com/file/d/1csyxLnCs9y0C60ChicBKVqpuuLF3DI4h/",
+            **_AGNEWS_BERT_KWARGS,
+        ),
+        ThermostatConfig(
             name="ag_news-roberta-lgxa",
             description="AG News dataset, RoBERTa model, Layer Gradient x Activation explanations",
             explainer="LayerGradientXActivation",
             data_url="https://drive.google.com/file/d/1w4pNDGEVdKYwEjbOkKPqMuV2pneK__64/",
+            **_AGNEWS_ROBERTA_KWARGS,
+        ),
+        ThermostatConfig(
+            name="ag_news-roberta-lig",
+            description="AG News dataset, RoBERTa model, Layer Integrated Gradients explanations",
+            explainer="LayerIntegratedGradients",
+            data_url="https://drive.google.com/file/d/1SmAjPkO3W0l3khGLGH1K-HH3M8Sp6AZ3/",
+            **_AGNEWS_ROBERTA_KWARGS,
+        ),
+        ThermostatConfig(
+            name="ag_news-roberta-lime",
+            description="AG News dataset, RoBERTa model, LIME explanations",
+            explainer="LimeBase",
+            data_url="https://drive.google.com/file/d/1b-m3mnxA6Hp8qSsmsaiab64RQcShdvfK/",
+            **_AGNEWS_ROBERTA_KWARGS,
+        ),
+        ThermostatConfig(
+            name="ag_news-roberta-occlusion",
+            description="AG News dataset, RoBERTa model, Occlusion explanations",
+            explainer="Occlusion",
+            data_url="https://drive.google.com/file/d/1rXbRP5krTBjtT_fKuT1v22n6U2FTl8jw/",
             **_AGNEWS_ROBERTA_KWARGS,
         ),
         ThermostatConfig(
@@ -259,6 +287,13 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             description="IMDb dataset, ALBERT model, LIME explanations",
             explainer="LimeBase",
             data_url="https://drive.google.com/file/d/1UF6xVcKkQ3BNFLzv96uR6NRxKLl_jjOR/",
+            **_IMDB_ALBERT_KWARGS,
+        ),
+        ThermostatConfig(
+            name="imdb-albert-occ",
+            description="IMDb dataset, ALBERT model, Occlusion explanations",
+            explainer="Occlusion",
+            data_url="https://drive.google.com/file/d/1Ex0jrLkfxhgatuXoi3c-eVEFDHU_hyHw/",
             **_IMDB_ALBERT_KWARGS,
         ),
         ThermostatConfig(
@@ -346,6 +381,13 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             **_IMDB_ROBERTA_KWARGS,
         ),
         ThermostatConfig(
+            name="imdb-roberta-svs",
+            description="IMDb dataset, RoBERTa model, Shapley Value Sampling explanations",
+            explainer="ShapleyValueSampling",
+            data_url="https://drive.google.com/file/d/11j2hOPLvGxrQImWvXpt3znQ5Sety6pjQ/",
+            **_IMDB_ROBERTA_KWARGS,
+        ),
+        ThermostatConfig(
             name="imdb-xlnet-lgxa",
             description="IMDb dataset, XLNet model, Layer Gradient x Activation explanations",
             explainer="LayerGradientXActivation",
@@ -356,7 +398,7 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             name="imdb-xlnet-lig",
             description="IMDb dataset, XLNet model, Layer Integrated Gradients explanations",
             explainer="LayerIntegratedGradients",
-            data_url="",  # TODO
+            data_url="https://drive.google.com/file/d/1ny_v53sYIdJR91UfD_7r-RUCsXyr10YF/",
             **_IMDB_XLNET_KWARGS,
         ),
         ThermostatConfig(
@@ -416,6 +458,13 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             **_MNLI_BERT_KWARGS,
         ),
         ThermostatConfig(
+            name="mnli-bert-occ",
+            description="MNLI dataset, BERT model, Occlusion explanations",
+            explainer="Occlusion",
+            data_url="https://drive.google.com/file/d/1Du9SigCuXO1-VVpZd_og87bXCOjfA_6U/",
+            **_MNLI_BERT_KWARGS,
+        ),
+        ThermostatConfig(
             name="mnli-electra-lgxa",
             description="MNLI dataset, ELECTRA model, Layer Gradient x Activation explanations",
             explainer="LayerGradientXActivation",
@@ -434,6 +483,13 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             description="MNLI dataset, ELECTRA model, LIME explanations",
             explainer="LimeBase",
             data_url="https://drive.google.com/file/d/1ooFw0kM-OFRBl0LCLHQ0P-0V_mEZhVXz/",
+            **_MNLI_ELECTRA_KWARGS,
+        ),
+        ThermostatConfig(
+            name="mnli-electra-occ",
+            description="MNLI dataset, ELECTRA model, Occlusion explanations",
+            explainer="Occlusion",
+            data_url="https://drive.google.com/file/d/1mBvrwq6Pj7AI7THIlfOIo-tWqdDtljnr/",
             **_MNLI_ELECTRA_KWARGS,
         ),
         ThermostatConfig(
@@ -535,6 +591,13 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             **_XNLI_BERT_KWARGS,
         ),
         ThermostatConfig(
+            name="xnli-bert-occ",
+            description="XNLI dataset, BERT model, Occlusion explanations",
+            explainer="Occlusion",
+            data_url="https://drive.google.com/file/d/19HI5sk1mDc9FhHn-kTFMwEiKRgLHTAkd/",
+            **_XNLI_BERT_KWARGS,
+        ),
+        ThermostatConfig(
             name="xnli-electra-lgxa",
             description="XNLI dataset, ELECTRA model, Layer Gradient x Activation explanations",
             explainer="LayerGradientXActivation",
@@ -556,6 +619,13 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             **_XNLI_ELECTRA_KWARGS,
         ),
         ThermostatConfig(
+            name="xnli-electra-occ",
+            description="XNLI dataset, ELECTRA model, Occlusion explanations",
+            explainer="Occlusion",
+            data_url="https://drive.google.com/file/d/14Ik8rF0MyEl3uS26efPpHiUY3KADtYnp/",
+            **_XNLI_ELECTRA_KWARGS,
+        ),
+        ThermostatConfig(
             name="xnli-roberta-lgxa",
             description="XNLI dataset, RoBERTa model, Layer Gradient x Activation explanations",
             explainer="LayerGradientXActivation",
@@ -574,6 +644,13 @@ class Thermostat(datasets.GeneratorBasedBuilder):
             description="XNLI dataset, RoBERTa model, LIME explanations",
             explainer="LimeBase",
             data_url="https://drive.google.com/file/d/1vKG6Ome3mjDmGMNPf-NJX8-QmMiv_cou/",
+            **_XNLI_ROBERTA_KWARGS,
+        ),
+        ThermostatConfig(
+            name="xnli-roberta-occ",
+            description="XNLI dataset, RoBERTa model, Occlusion explanations",
+            explainer="Occlusion",
+            data_url="https://drive.google.com/file/d/11wdoCDgAL-YPwaxahBFefiWIyN6dpFjI/",
             **_XNLI_ROBERTA_KWARGS,
         ),
         ThermostatConfig(
