@@ -16,6 +16,7 @@ class RGB:
         self.green = green
         self.blue = blue
         self.score = round(score, ndigits=3) if score is not None else score
+        self.hex = self.hex()
 
     def __str__(self):
         return 'rgb({},{},{})'.format(self.red, self.green, self.blue)
@@ -31,18 +32,22 @@ class Sequence:
         self.scores = scores
         self.size = len(words)
 
-    def words_rgb(self, gamma=1.0, token_pad=None, position_pad='right'):
+    def words_rgb(self, gamma=1.0, token_pad=None, position_pad='right', return_zip_object=False):
         rgbs = list(map(lambda tup: self.rgb(word=tup[0], score=tup[1], gamma=gamma), zip(self.words, self.scores)))
+        words_rgbs = None
         if token_pad is not None:
             if token_pad in self.words:
                 if position_pad == 'right':
-                    return zip(self.words[:self.words.index(token_pad)], rgbs)
+                    words_rgbs = zip(self.words[:self.words.index(token_pad)], rgbs)
                 elif position_pad == 'left':
                     first_token_index = list(reversed(self.words)).index(token_pad)
-                    return zip(self.words[-first_token_index:], rgbs[-first_token_index:])
+                    words_rgbs = zip(self.words[-first_token_index:], rgbs[-first_token_index:])
                 else:
-                    return NotImplementedError
-        return zip(self.words, rgbs)
+                    return NotImplementedError('Invalid position_pad value.')
+        if not words_rgbs:
+            words_rgbs = zip(self.words, rgbs)
+        return words_rgbs if return_zip_object else [{'token': word, 'color': rgb}
+                                                     for word, rgb in words_rgbs]
 
     def compute_length_without_pad_tokens(self, special_tokens: List[str]):
         counter = 0
@@ -150,7 +155,8 @@ def run_visualize(config: Dict, dataset=None):
         sequence = Sequence(words=tokens, scores=atts)
         words_rgb = sequence.words_rgb(token_pad=tokenizer.pad_token,
                                        position_pad=tokenizer.padding_side,
-                                       gamma=visualization_config['gamma'])
+                                       gamma=visualization_config['gamma'],
+                                       return_zip_object=True)
 
         summary = {'Sum of Attribution Scores': str(sum(atts))}
         number_of_non_special_tokens = sequence.compute_length_without_pad_tokens(

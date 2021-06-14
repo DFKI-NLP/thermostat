@@ -67,10 +67,18 @@ class Thermounit:
         self.explainer_name = explainer_name
         self.tokenizer = tokenizer
 
-        self.tokens = [self.tokenizer.decode(token_ids=token_ids) for token_ids in self.instance['input_ids']]
-        self.heatmap = self.get_heatmap()
+        # Note: tokenizer.decode has the option to "skip_special_tokens".
+        # However, we do not remove them here, because we would lose the alignment with the list of attributions.
+        self.tokens = [self.tokenizer.decode(token_ids=token_ids, clean_up_tokenization_spaces=False)
+                       for token_ids in self.instance['input_ids']]
+        # Cleaned text
+        self.text = " ".join([self.tokenizer.decode(token_ids=token_ids, skip_special_tokens=True)
+                              for token_ids in self.instance['input_ids']])
 
-    def get_heatmap(self, gamma=2.0, normalize=True) -> List:
+        self.heatmap = None
+        self.set_heatmap(flip_attributions_idx=0)
+
+    def set_heatmap(self, gamma=2.0, normalize=True, flip_attributions_idx=None, drop_special_tokens=True):
         """ Generate a list of tuples in the form of <token,color> for a single data point of a Thermostat dataset """
 
         atts = zero_special_tokens(self.instance['attributions'],
@@ -79,46 +87,44 @@ class Thermounit:
         if normalize:
             atts = normalize_attributions(atts)
 
-        sequence = Sequence(words=self.tokens, scores=atts)
-        words_rgbs = sequence.words_rgb(token_pad=self.tokenizer.pad_token,
-                                        position_pad=self.tokenizer.padding_side,
-                                        gamma=gamma)
-        instance_heatmap = []
-        for word, rgb in words_rgbs:
-            instance_heatmap.append({'token': word,
-                                     'color': rgb.hex()})
+        if flip_attributions_idx == self.predicted_label['index']:
+            atts = [att * -1 for att in atts]
 
-        return instance_heatmap
+        if drop_special_tokens:
+            special_tokens_indices = [i for i, w in enumerate(self.tokens) if w in self.tokenizer.all_special_tokens]
+            tokens = [i for w, i in enumerate(self.tokens) if w not in special_tokens_indices]
+            atts = [i for a, i in enumerate(atts) if a not in special_tokens_indices]
+        else:
+            tokens = self.tokens
+
+        sequence = Sequence(words=tokens, scores=atts)
+        self.heatmap = sequence.words_rgb(token_pad=self.tokenizer.pad_token,
+                                          position_pad=self.tokenizer.padding_side,
+                                          gamma=gamma)
 
     def render(self):
         """ """  # TODO
+
         ents = []
         ii = 0
-        for itok in range(len(self.tokens)):
-            ff = ii + len(self.tokens[itok])
-
-            att = self.instance['attributions'][itok]
-            if att < 0:
-                scaled_att = (-4 / min(self.instance['attributions'])) * att
-            elif att > 0:
-                scaled_att = (4 / max(self.instance['attributions'])) * att
-            else:
-                scaled_att = att
+        for token_rgb in self.heatmap:
+            token, rgb = token_rgb.values()
+            ff = ii + len(token)
 
             ent = {
                 'start': ii,
                 'end': ff,
-                'label': str(round(scaled_att)),
+                'label': str(rgb.score),
             }
             ents.append(ent)
             ii = ff
 
         to_render = {
-            'text': ''.join(self.tokens),
+            'text': ''.join([t['token'] for t in self.heatmap]),
             'ents': ents,
         }
 
-        TPL_ENT = """
+        tpl_ent = """
         <mark class="entity" style="background: {bg}; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 2; 
         border-radius: 0.35em; box-decoration-break: clone; -webkit-box-decoration-break: clone">
             {text}
@@ -144,7 +150,7 @@ class Thermounit:
             style='ent',
             manual=True,
             jupyter=False,
-            options={'template': TPL_ENT,
+            options={'template': tpl_ent,
                      'colors': colors,
                      }
         )
