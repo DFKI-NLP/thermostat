@@ -95,7 +95,7 @@ class Thermounit:
         return len([t for t in self.tokens if t not in self.tokenizer.all_special_tokens])
 
     def set_heatmap(self, gamma=2.0, normalize=True, flip_attributions_idx=None, drop_special_tokens=True,
-                    fuse_subword_tokens=True):
+                    fuse_subwords_strategy=None):
         """ Generate a list of tuples in the form of <token,color> for a single data point of a Thermostat dataset """
 
         atts = zero_special_tokens(self.instance['attributions'],
@@ -114,24 +114,40 @@ class Thermounit:
         else:
             tokens = self.tokens
 
-        if fuse_subword_tokens:
-            fused_tokens = []
-            fused_atts = []
-            _token = ""
-            _att = 0
-            _counter = 0
-            for token, att in zip(tokens, atts):
-                if not token.startswith('##'):
-                    if len(_token) > 0 and _counter > 0:  # Previous token finished
-                        fused_tokens.append(_token)
-                        fused_atts.append(_att/_counter)
-                    _token = token
-                    _att = att
-                    _counter = 0
+        if fuse_subwords_strategy:
+            assert fuse_subwords_strategy in ['average', 'salient']
+            fuse_token = ''
+            fuse_att = []
+            cleaned_tokens = []
+            cleaned_atts = []
+            for i, (t, a) in enumerate(zip(tokens, atts)):
+                if t.startswith('##'):
+                    # Append all subsequent '##' subword tokens
+                    fuse_token += t.replace('##', '')
+                    fuse_att.append(a)
+                    if i < len(tokens)-1:
+                        if not tokens[i+1].startswith('##'):
+                            # Append to results
+                            cleaned_tokens.append(fuse_token)
+                            if fuse_subwords_strategy == 'average':
+                                cleaned_atts.append(sum(fuse_att)/len(fuse_att))
+                            elif fuse_subwords_strategy == 'salient':
+                                cleaned_atts.append(max(fuse_att, key=abs))
+                            # Reset
+                            fuse_token = ''
+                            fuse_att = []
                 else:
-                    _token += token.replace('##', '')
-                    _att += att
-                    _counter += 1
+                    if i < len(tokens) - 1:
+                        if tokens[i+1].startswith('##'):
+                            # Add the one word before the first '##' token
+                            fuse_token += t
+                            fuse_att.append(a)
+                            continue
+                    # Append to results ("nothing happens" case)
+                    cleaned_tokens.append(t)
+                    cleaned_atts.append(a)
+            tokens = cleaned_tokens
+            atts = cleaned_atts
 
         sequence = Sequence(words=tokens, scores=atts)
         self.heatmap = sequence.words_rgb(token_pad=self.tokenizer.pad_token,

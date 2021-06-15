@@ -72,6 +72,7 @@ class Sequence:
             r = str(int(255 * (1 + score)))
             g = str(int(255 * (1 + score)))
         return RGB(r, g, b, score)
+        # TODO: Add more color schemes from: https://colorbrewer2.org/#type=diverging&scheme=RdBu&n=5
 
 
 def token_to_html(token, rgb):
