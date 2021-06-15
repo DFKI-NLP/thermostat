@@ -11,5 +11,5 @@ lgxa_head = lgxa.select(range(20, 40))
 
 tp = Thermopack(lgxa_head)
 tu = tp[0]
-tu.render()
+html = tu.render()
 print(tp)

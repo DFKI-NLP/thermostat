@@ -6,6 +6,7 @@ overrides~=3.1.0
 protobuf
 pytorch-ignite
 sentencepiece
+spacy~=3.0.6
 torch
 tqdm~=4.49.0
 transformers~=4.5.1

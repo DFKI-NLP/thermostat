@@ -67,16 +67,23 @@ class Thermounit:
         self.explainer_name = explainer_name
         self.tokenizer = tokenizer
 
-        # Note: tokenizer.decode has the option to "skip_special_tokens".
-        # However, we do not remove them here, because we would lose the alignment with the list of attributions.
-        self.tokens = [self.tokenizer.decode(token_ids=token_ids, clean_up_tokenization_spaces=False)
-                       for token_ids in self.instance['input_ids']]
+        # "tokens" includes all special tokens, later used for the heatmap when aligning with attributions
+        self.tokens = self.tokenizer.convert_ids_to_tokens(self.instance['input_ids'])
         # Cleaned text
-        self.text = " ".join([self.tokenizer.decode(token_ids=token_ids, skip_special_tokens=True)
-                              for token_ids in self.instance['input_ids']])
+        # Note: decode + clean_up_tokenization_spaces did not remove the "##" artifacts
+        self.text = self.tokenizer.decode(token_ids=self.instance['input_ids'], clean_up_tokenization_spaces=True,
+                                          skip_special_tokens=True)
 
         self.heatmap = None
         self.set_heatmap(flip_attributions_idx=0)
+
+    def __str__(self):
+        """ String representation is the cleaned text """
+        return self.text
+
+    def __len__(self):
+        """ Number of non-special tokens """
+        return len([t for t in self.tokens if t not in self.tokenizer.all_special_tokens])
 
     def set_heatmap(self, gamma=2.0, normalize=True, flip_attributions_idx=None, drop_special_tokens=True):
         """ Generate a list of tuples in the form of <token,color> for a single data point of a Thermostat dataset """
@@ -102,21 +109,29 @@ class Thermounit:
                                           position_pad=self.tokenizer.padding_side,
                                           gamma=gamma)
 
-    def render(self):
+    def render(self, attribution_labels=False):
         """ """  # TODO
 
         ents = []
+        colors = {}
         ii = 0
         for token_rgb in self.heatmap:
             token, rgb = token_rgb.values()
+            att_rounded = str(rgb.score)
+
             ff = ii + len(token)
 
+            # One entity in displaCy contains start and end markers (character index) and optionally a label
+            # The label can be added by setting "attribution_labels" to True
             ent = {
                 'start': ii,
                 'end': ff,
-                'label': str(rgb.score),
+                'label': att_rounded,
             }
+
             ents.append(ent)
+            # A "colors" dict takes care of the mapping between attribution labels and hex colors
+            colors[att_rounded] = rgb.hex
             ii = ff
 
         to_render = {
@@ -124,33 +139,29 @@ class Thermounit:
             'ents': ents,
         }
 
-        tpl_ent = """
-        <mark class="entity" style="background: {bg}; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 2; 
-        border-radius: 0.35em; box-decoration-break: clone; -webkit-box-decoration-break: clone">
-            {text}
-            <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; text-transform: 
-            uppercase; vertical-align: middle; margin-left: 0.5rem">{label}</span>
-        </mark>
-        """
-
-        colors = {
-            '-4': '#b2182b',
-            '-3': '#d6604d',
-            '-2': '#f4a582',
-            '-1': '#fddbc7',
-            '0': '#f7f7f7',
-            '1': '#d1e5f0',
-            '2': '#92c5de',
-            '3': '#4393c3',
-            '4': '#2166ac',
-        }
+        if attribution_labels:
+            template = """
+            <mark class="entity" style="background: {bg}; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 2; 
+            border-radius: 0.35em; box-decoration-break: clone; -webkit-box-decoration-break: clone">
+                {text}
+                <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; text-transform: 
+                uppercase; vertical-align: middle; margin-left: 0.5rem">{label}</span>
+            </mark>
+            """
+        else:
+            template = """
+            <mark class="entity" style="background: {bg}; padding: 0.3em 0.45em; margin: 0 0.25em; line-height: 2.25;
+            border-radius: 0.25em; box-decoration-break: clone; -webkit-box-decoration-break: clone">
+                {text}
+            </mark>
+            """
 
         html = displacy.render(
             to_render,
             style='ent',
             manual=True,
             jupyter=False,
-            options={'template': tpl_ent,
+            options={'template': template,
                      'colors': colors,
                      }
         )
