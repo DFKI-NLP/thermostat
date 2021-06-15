@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datasets import Dataset
+from overrides import overrides
 from spacy import displacy
 from transformers import AutoTokenizer
 from typing import List
@@ -20,8 +21,11 @@ def get_coordinate(thermostat_dataset: Dataset, coordinate: str) -> str:
     return coord_value
 
 
-class Thermopack:
+class Thermopack(Dataset):
     def __init__(self, hf_dataset):
+        super().__init__(hf_dataset.data, info=hf_dataset.info, split=hf_dataset.split)
+        self.dataset = hf_dataset
+
         # Model
         self.model_name = get_coordinate(hf_dataset, 'Model')
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
@@ -34,7 +38,7 @@ class Thermopack:
         self.explainer_name = get_coordinate(hf_dataset, 'Explainer')
 
         # Create Thermounits for every instance
-        self.data = []
+        self.units = []
         for instance in hf_dataset:
             # Decode labels and predictions
             true_label_index = instance['label']
@@ -45,13 +49,18 @@ class Thermopack:
             predicted_label = {'index': predicted_label_index,
                                'name': self.label_names[predicted_label_index]}
 
-            self.data.append(Thermounit(
+            self.units.append(Thermounit(
                 instance, true_label, predicted_label,
                 self.model_name, self.dataset_name, self.explainer_name, self.tokenizer))
 
+    @overrides
     def __getitem__(self, idx):
         """ Indexing a Thermopack returns a Thermounit """
-        return self.data[idx]
+        return self.units[idx]
+
+    @overrides
+    def __str__(self):
+        return self.info.description
 
 
 class Thermounit:
@@ -85,7 +94,8 @@ class Thermounit:
         """ Number of non-special tokens """
         return len([t for t in self.tokens if t not in self.tokenizer.all_special_tokens])
 
-    def set_heatmap(self, gamma=2.0, normalize=True, flip_attributions_idx=None, drop_special_tokens=True):
+    def set_heatmap(self, gamma=2.0, normalize=True, flip_attributions_idx=None, drop_special_tokens=True,
+                    fuse_subword_tokens=True):
         """ Generate a list of tuples in the form of <token,color> for a single data point of a Thermostat dataset """
 
         atts = zero_special_tokens(self.instance['attributions'],
@@ -103,6 +113,25 @@ class Thermounit:
             atts = [i for a, i in enumerate(atts) if a not in special_tokens_indices]
         else:
             tokens = self.tokens
+
+        if fuse_subword_tokens:
+            fused_tokens = []
+            fused_atts = []
+            _token = ""
+            _att = 0
+            _counter = 0
+            for token, att in zip(tokens, atts):
+                if not token.startswith('##'):
+                    if len(_token) > 0 and _counter > 0:  # Previous token finished
+                        fused_tokens.append(_token)
+                        fused_atts.append(_att/_counter)
+                    _token = token
+                    _att = att
+                    _counter = 0
+                else:
+                    _token += token.replace('##', '')
+                    _att += att
+                    _counter += 1
 
         sequence = Sequence(words=tokens, scores=atts)
         self.heatmap = sequence.words_rgb(token_pad=self.tokenizer.pad_token,
@@ -241,4 +270,3 @@ def explainer_agreement_stat(thermostat_datasets: List) -> List:
                 = {'dissim': max_att - min_att,  # Maximum difference in attribution
                    'atts': dict(zip(all_explainers_atts.keys(), att_explainers))}
     return sorted(tokens_dissim.items(), key=lambda x: x[1]['dissim'], reverse=True)
-
