@@ -60,7 +60,7 @@ batch_size = config['explainer']['internal_batch_size'] if 'internal_batch_size'
 logger.info(f'(Progress) Loaded explainer')
 
 # DataLoader
-dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True)
+dataloader = DataLoader(dataset=dataset, batch_size=batch_size)
 logger.info(f'(Progress) Initialized data loader')
 
 config['model']['tokenizer'] = str(tokenizer)  # Overwrite the actual tokenizer with a string of the config
@@ -89,7 +89,6 @@ for idx_batch, batch in tqdm(enumerate(dataloader), total=len(dataloader), posit
                   'label': label,
                   'attributions': attrbs,
                   'predictions': preds}
-        # TODO: Add GPU runtime
 
         file_out.write(json.dumps(result) + os.linesep)
 
