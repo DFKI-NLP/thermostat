@@ -17,7 +17,7 @@ class Processor:
         raise NotImplementedError
 
 
-class PreprocessorSingleTextAutoTokenizer(Configurable, Processor):
+class PreprocessorSingleTextAutoTokenizer(Configurable):
 
     def __init__(self):
         """This preprocessor tokenizes a dataset from HF which holds a single text (as oppoed to e.g. premise +
@@ -42,7 +42,6 @@ class PreprocessorSingleTextAutoTokenizer(Configurable, Processor):
         assert 'truncation' in config, 'No truncation strategy defined'
         return True
 
-    @overrides
     def process(self, path_in: str, save_dir: str, logger) -> str:
         _now = get_time()
         _, path_file_in = os.path.split(os.path.realpath(path_in))

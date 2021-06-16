@@ -1,4 +1,6 @@
 from collections import defaultdict
+
+import datasets
 from datasets import Dataset
 from overrides import overrides
 from spacy import displacy
@@ -6,6 +8,12 @@ from transformers import AutoTokenizer
 from typing import List
 
 from thermostat.visualize import Sequence, normalize_attributions, run_visualize, zero_special_tokens
+
+
+def load_dataset(config: str = None):
+    assert config is not None
+    data = datasets.load_dataset("thermostat", config, split="test")
+    return data
 
 
 def get_coordinate(thermostat_dataset: Dataset, coordinate: str) -> str:
@@ -154,7 +162,7 @@ class Thermounit:
                                           position_pad=self.tokenizer.padding_side,
                                           gamma=gamma)
 
-    def render(self, attribution_labels=False):
+    def render(self, attribution_labels=False, jupyter=False):
         """ """  # TODO
 
         ents = []
@@ -205,7 +213,7 @@ class Thermounit:
             to_render,
             style='ent',
             manual=True,
-            jupyter=False,
+            jupyter=jupyter,
             options={'template': template,
                      'colors': colors,
                      }
