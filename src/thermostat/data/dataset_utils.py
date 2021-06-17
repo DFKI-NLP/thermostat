@@ -203,7 +203,7 @@ class Thermounit:
             """
         else:
             template = """
-            <mark class="entity" style="background: {bg}; padding: 0.3em 0.45em; margin: 0 0.25em; line-height: 2.25;
+            <mark class="entity" style="background: {bg}; padding: 0.15em 0.3em; margin: 0 0.2em; line-height: 2.2;
             border-radius: 0.25em; box-decoration-break: clone; -webkit-box-decoration-break: clone">
                 {text}
             </mark>

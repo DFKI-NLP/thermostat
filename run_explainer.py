@@ -14,7 +14,7 @@ from thermostat.utils import detach_to_list, get_logger, get_time, read_config
 
 # Argument parser
 parser = argparse.ArgumentParser()
-parser.add_argument('-c', help='Config file', default='configs/xnli/bert/lgxa.jsonnet')
+parser.add_argument('-c', help='Config file', default=None)
 parser.add_argument('-home', help='Home directory', default=None)
 args = parser.parse_args()
 config_file = args.c
