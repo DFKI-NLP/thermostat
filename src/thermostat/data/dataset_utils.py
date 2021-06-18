@@ -7,13 +7,38 @@ from spacy import displacy
 from transformers import AutoTokenizer
 from typing import List
 
+from thermostat.data import thermostat_configs
+from thermostat.utils import lazy_property
 from thermostat.visualize import Sequence, normalize_attributions, run_visualize, zero_special_tokens
 
 
-def load_dataset(config: str = None):
-    assert config is not None
-    data = datasets.load_dataset("thermostat", config, split="test")
-    return data
+def list_configs():
+    """ Returns the list of names of all available configs in the Thermostat HF dataset"""
+    return [config.name for config in thermostat_configs.builder_configs]
+
+
+def load(config_str: str = None):
+    assert config_str, f'Please enter a config. Available options: {list_configs()}.'
+
+    def load_from_single_config(config):
+        print(f'Loading Thermostat configuration: {config}')
+        return datasets.load_dataset("hf_dataset.py", config, split="test")
+
+    if config_str in list_configs():
+        data = load_from_single_config(config_str)
+
+    elif config_str in ['-'.join(c.split('-')[:2]) for c in list_configs()]:
+        # Resolve "dataset+model" to all explainer subsets
+        raise NotImplementedError()
+
+    elif config_str in [f'{c.split("-")[0]}-{c.split("-")[-1]}' for c in list_configs()]:
+        # Resolve "dataset+explainer" to all model subsets
+        raise NotImplementedError()
+
+    else:
+        raise ValueError(f'Invalid config. Available options: {list_configs()}')
+
+    return Thermopack(data)
 
 
 def get_coordinate(thermostat_dataset: Dataset, coordinate: str) -> str:
@@ -29,14 +54,40 @@ def get_coordinate(thermostat_dataset: Dataset, coordinate: str) -> str:
     return coord_value
 
 
-class Thermopack(Dataset):
+class ThermopackMeta(type):
+    """ Inspired by: https://stackoverflow.com/a/65917858 """
+    def __new__(mcs, name, bases, dct):
+        child = super().__new__(mcs, name, bases, dct)
+        for base in bases:
+            for field_name, field in base.__dict__.items():
+                if callable(field) and not field_name.startswith('__'):
+                    setattr(child, field_name, mcs.force_child(field, field_name, base, child))
+        return child
+
+    @staticmethod
+    def force_child(fun, fun_name, base, child):
+        """Turn from Base- to Child-instance-returning function."""
+        def wrapper(*args, **kwargs):
+            result = fun(*args, **kwargs)
+            if not result:
+                # Ignore if returns None
+                return None
+            if type(result) == base:
+                print(fun_name)
+                # Return Child instance if the Base method tries to return Base instance.
+                return child(result)
+            return result
+        return wrapper
+
+
+class Thermopack(Dataset, metaclass=ThermopackMeta):
     def __init__(self, hf_dataset):
-        super().__init__(hf_dataset.data, info=hf_dataset.info, split=hf_dataset.split)
+        super().__init__(hf_dataset.data, info=hf_dataset.info, split=hf_dataset.split,
+                         indices_table=hf_dataset._indices)
         self.dataset = hf_dataset
 
         # Model
         self.model_name = get_coordinate(hf_dataset, 'Model')
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
 
         # Dataset
         self.dataset_name = get_coordinate(hf_dataset, 'Dataset')
@@ -46,8 +97,15 @@ class Thermopack(Dataset):
         self.explainer_name = get_coordinate(hf_dataset, 'Explainer')
 
         # Create Thermounits for every instance
-        self.units = []
-        for instance in hf_dataset:
+
+    @lazy_property
+    def tokenizer(self):
+        return AutoTokenizer.from_pretrained(self.model_name)
+
+    @lazy_property
+    def units(self):
+        units = []
+        for instance in self.dataset:
             # Decode labels and predictions
             true_label_index = instance['label']
             true_label = {'index': true_label_index,
@@ -57,9 +115,10 @@ class Thermopack(Dataset):
             predicted_label = {'index': predicted_label_index,
                                'name': self.label_names[predicted_label_index]}
 
-            self.units.append(Thermounit(
+            units.append(Thermounit(
                 instance, true_label, predicted_label,
                 self.model_name, self.dataset_name, self.explainer_name, self.tokenizer))
+        return units
 
     @overrides
     def __getitem__(self, idx):
@@ -86,13 +145,15 @@ class Thermounit:
 
         # "tokens" includes all special tokens, later used for the heatmap when aligning with attributions
         self.tokens = self.tokenizer.convert_ids_to_tokens(self.instance['input_ids'])
+
         # Cleaned text
         # Note: decode + clean_up_tokenization_spaces did not remove the "##" artifacts
         self.text = self.tokenizer.decode(token_ids=self.instance['input_ids'], clean_up_tokenization_spaces=True,
                                           skip_special_tokens=True)
 
-        self.heatmap = None
-        self.set_heatmap(flip_attributions_idx=0)
+    @lazy_property
+    def heatmap(self):
+        return self.get_heatmap(flip_attributions_idx=0)
 
     def __str__(self):
         """ String representation is the cleaned text """
@@ -102,7 +163,7 @@ class Thermounit:
         """ Number of non-special tokens """
         return len([t for t in self.tokens if t not in self.tokenizer.all_special_tokens])
 
-    def set_heatmap(self, gamma=2.0, normalize=True, flip_attributions_idx=None, drop_special_tokens=True,
+    def get_heatmap(self, gamma=2.0, normalize=True, flip_attributions_idx=None, drop_special_tokens=True,
                     fuse_subwords_strategy=None):
         """ Generate a list of tuples in the form of <token,color> for a single data point of a Thermostat dataset """
 
@@ -158,9 +219,9 @@ class Thermounit:
             atts = cleaned_atts
 
         sequence = Sequence(words=tokens, scores=atts)
-        self.heatmap = sequence.words_rgb(token_pad=self.tokenizer.pad_token,
-                                          position_pad=self.tokenizer.padding_side,
-                                          gamma=gamma)
+        return sequence.words_rgb(token_pad=self.tokenizer.pad_token,
+                                  position_pad=self.tokenizer.padding_side,
+                                  gamma=gamma)
 
     def render(self, attribution_labels=False, jupyter=False):
         """ """  # TODO

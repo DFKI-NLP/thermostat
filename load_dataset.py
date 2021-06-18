@@ -1,15 +1,7 @@
-from datasets import load_dataset
-
-from thermostat import Thermopack
+import thermostat
 
 # This will use the dataset script ("thermostat.py") in the "thermostat" directory
-lgxa = load_dataset("thermostat", "imdb-bert-lgxa", split="test")
-#lig = load_dataset("thermostat", "imdb-bert-lig", split="test[:1%]")
-#agnews = load_dataset("thermostat", "ag_news-albert-lgxa", split="test[:2%]")
+data = thermostat.load("imdb-bert-lig")
 
-lgxa_head = lgxa.select(range(20))
-
-tp = Thermopack(lgxa_head)
-tu = tp[0]
-html = tu.render()
-print(tp)
+html = data[0].render()
+print(html)

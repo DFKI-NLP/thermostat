@@ -17,7 +17,7 @@ Clone this repo and then from the root directory, you can use the Thermostat dat
 from datasets import load_dataset
 
 # This will use the dataset script ("thermostat.py") in the "thermostat" directory
-data = load_dataset("thermostat", "imdb-bert-lgxa", split="test")
+data = load_dataset("thermostat_dataset", "imdb-bert-lgxa", split="test")
 # data contains IMDb-BERT-LayerGradientXActivation attributions
 ```
 
@@ -65,7 +65,7 @@ Example configuration: `imdb-xlnet-lig`
 
 Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs`  
 --- | --- | --- | --- | --- | --- | ---
-ALBERT (`albert`) | [`textattack/albert-base-v2-imdb`](https://huggingface.co/textattack/albert-base-v2-imdb) | ✅ | ✅ | ✅ | ✅ | 🔄x5/5
+ALBERT (`albert`) | [`textattack/albert-base-v2-imdb`](https://huggingface.co/textattack/albert-base-v2-imdb) | ✅ | ✅ | ✅ | ✅ | ⏏️
 BERT (`bert`) | [`textattack/bert-base-uncased-imdb`](https://huggingface.co/textattack/bert-base-uncased-imdb) | ✅ | ✅ | ✅ | ✅ | 🔄x7/7
 ELECTRA (`electra`) | [`monologg/electra-small-finetuned-imdb`](https://huggingface.co/monologg/electra-small-finetuned-imdb) | ✅ | ✅ | ✅ | ✅
 RoBERTa (`roberta`) | [`textattack/roberta-base-imdb`](https://huggingface.co/textattack/roberta-base-imdb) | ✅ | ✅ | ✅ | ✅ | ✅
@@ -117,11 +117,12 @@ RoBERTa (`roberta`) | [`textattack/roberta-base-ag-news`](https://huggingface.co
 ## Helper functions
 
 ### Visualizing attributions as a heatmap
+
 ```python
 from datasets import load_dataset
 from thermostat import to_html
 
-lgxa = load_dataset("thermostat", "imdb-bert-lgxa", split="test")
+lgxa = load_dataset("thermostat_dataset", "imdb-bert-lgxa", split="test")
 lgxa_head20 = lgxa.select(range(20))
 to_html(lgxa_head20, "imdb-bert-lgxa_heatmaps.html")
 ```

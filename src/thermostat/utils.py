@@ -101,3 +101,18 @@ def read_path(path, home=None):
     if not home:
         home = expanduser("~")
     return path.replace("$HOME", home) if path else path
+
+
+def lazy_property(fn):
+    """ from: https://stevenloria.com/lazy-properties/
+    Decorator that makes a property lazy-evaluated (only calculated when explicitly accessed). """
+    attr_name = '_lazy_' + fn.__name__
+
+    @property
+    def _lazy_property(self):
+        if not hasattr(self, attr_name):
+            setattr(self, attr_name, fn(self))
+        return getattr(self, attr_name)
+
+    return _lazy_property
+
