@@ -14,10 +14,10 @@ At the moment, Thermostat is only available via this repository (it will be publ
 Clone this repo and then from the root directory, you can use the Thermostat dataset like this:
 
 ```python
-from datasets import load_dataset
+import thermostat
 
 # This will use the dataset script ("thermostat.py") in the "thermostat" directory
-data = load_dataset("thermostat_dataset", "imdb-bert-lgxa", split="test")
+data = thermostat.load("imdb-bert-lgxa")
 # data contains IMDb-BERT-LayerGradientXActivation attributions
 ```
 
@@ -119,12 +119,10 @@ RoBERTa (`roberta`) | [`textattack/roberta-base-ag-news`](https://huggingface.co
 ### Visualizing attributions as a heatmap
 
 ```python
-from datasets import load_dataset
-from thermostat import to_html
 
-lgxa = load_dataset("thermostat_dataset", "imdb-bert-lgxa", split="test")
+lgxa = thermostat.load("thermostat_dataset", "imdb-bert-lgxa", split="test")
 lgxa_head20 = lgxa.select(range(20))
-to_html(lgxa_head20, "imdb-bert-lgxa_heatmaps.html")
+thermostat.to_html(lgxa_head20, "imdb-bert-lgxa_heatmaps.html")
 ```
 Runs the visualization script with default settings (`gamma=2.0`, `normalize=True`) on a Thermostat dataset to output an HTML file, returns nothing.  
 Note: Always consider file size! Creating an HTML with more than ~100 instances might be difficult to handle for your browser when viewing.  
@@ -135,31 +133,13 @@ First instance of the [HTML sample](figures/imdb-bert-lgxa_heatmaps_20-40.html):
 ![heatmap-html](figures/heatmap-html.png)
 
 
-### Get coordinate
-```python
-from thermostat import get_coordinate
-
-get_coordinate(lgxa, "Explainer")
-
->>> 'LayerGradientXActivation'
-```
-Takes a Thermostat dataset and a coordinate string (`'Model'`, `'Dataset'` or `'Explainer'`, pay attention to capitalization!) and returns the requested value of the coordinate as string, e.g. `LayerIntegratedGradients` for `Explainer`.
-
-
 ### Get simple tuple-based heatmap
-```python
-from thermostat import get_heatmap
-
-hm = get_heatmap(lgxa_head20)
-```
-Returns a list of tuples in the form of <token,color> for each data point of a Thermostat dataset.
-
-![heatmap-contents](figures/get_heatmap.png)
+Refactoring ongoing. To be added soon. Please refer to the demo.ipynb Notebook.
 
 
 
 ### Config files
-jsonnet config files have the following naming convention:
+jsonnet config files used for generating the explanation datasets have the following naming convention:
 `<DATASET_ID>/<EXPLAINER_ID>/<MODEL_ID>.jsonnet` where
 * `<DATASET_ID>` corresponds to a dataset (from `datasets` package by default, but can be any other locally stored dataset),
 * `<EXPLAINER_ID>` corresponds to an explainability method (usually provided through the `captum` package) and
