@@ -108,6 +108,14 @@ class Thermopack(Dataset, metaclass=ThermopackMeta):
         self.dataset_name = get_coordinate(hf_dataset, 'Dataset')
         self.label_names = hf_dataset.info.features['label'].names
 
+        # Align label indices (some MNLI and XNLI models have a different order in the label names)
+        label_classes = get_config(self.config_name).label_classes
+        if label_classes != self.label_names:
+            self.dataset = self.dataset.map(lambda instance: {
+                'label': label_classes.index(self.label_names[instance['label']])})
+            print(f'Reordered labels from {self.label_names} to {label_classes}')
+            self.label_names = label_classes
+
         # Explainer
         self.explainer_name = get_coordinate(hf_dataset, 'Explainer')
 
@@ -138,6 +146,11 @@ class Thermopack(Dataset, metaclass=ThermopackMeta):
     def __getitem__(self, idx):
         """ Indexing a Thermopack returns a Thermounit """
         return self.units[idx]
+
+    @overrides
+    def __iter__(self):
+        for unit in self.units:
+            yield unit
 
     @overrides
     def __str__(self):

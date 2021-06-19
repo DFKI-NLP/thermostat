@@ -69,29 +69,33 @@ _IMDB_XLNET_KWARGS = dict(
 # Base arguments for MNLI dataset
 _MNLI_KWARGS = dict(
     dataset="multi_nli",
-    label_classes=["entailment", "neutral", "contradiction"],
     label_column="label",
     text_column=["premise", "hypothesis"],
     **_BASE_KWARGS,
 )
 _MNLI_ALBERT_KWARGS = dict(
     model="prajjwal1/albert-base-v2-mnli",
+    label_classes=["contradiction", "entailment", "neutral"],
     **_MNLI_KWARGS,
 )
 _MNLI_BERT_KWARGS = dict(
     model="textattack/bert-base-uncased-MNLI",
+    label_classes=["contradiction", "entailment", "neutral"],
     **_MNLI_KWARGS,
 )
 _MNLI_ELECTRA_KWARGS = dict(
     model="howey/electra-base-mnli",
+    label_classes=["entailment", "neutral", "contradiction"],
     **_MNLI_KWARGS,
 )
 _MNLI_ROBERTA_KWARGS = dict(
     model="textattack/roberta-base-MNLI",
+    label_classes=["contradiction", "entailment", "neutral"],
     **_MNLI_KWARGS,
 )
 _MNLI_XLNET_KWARGS = dict(
     model="textattack/xlnet-base-cased-MNLI",
+    label_classes=["contradiction", "entailment", "neutral"],
     **_MNLI_KWARGS,
 )
 
