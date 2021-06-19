@@ -106,16 +106,6 @@ def append_heatmap(tokens, scores, latex, gamma, caption, pad_token, formatting=
     return latex
 
 
-def zero_special_tokens(attributions, input_ids, tokenizer):
-    atts_special_tokens_zero = []
-    for att, inp in zip(attributions, input_ids):
-        if inp in tokenizer.all_special_ids:
-            atts_special_tokens_zero.append(0.0)
-        else:
-            atts_special_tokens_zero.append(att)
-    return atts_special_tokens_zero
-
-
 def normalize_attributions(attributions):
     max_abs_score = max(max(attributions), abs(min(attributions)))
     return [(score / max_abs_score) for score in attributions]

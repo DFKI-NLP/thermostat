@@ -21,6 +21,7 @@ _AGNEWS_KWARGS = dict(
     dataset="ag_news",
     label_classes=["World", "Sports", "Business", "Sci/Tech"],
     label_column="label",
+    text_column="text",
     **_BASE_KWARGS,
 )
 _AGNEWS_ALBERT_KWARGS = dict(
@@ -41,6 +42,7 @@ _IMDB_KWARGS = dict(
     dataset="imdb",
     label_classes=["neg", "pos"],
     label_column="label",
+    text_column="text",
     **_BASE_KWARGS,
 )
 _IMDB_ALBERT_KWARGS = dict(
@@ -69,6 +71,7 @@ _MNLI_KWARGS = dict(
     dataset="multi_nli",
     label_classes=["entailment", "neutral", "contradiction"],
     label_column="label",
+    text_column=["premise", "hypothesis"],
     **_BASE_KWARGS,
 )
 _MNLI_ALBERT_KWARGS = dict(
@@ -97,6 +100,7 @@ _XNLI_KWARGS = dict(
     dataset="xnli",
     label_classes=["entailment", "neutral", "contradiction"],
     label_column="label",
+    text_column=["premise", "hypothesis"],
     **_BASE_KWARGS,
 )
 _XNLI_ALBERT_KWARGS = dict(
@@ -132,6 +136,7 @@ class ThermostatConfig(datasets.BuilderConfig):
         features,
         label_column,
         label_classes,
+        text_column,
         data_url,
         citation,
         url,
@@ -144,6 +149,7 @@ class ThermostatConfig(datasets.BuilderConfig):
         self.features = features
         self.label_column = label_column
         self.label_classes = label_classes
+        self.text_column = text_column
         self.data_url = data_url
         self.citation = citation
         self.url = url
@@ -511,28 +517,28 @@ builder_configs = [
         name="multi_nli-xlnet-lgxa",
         description="MNLI dataset, XLNet model, Layer Gradient x Activation explanations",
         explainer="LayerGradientXActivation",
-        data_url="https://drive.google.com/file/d/1T6nF_0II6jtXVjuOAYKVnQ4WTn6550sP/",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/n79G9kf9jbNx8o7/download",
         **_MNLI_XLNET_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-xlnet-lig",
         description="MNLI dataset, XLNet model, Layer Integrated Gradients explanations",
         explainer="LayerIntegratedGradients",
-        data_url="https://drive.google.com/file/d/1DwuxiidetV3QP5Q6Pdo0RBD8XywujHXQ/",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/MZr8jTnaCBdMPGe/download",
         **_MNLI_XLNET_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-xlnet-lime",
         description="MNLI dataset, XLNet model, LIME explanations",
         explainer="LimeBase",
-        data_url="https://drive.google.com/file/d/1c3XoRAcl90IjSZQYrONoOicGMv8NdA1s/",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/B7tfLSRKBGYxJ3s/download",
         **_MNLI_XLNET_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-xlnet-occ",
         description="MNLI dataset, XLNet model, Occlusion explanations",
         explainer="Occlusion",
-        data_url="https://drive.google.com/file/d/1qgzjE9UgBpNUaPFBqe8fiXKQqD49CRuW/",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/YWjJ6T7n6oeKbJJ/download",
         **_MNLI_XLNET_KWARGS,
     ),
     ThermostatConfig(

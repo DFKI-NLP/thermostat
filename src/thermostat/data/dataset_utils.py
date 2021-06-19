@@ -2,19 +2,34 @@ from collections import defaultdict
 
 import datasets
 from datasets import Dataset
+from itertools import groupby
 from overrides import overrides
 from spacy import displacy
+from tqdm import tqdm
 from transformers import AutoTokenizer
-from typing import List
+from typing import Dict, List
 
 from thermostat.data import thermostat_configs
+from thermostat.data.tokenization import fuse_subwords
 from thermostat.utils import lazy_property
-from thermostat.visualize import Sequence, normalize_attributions, run_visualize, zero_special_tokens
+from thermostat.visualize import Sequence, normalize_attributions
 
 
 def list_configs():
     """ Returns the list of names of all available configs in the Thermostat HF dataset"""
     return [config.name for config in thermostat_configs.builder_configs]
+
+
+def get_config(config_name):
+    """ based on : https://stackoverflow.com/a/7125547 """
+    return next((x for x in thermostat_configs.builder_configs if x.name == config_name), None)
+
+
+def get_text_fields(config_name):
+    text_fields = get_config(config_name).text_column
+    if type(text_fields) != list:
+        text_fields = [text_fields]
+    return text_fields
 
 
 def load(config_str: str = None):
@@ -96,16 +111,15 @@ class Thermopack(Dataset, metaclass=ThermopackMeta):
         # Explainer
         self.explainer_name = get_coordinate(hf_dataset, 'Explainer')
 
-        # Create Thermounits for every instance
-
     @lazy_property
     def tokenizer(self):
+        print(f'Loading the tokenizer for model: {self.model_name}')
         return AutoTokenizer.from_pretrained(self.model_name)
 
     @lazy_property
     def units(self):
         units = []
-        for instance in self.dataset:
+        for instance in tqdm(self.dataset, desc=f'Preparing instances (Thermounits) for {self.config_name}'):
             # Decode labels and predictions
             true_label_index = instance['label']
             true_label = {'index': true_label_index,
@@ -117,7 +131,7 @@ class Thermopack(Dataset, metaclass=ThermopackMeta):
 
             units.append(Thermounit(
                 instance, true_label, predicted_label,
-                self.model_name, self.dataset_name, self.explainer_name, self.tokenizer))
+                self.model_name, self.dataset_name, self.explainer_name, self.tokenizer, self.config_name))
         return units
 
     @overrides
@@ -132,172 +146,167 @@ class Thermopack(Dataset, metaclass=ThermopackMeta):
 
 class Thermounit:
     """ Processed single instance of a Thermopack (Thermostat dataset/configuration) """
-    def __init__(self, instance, true_label, predicted_label, model_name, dataset_name, explainer_name, tokenizer):
+    def __init__(self, instance, true_label, predicted_label, model_name, dataset_name, explainer_name, tokenizer,
+                 config_name):
         self.instance = instance
         self.index = self.instance['idx']
+        self.attributions = self.instance['attributions']
         self.true_label = true_label
         self.predicted_label = predicted_label
-
         self.model_name = model_name
         self.dataset_name = dataset_name
         self.explainer_name = explainer_name
         self.tokenizer = tokenizer
+        self.config_name = config_name
+        self.text_fields: List = []
 
+    @property
+    def tokens(self) -> Dict:
         # "tokens" includes all special tokens, later used for the heatmap when aligning with attributions
-        self.tokens = self.tokenizer.convert_ids_to_tokens(self.instance['input_ids'])
+        tokens = self.tokenizer.convert_ids_to_tokens(self.instance['input_ids'])
+        # Make token index
+        tokens_enum = dict(enumerate(tokens))
+        return tokens_enum
 
-        # Cleaned text
-        # Note: decode + clean_up_tokenization_spaces did not remove the "##" artifacts
-        self.text = self.tokenizer.decode(token_ids=self.instance['input_ids'], clean_up_tokenization_spaces=True,
-                                          skip_special_tokens=True)
+    def fill_text_fields(self):
+        if self.text_fields:
+            return
+
+        # Determine groups of tokens split by [SEP] tokens
+        text_groups = []
+        for group in [list(g) for k, g in groupby(self.tokens.items(),
+                                                  lambda kt: kt[1] != self.tokenizer.sep_token) if k]:
+            # Remove groups that only contain special tokens
+            if len([t for t in group if t[1] in self.tokenizer.all_special_tokens]) < len(group):
+                text_groups.append(group)
+
+        setattr(self, 'text_fields', get_text_fields(self.config_name))
+        # Assign text field values based on groups
+        for text_field, field_tokens in zip(self.text_fields, text_groups):
+            setattr(self, text_field, [t for t in field_tokens if t[1] not in self.tokenizer.all_special_tokens])
 
     @lazy_property
-    def heatmap(self):
-        return self.get_heatmap(flip_attributions_idx=0)
+    def texts(self):
+        self.fill_text_fields()
 
-    def __str__(self):
-        """ String representation is the cleaned text """
-        return self.text
+        return TextFieldsDict({text_field: getattr(self, text_field) for text_field in self.text_fields})
 
-    def __len__(self):
-        """ Number of non-special tokens """
-        return len([t for t in self.tokens if t not in self.tokenizer.all_special_tokens])
-
-    def get_heatmap(self, gamma=2.0, normalize=True, flip_attributions_idx=None, drop_special_tokens=True,
-                    fuse_subwords_strategy=None):
+    @lazy_property
+    def heatmap(self, gamma=1.0, normalize=True, flip_attributions_idx=0, fuse_subwords_strategy='salient'):
         """ Generate a list of tuples in the form of <token,color> for a single data point of a Thermostat dataset """
+        self.fill_text_fields()
 
-        atts = zero_special_tokens(self.instance['attributions'],
-                                   self.instance['input_ids'],
-                                   self.tokenizer)
+        atts = self.attributions
+
         if normalize:
             atts = normalize_attributions(atts)
 
         if flip_attributions_idx == self.predicted_label['index']:
             atts = [att * -1 for att in atts]
 
-        if drop_special_tokens:
-            special_tokens_indices = [i for i, w in enumerate(self.tokens) if w in self.tokenizer.all_special_tokens]
-            tokens = [i for w, i in enumerate(self.tokens) if w not in special_tokens_indices]
-            atts = [i for a, i in enumerate(atts) if a not in special_tokens_indices]
-        else:
-            tokens = self.tokens
+        heatmaps = {}
+        for text_field, tokens_enum in self.texts.items():
+            # Select attributions according to token indices (tokens_enum keys)
+            selected_atts = [atts[idx] for idx in [t[0] for t in tokens_enum]]
+            tokens = [t[1] for t in tokens_enum]
 
-        if fuse_subwords_strategy:
-            assert fuse_subwords_strategy in ['average', 'salient']
-            fuse_token = ''
-            fuse_att = []
-            cleaned_tokens = []
-            cleaned_atts = []
-            for i, (t, a) in enumerate(zip(tokens, atts)):
-                if t.startswith('##'):
-                    # Append all subsequent '##' subword tokens
-                    fuse_token += t.replace('##', '')
-                    fuse_att.append(a)
-                    if i < len(tokens)-1:
-                        if not tokens[i+1].startswith('##'):
-                            # Append to results
-                            cleaned_tokens.append(fuse_token)
-                            if fuse_subwords_strategy == 'average':
-                                cleaned_atts.append(sum(fuse_att)/len(fuse_att))
-                            elif fuse_subwords_strategy == 'salient':
-                                cleaned_atts.append(max(fuse_att, key=abs))
-                            # Reset
-                            fuse_token = ''
-                            fuse_att = []
-                else:
-                    if i < len(tokens) - 1:
-                        if tokens[i+1].startswith('##'):
-                            # Add the one word before the first '##' token
-                            fuse_token += t
-                            fuse_att.append(a)
-                            continue
-                    # Append to results ("nothing happens" case)
-                    cleaned_tokens.append(t)
-                    cleaned_atts.append(a)
-            tokens = cleaned_tokens
-            atts = cleaned_atts
+            if fuse_subwords_strategy:
+                tokens, selected_atts = fuse_subwords(tokens, selected_atts, self.tokenizer,
+                                                      strategy=fuse_subwords_strategy)
+                setattr(self, text_field, tokens)
 
-        sequence = Sequence(words=tokens, scores=atts)
-        return sequence.words_rgb(token_pad=self.tokenizer.pad_token,
-                                  position_pad=self.tokenizer.padding_side,
-                                  gamma=gamma)
+            sequence = Sequence(words=tokens, scores=selected_atts)
+            hm = sequence.words_rgb(token_pad=self.tokenizer.pad_token,
+                                    position_pad=self.tokenizer.padding_side,
+                                    gamma=gamma)
+            heatmaps[text_field] = hm
+        return heatmaps
 
     def render(self, attribution_labels=False, jupyter=False):
-        """ """  # TODO
+        """ Uses the displaCy visualization tool to render a HTML from the heatmap """
 
-        ents = []
-        colors = {}
-        ii = 0
-        for token_rgb in self.heatmap:
-            token, rgb = token_rgb.values()
-            att_rounded = str(rgb.score)
+        full_html = ''
+        for field_name, text_field_heatmap, in self.heatmap.items():
+            ents = []
+            colors = {}
+            ii = 0
+            for token_rgb in text_field_heatmap:
+                token, rgb = token_rgb.values()
+                att_rounded = str(rgb.score)
 
-            ff = ii + len(token)
+                ff = ii + len(token)
 
-            # One entity in displaCy contains start and end markers (character index) and optionally a label
-            # The label can be added by setting "attribution_labels" to True
-            ent = {
-                'start': ii,
-                'end': ff,
-                'label': att_rounded,
+                # One entity in displaCy contains start and end markers (character index) and optionally a label
+                # The label can be added by setting "attribution_labels" to True
+                ent = {
+                    'start': ii,
+                    'end': ff,
+                    'label': att_rounded,
+                }
+
+                ents.append(ent)
+                # A "colors" dict takes care of the mapping between attribution labels and hex colors
+                colors[att_rounded] = rgb.hex
+                ii = ff
+
+            to_render = {
+                'text': ''.join([t['token'] for t in text_field_heatmap]),
+                'ents': ents,
             }
 
-            ents.append(ent)
-            # A "colors" dict takes care of the mapping between attribution labels and hex colors
-            colors[att_rounded] = rgb.hex
-            ii = ff
+            if attribution_labels:
+                template = """
+                <mark class="entity" style="background: {bg}; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 2; 
+                border-radius: 0.35em; box-decoration-break: clone; -webkit-box-decoration-break: clone">
+                    {text}
+                    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; text-transform: 
+                    uppercase; vertical-align: middle; margin-left: 0.5rem">{label}</span>
+                </mark>
+                """
+            else:
+                template = """
+                <mark class="entity" style="background: {bg}; padding: 0.15em 0.3em; margin: 0 0.2em; line-height: 2.2;
+                border-radius: 0.25em; box-decoration-break: clone; -webkit-box-decoration-break: clone">
+                    {text}
+                </mark>
+                """
 
-        to_render = {
-            'text': ''.join([t['token'] for t in self.heatmap]),
-            'ents': ents,
-        }
-
-        if attribution_labels:
-            template = """
-            <mark class="entity" style="background: {bg}; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 2; 
-            border-radius: 0.35em; box-decoration-break: clone; -webkit-box-decoration-break: clone">
-                {text}
-                <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; text-transform: 
-                uppercase; vertical-align: middle; margin-left: 0.5rem">{label}</span>
-            </mark>
-            """
-        else:
-            template = """
-            <mark class="entity" style="background: {bg}; padding: 0.15em 0.3em; margin: 0 0.2em; line-height: 2.2;
-            border-radius: 0.25em; box-decoration-break: clone; -webkit-box-decoration-break: clone">
-                {text}
-            </mark>
-            """
-
-        html = displacy.render(
-            to_render,
-            style='ent',
-            manual=True,
-            jupyter=jupyter,
-            options={'template': template,
-                     'colors': colors,
-                     }
-        )
-        return html
-
-
-def to_html(thermostat_dataset: Dataset, out_html: str, gamma=1.0):
-    """ Run the visualization script on a Thermostat dataset
-        FIXME: soon to be deprecated. """
-    # TODO: Pass filehandler and check if valid
-
-    config = dict()
-    config["path_html"] = out_html
-    config["dataset"] = {"name": get_coordinate(thermostat_dataset, coordinate="Dataset"),
-                         "split": "test",  # TODO: Check if hard-coding this makes sense
+            html = displacy.render(
+                to_render,
+                style='ent',
+                manual=True,
+                jupyter=jupyter,
+                options={'template': template,
+                         'colors': colors,
                          }
-    config["model"] = {"name": get_coordinate(thermostat_dataset, coordinate="Model")}
-    config["visualization"] = {"columns": ["attributions", "predictions", "input_ids", "labels"],
-                               "gamma": gamma,
-                               "normalize": True}
+            )
+            if jupyter:
+                html = displacy.render(
+                    to_render,
+                    style='ent',
+                    manual=True,
+                    jupyter=False,
+                    options={'template': template,
+                             'colors': colors,
+                             }
+                )
+            full_html += html
+        return full_html if not jupyter else None
 
-    run_visualize(config=config, dataset=thermostat_dataset)
+
+class TextFieldsDict(object):
+    def __init__(self, contents):
+        self.contents = contents
+        self.fields = list(self.contents.keys())
+
+    def __len__(self):
+        return sum([len(getattr(self, text_field)) for text_field in self.fields])
+
+    def __str__(self):
+        return '\n'.join([f'{kv[0]}: {" ".join([it[1] for it in kv[1]])}' for kv in self.contents.items()])
+
+    def items(self):
+        return self.contents.items()
 
 
 def avg_attribution_stat(thermostat_dataset: Dataset) -> List:
