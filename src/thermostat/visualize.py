@@ -17,7 +17,8 @@ class ColorToken:
         self.text_field = text_field
         self.token_index = token_index
         for var_name, value in thermounit_vars.items():
-            setattr(self, var_name, value)
+            if var_name not in ['texts']:
+                setattr(self, var_name, value)
 
         # White color per default
         self.red = '255'
@@ -46,9 +47,11 @@ class ColorToken:
 
     def __repr__(self):
         if "score" in vars(self):
-            return f'{self.token} (Score: {self.score}, Color: {self.hex()}, Text field: {self.text_field})'
+            score_str = f'Score: {self.score}'
         else:
-            return f'{self.token} (Attribution: {self.attribution}, Color: {self.hex()}, Text field: {self.text_field})'
+            score_str = f'Attribution: {self.attribution}'
+        return f'{self.token} (Index: {self.token_index}, {score_str}, Color: {self.hex()},' \
+               f'Text field: {self.text_field})'
 
     @staticmethod
     def gamma_correction(score, gamma):

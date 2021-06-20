@@ -205,22 +205,21 @@ class Thermounit:
             # Select attributions according to token indices (tokens_enum keys)
             # TODO: Send token indices through fuse_words etc and replace None in ColorToken init
             selected_atts = [attributions[idx] for idx in [t[0] for t in non_special_tokens_enum]]
-            non_special_tokens = [t[1] for t in non_special_tokens_enum]
             if fuse_subwords_strategy:
-                tokens, atts = fuse_subwords(non_special_tokens, selected_atts, self.tokenizer,
-                                             strategy=fuse_subwords_strategy)
+                tokens_enum, atts = fuse_subwords(non_special_tokens_enum, selected_atts, self.tokenizer,
+                                                  strategy=fuse_subwords_strategy)
             else:
-                tokens, atts = non_special_tokens, selected_atts
+                tokens_enum, atts = non_special_tokens_enum, selected_atts
 
-            assert (len(tokens) == len(atts))
+            assert (len(tokens_enum) == len(atts))
             # Cast each token into ColorToken objects with default color white which can later be overwritten
             # by a Heatmap object
-            color_tokens = [ColorToken(token=token,
+            color_tokens = [ColorToken(token=token_enum[1],
                                        attribution=att,
                                        text_field=text_field,
-                                       token_index=None,  # TODO (see other TODO above)
+                                       token_index=token_enum[0],
                                        thermounit_vars=vars(self))
-                            for token, att in zip(tokens, atts)]
+                            for token_enum, att in zip(tokens_enum, atts)]
 
             # Set class attribute with the name of the text field
             setattr(self, text_field, color_tokens)

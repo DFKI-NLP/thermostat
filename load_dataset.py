@@ -5,10 +5,11 @@ import thermostat
 
 xlnet = thermostat.load("multi_nli-xlnet-occ")
 roberta = thermostat.load("multi_nli-roberta-occ")
-albert = thermostat.load("multi_nli-albert-occ")
+bert = thermostat.load("multi_nli-bert-occ")
+#albert = thermostat.load("multi_nli-albert-occ")
 
-roberta_hm = roberta[0].heatmap
 xlnet_hm = xlnet[0].heatmap
-albert_hm = albert[0].heatmap
+roberta_hm = roberta[0].heatmap
+bert_hm = bert[0].heatmap
 
-example.render()
+bert[0].render()

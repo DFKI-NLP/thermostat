@@ -1,71 +1,74 @@
 from tokenizers import models
-from typing import List
+from typing import List, Tuple
 
 
-def fuse_subwords(tokens: List, atts: List, tokenizer, strategy=None) -> (List, List):
+def fuse_subwords(tokens_enum: List[Tuple], atts: List, tokenizer, strategy=None) -> (List, List):
     assert strategy in ['average', 'salient']
     tokenizer_model = tokenizer.backend_tokenizer.model
 
-    fuse_token = ''
-    fuse_att = []
-    cleaned_tokens = []
-    cleaned_atts = []
+    fuse_index, fuse_token, fuse_att = [], '', []
+    cleaned_tokens, cleaned_atts = [], []
+
+    def append_cleaned(fuse_i, fuse_t, fuse_a, replace=None):
+        """ Append to results, replace tokenizer artifacts if necessary """
+        if len(fuse_i) == 1:
+            fuse_i = fuse_i[0]
+        if replace:
+            fuse_t = fuse_t.replace(*replace)
+        cleaned_fuse_token = fuse_t
+        cleaned_tokens.append((fuse_i, cleaned_fuse_token))
+        cleaned_atts.append(apply_fuse_strategy(fuse_a, strategy))
 
     if type(tokenizer_model) == models.Unigram:  # ALBERT, XLNet
-        for i, (t, a) in enumerate(zip(tokens, atts)):
+        for i, (token_enum, a) in enumerate(zip(tokens_enum, atts)):
+            tidx, token = token_enum
             if len(fuse_att) > 0:
-                if t.startswith('▁') and t != '▁':
-                    cleaned_tokens.append(fuse_token.replace('▁', ''))
-                    cleaned_atts.append(apply_fuse_strategy(fuse_att, strategy))
-                    fuse_token = ''
-                    fuse_att = []
-            fuse_token += t
+                if token.startswith('▁') and token != '▁':
+                    append_cleaned(fuse_index, fuse_token, fuse_att, replace=['▁', ''])
+                    fuse_index, fuse_token, fuse_att = [], '', []  # Reset
+            fuse_index.append(tidx)
+            fuse_token += token
             fuse_att.append(a)
         if fuse_att:
-            cleaned_tokens.append(fuse_token.replace('▁', ''))
-            cleaned_atts.append(apply_fuse_strategy(fuse_att, strategy))
+            append_cleaned(fuse_index, fuse_token, fuse_att, replace=['▁', ''])
 
     elif type(tokenizer_model) == models.WordPiece:  # BERT, ELECTRA
-        for i, (t, a) in enumerate(zip(tokens, atts)):
-            if t.startswith('##'):
+        for i, (token_enum, a) in enumerate(zip(tokens_enum, atts)):
+            tidx, token = token_enum
+            if token.startswith('##'):
+                fuse_index.append(tidx)
                 # Append all subsequent '##' subword tokens
-                fuse_token += t.replace('##', '')
+                fuse_token += token.replace('##', '')
                 fuse_att.append(a)
-                if i < len(tokens) - 1:
-                    if not tokens[i + 1].startswith('##'):
-                        # Append to results
-                        cleaned_tokens.append(fuse_token)
-                        cleaned_atts.append(apply_fuse_strategy(fuse_att, strategy))
-                        # Reset
-                        fuse_token = ''
-                        fuse_att = []
+                if i < len(tokens_enum) - 1:
+                    if not tokens_enum[i + 1][1].startswith('##'):
+                        append_cleaned(fuse_index, fuse_token, fuse_att)
+                        fuse_index, fuse_token, fuse_att = [], '', []  # Reset
             else:
-                if i < len(tokens) - 1:
-                    if tokens[i + 1].startswith('##'):
+                if i < len(tokens_enum) - 1:
+                    if tokens_enum[i + 1][1].startswith('##'):
+                        fuse_index.append(tidx)
                         # Add the one word before the first '##' token
-                        fuse_token += t
+                        fuse_token += token
                         fuse_att.append(a)
                         continue
                 # Append to results ("nothing happens" case)
-                cleaned_tokens.append(t)
-                cleaned_atts.append(a)
+                append_cleaned([tidx], token, [a])
         if fuse_att:
-            cleaned_tokens.append(fuse_token.replace('##', ''))
-            cleaned_atts.append(apply_fuse_strategy(fuse_att, strategy))
+            append_cleaned(fuse_index, fuse_token, fuse_att, replace=['##', ''])
 
     elif type(tokenizer_model) == models.BPE:  # RoBERTa
-        for i, (t, a) in enumerate(zip(tokens, atts)):
+        for i, (token_enum, a) in enumerate(zip(tokens_enum, atts)):
+            tidx, token = token_enum
             if len(fuse_att) > 0:
-                if t != 'Ġ':
-                    cleaned_tokens.append(fuse_token)
-                    cleaned_atts.append(apply_fuse_strategy(fuse_att, strategy))
-                    fuse_token = ''
-                    fuse_att = []
-            fuse_token += t.replace('Ġ', '')
+                if token != 'Ġ':
+                    append_cleaned(fuse_index, fuse_token, fuse_att)
+                    fuse_index, fuse_token, fuse_att = [], '', []  # Reset
+            fuse_index.append(tidx)
+            fuse_token += token.replace('Ġ', '')
             fuse_att.append(a)
         if fuse_att:
-            cleaned_tokens.append(fuse_token.replace('Ġ', ''))
-            cleaned_atts.append(apply_fuse_strategy(fuse_att, strategy))
+            append_cleaned(fuse_index, fuse_token, fuse_att, replace=['Ġ', ''])
 
     else:
         raise NotImplementedError('Not a valid backend tokenizer model (Unigram, WordPiece, BPE).')
