@@ -102,29 +102,33 @@ _MNLI_XLNET_KWARGS = dict(
 # Base arguments for XNLI dataset
 _XNLI_KWARGS = dict(
     dataset="xnli",
-    label_classes=["entailment", "neutral", "contradiction"],
     label_column="label",
     text_column=["premise", "hypothesis"],
     **_BASE_KWARGS,
 )
 _XNLI_ALBERT_KWARGS = dict(
     model="prajjwal1/albert-base-v2-mnli",
+    label_classes=["contradiction", "entailment", "neutral"],
     **_XNLI_KWARGS,
 )
 _XNLI_BERT_KWARGS = dict(
     model="textattack/bert-base-uncased-MNLI",
+    label_classes=["contradiction", "entailment", "neutral"],
     **_XNLI_KWARGS,
 )
 _XNLI_ELECTRA_KWARGS = dict(
     model="howey/electra-base-mnli",
+    label_classes=["entailment", "neutral", "contradiction"],
     **_XNLI_KWARGS,
 )
 _XNLI_ROBERTA_KWARGS = dict(
     model="textattack/roberta-base-MNLI",
+    label_classes=["contradiction", "entailment", "neutral"],
     **_XNLI_KWARGS,
 )
 _XNLI_XLNET_KWARGS = dict(
     model="textattack/xlnet-base-cased-MNLI",
+    label_classes=["contradiction", "entailment", "neutral"],
     **_XNLI_KWARGS,
 )
 

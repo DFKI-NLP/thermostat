@@ -2,6 +2,7 @@ from collections import defaultdict
 
 import datasets
 from datasets import Dataset
+from functools import reduce
 from itertools import groupby
 from overrides import overrides
 from spacy import displacy
@@ -12,7 +13,7 @@ from typing import Dict, List
 from thermostat.data import thermostat_configs
 from thermostat.data.tokenization import fuse_subwords
 from thermostat.utils import lazy_property
-from thermostat.visualize import Sequence, normalize_attributions
+from thermostat.visualize import ColorToken, Heatmap, normalize_attributions
 
 
 def list_configs():
@@ -113,7 +114,6 @@ class Thermopack(Dataset, metaclass=ThermopackMeta):
         if label_classes != self.label_names:
             self.dataset = self.dataset.map(lambda instance: {
                 'label': label_classes.index(self.label_names[instance['label']])})
-            print(f'Reordered labels from {self.label_names} to {label_classes}')
             self.label_names = label_classes
 
         # Explainer
@@ -121,13 +121,13 @@ class Thermopack(Dataset, metaclass=ThermopackMeta):
 
     @lazy_property
     def tokenizer(self):
-        print(f'Loading the tokenizer for model: {self.model_name}')
         return AutoTokenizer.from_pretrained(self.model_name)
 
     @lazy_property
     def units(self):
         units = []
-        for instance in tqdm(self.dataset, desc=f'Preparing instances (Thermounits) for {self.config_name}'):
+        for instance in tqdm(self.dataset,
+                             desc=f'Tokenizing {self.config_name} instances (Tokenizer: {self.model_name})'):
             # Decode labels and predictions
             true_label_index = instance['label']
             true_label = {'index': true_label_index,
@@ -172,6 +172,7 @@ class Thermounit:
         self.tokenizer = tokenizer
         self.config_name = config_name
         self.text_fields: List = []
+        self.texts: Dict = {}
 
     @property
     def tokens(self) -> Dict:
@@ -181,10 +182,7 @@ class Thermounit:
         tokens_enum = dict(enumerate(tokens))
         return tokens_enum
 
-    def fill_text_fields(self):
-        if self.text_fields:
-            return
-
+    def fill_text_fields(self, attributions=None, fuse_subwords_strategy='salient'):
         # Determine groups of tokens split by [SEP] tokens
         text_groups = []
         for group in [list(g) for k, g in groupby(self.tokens.items(),
@@ -193,59 +191,75 @@ class Thermounit:
             if len([t for t in group if t[1] in self.tokenizer.all_special_tokens]) < len(group):
                 text_groups.append(group)
 
+        # Set text_fields attribute, e.g. containing "premise" and "hypothesis"
         setattr(self, 'text_fields', get_text_fields(self.config_name))
+
+        # In case this method gets called from somewhere else than the heatmap method, assign attributions from self
+        if not attributions:
+            attributions = self.attributions
+
         # Assign text field values based on groups
         for text_field, field_tokens in zip(self.text_fields, text_groups):
-            setattr(self, text_field, [t for t in field_tokens if t[1] not in self.tokenizer.all_special_tokens])
+            # Create new list containing all non-special tokens
+            non_special_tokens_enum = [t for t in field_tokens if t[1] not in self.tokenizer.all_special_tokens]
+            # Select attributions according to token indices (tokens_enum keys)
+            # TODO: Send token indices through fuse_words etc and replace None in ColorToken init
+            selected_atts = [attributions[idx] for idx in [t[0] for t in non_special_tokens_enum]]
+            non_special_tokens = [t[1] for t in non_special_tokens_enum]
+            if fuse_subwords_strategy:
+                tokens, atts = fuse_subwords(non_special_tokens, selected_atts, self.tokenizer,
+                                             strategy=fuse_subwords_strategy)
+            else:
+                tokens, atts = non_special_tokens, selected_atts
+
+            assert (len(tokens) == len(atts))
+            # Cast each token into ColorToken objects with default color white which can later be overwritten
+            # by a Heatmap object
+            color_tokens = [ColorToken(token=token,
+                                       attribution=att,
+                                       text_field=text_field,
+                                       token_index=None,  # TODO (see other TODO above)
+                                       thermounit_vars=vars(self))
+                            for token, att in zip(tokens, atts)]
+
+            # Set class attribute with the name of the text field
+            setattr(self, text_field, color_tokens)
+
+        # Introduce a texts attribute that also stores all assigned text fields into a dict with the key being the
+        # name of each text field
+        setattr(self, 'texts', {text_field: getattr(self, text_field) for text_field in self.text_fields})
 
     @lazy_property
-    def texts(self):
-        self.fill_text_fields()
-
-        return TextFieldsDict({text_field: getattr(self, text_field) for text_field in self.text_fields})
-
-    @lazy_property
-    def heatmap(self, gamma=1.0, normalize=True, flip_attributions_idx=0, fuse_subwords_strategy='salient'):
+    def heatmap(self, gamma=1.0, normalize=True, flip_attributions_idx=None, fuse_subwords_strategy='salient'):
         """ Generate a list of tuples in the form of <token,color> for a single data point of a Thermostat dataset """
-        self.fill_text_fields()
 
+        # Handle attributions, apply normalization and sign flipping if needed
         atts = self.attributions
-
         if normalize:
             atts = normalize_attributions(atts)
-
         if flip_attributions_idx == self.predicted_label['index']:
             atts = [att * -1 for att in atts]
 
-        heatmaps = {}
-        for text_field, tokens_enum in self.texts.items():
-            # Select attributions according to token indices (tokens_enum keys)
-            selected_atts = [atts[idx] for idx in [t[0] for t in tokens_enum]]
-            tokens = [t[1] for t in tokens_enum]
+        # Use detokenizer to fill text fields
+        self.fill_text_fields(attributions=atts, fuse_subwords_strategy=fuse_subwords_strategy)
 
-            if fuse_subwords_strategy:
-                tokens, selected_atts = fuse_subwords(tokens, selected_atts, self.tokenizer,
-                                                      strategy=fuse_subwords_strategy)
-                setattr(self, text_field, tokens)
+        ctoken_fields = list(self.texts.values())
+        ctokens = reduce(lambda x, y: x + y, ctoken_fields)
+        heatmap = Heatmap(color_tokens=ctokens, gamma=gamma)
 
-            sequence = Sequence(words=tokens, scores=selected_atts)
-            hm = sequence.words_rgb(token_pad=self.tokenizer.pad_token,
-                                    position_pad=self.tokenizer.padding_side,
-                                    gamma=gamma)
-            heatmaps[text_field] = hm
-        return heatmaps
+        return heatmap
 
     def render(self, attribution_labels=False, jupyter=False):
         """ Uses the displaCy visualization tool to render a HTML from the heatmap """
 
         full_html = ''
         for field_name, text_field_heatmap, in self.heatmap.items():
+            print(f'Heatmap of text field "{field_name}"')
             ents = []
             colors = {}
             ii = 0
             for token_rgb in text_field_heatmap:
-                token, rgb = token_rgb.values()
-                att_rounded = str(rgb.score)
+                token, rgb, att_rounded = token_rgb.values()
 
                 ff = ii + len(token)
 
@@ -254,12 +268,12 @@ class Thermounit:
                 ent = {
                     'start': ii,
                     'end': ff,
-                    'label': att_rounded,
+                    'label': str(att_rounded),
                 }
 
                 ents.append(ent)
                 # A "colors" dict takes care of the mapping between attribution labels and hex colors
-                colors[att_rounded] = rgb.hex
+                colors[str(att_rounded)] = rgb.hex
                 ii = ff
 
             to_render = {
@@ -305,21 +319,6 @@ class Thermounit:
                 )
             full_html += html
         return full_html if not jupyter else None
-
-
-class TextFieldsDict(object):
-    def __init__(self, contents):
-        self.contents = contents
-        self.fields = list(self.contents.keys())
-
-    def __len__(self):
-        return sum([len(getattr(self, text_field)) for text_field in self.fields])
-
-    def __str__(self):
-        return '\n'.join([f'{kv[0]}: {" ".join([it[1] for it in kv[1]])}' for kv in self.contents.items()])
-
-    def items(self):
-        return self.contents.items()
 
 
 def avg_attribution_stat(thermostat_dataset: Dataset) -> List:
