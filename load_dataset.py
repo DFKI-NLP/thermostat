@@ -13,3 +13,4 @@ roberta_hm = roberta[0].heatmap
 bert_hm = bert[0].heatmap
 
 bert[0].render()
+roberta[0].render()

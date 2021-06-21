@@ -1,13 +1,20 @@
+import logging
 import math
 import numpy as np
 import os
+import sys
 import torch
 from datasets import tqdm
+from spacy import displacy
+from spacy.util import is_in_jupyter
 from transformers import AutoTokenizer
 from typing import Dict
 
 from thermostat.data import get_local_explanations
 from thermostat.utils import detach_to_list, read_path
+
+
+logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
 
 class ColorToken:
@@ -50,8 +57,11 @@ class ColorToken:
             score_str = f'Score: {self.score}'
         else:
             score_str = f'Attribution: {self.attribution}'
-        return f'{self.token} (Index: {self.token_index}, {score_str}, Color: {self.hex()},' \
+        return f'{self.token} (Index: {self.token_index}, {score_str}, Color: {self.hex()}, ' \
                f'Text field: {self.text_field})'
+
+    def __str__(self):
+        return repr(self)
 
     @staticmethod
     def gamma_correction(score, gamma):
@@ -64,11 +74,73 @@ class ColorToken:
 class Heatmap(list):
     def __init__(self, color_tokens, gamma=1.0):
         super().__init__(color_tokens)
-        for ctoken in self:
-            ctoken.add_color(gamma=gamma)
+        for color_token in self:
+            color_token.add_color(gamma=gamma)
 
     def __repr__(self):
-        return '\n'.join([str(ctok) for ctok in self])
+        return '\n'.join([repr(ctok) for ctok in self])
+
+    def render(self, labels=False):
+        """ Uses the displaCy visualization tool to render a HTML from the heatmap """
+
+        # Call this function once for every text field
+        if len(set([t.text_field for t in self])) > 1:
+            for field in self[0].text_fields:
+                logging.info(f'Heatmap "{field}"')
+                Heatmap([t for t in self if t.text_field == field]).render(labels=labels)
+            return
+
+        ents = []
+        colors = {}
+        ii = 0
+        for color_token in self:
+            ff = ii + len(color_token.token)
+
+            # One entity in displaCy contains start and end markers (character index) and optionally a label
+            # The label can be added by setting "attribution_labels" to True
+            ent = {
+                'start': ii,
+                'end': ff,
+                'label': str(color_token.score),
+            }
+
+            ents.append(ent)
+            # A "colors" dict takes care of the mapping between attribution labels and hex colors
+            colors[str(color_token.score)] = color_token.hex()
+            ii = ff
+
+        to_render = {
+            'text': ''.join([t.token for t in self]),
+            'ents': ents,
+        }
+
+        if labels:
+            template = """
+            <mark class="entity" style="background: {bg}; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 2; 
+            border-radius: 0.35em; box-decoration-break: clone; -webkit-box-decoration-break: clone">
+                {text}
+                <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; text-transform: 
+                uppercase; vertical-align: middle; margin-left: 0.5rem">{label}</span>
+            </mark>
+            """
+        else:
+            template = """
+            <mark class="entity" style="background: {bg}; padding: 0.15em 0.3em; margin: 0 0.2em; line-height: 2.2;
+            border-radius: 0.25em; box-decoration-break: clone; -webkit-box-decoration-break: clone">
+                {text}
+            </mark>
+            """
+
+        html = displacy.render(
+            to_render,
+            style='ent',
+            manual=True,
+            jupyter=is_in_jupyter(),
+            options={'template': template,
+                     'colors': colors,
+                     }
+        )
+        return html if not is_in_jupyter() else None
 
 
 def token_to_html(token, rgb):

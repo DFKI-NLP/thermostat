@@ -5,7 +5,6 @@ from datasets import Dataset
 from functools import reduce
 from itertools import groupby
 from overrides import overrides
-from spacy import displacy
 from tqdm import tqdm
 from transformers import AutoTokenizer
 from typing import Dict, List
@@ -228,7 +227,7 @@ class Thermounit:
         # name of each text field
         setattr(self, 'texts', {text_field: getattr(self, text_field) for text_field in self.text_fields})
 
-    @lazy_property
+    @property
     def heatmap(self, gamma=1.0, normalize=True, flip_attributions_idx=None, fuse_subwords_strategy='salient'):
         """ Generate a list of tuples in the form of <token,color> for a single data point of a Thermostat dataset """
 
@@ -244,80 +243,10 @@ class Thermounit:
 
         ctoken_fields = list(self.texts.values())
         ctokens = reduce(lambda x, y: x + y, ctoken_fields)
-        heatmap = Heatmap(color_tokens=ctokens, gamma=gamma)
+        return Heatmap(color_tokens=ctokens, gamma=gamma)
 
-        return heatmap
-
-    def render(self, attribution_labels=False, jupyter=False):
-        """ Uses the displaCy visualization tool to render a HTML from the heatmap """
-
-        full_html = ''
-        for field_name, text_field_heatmap, in self.heatmap.items():
-            print(f'Heatmap of text field "{field_name}"')
-            ents = []
-            colors = {}
-            ii = 0
-            for token_rgb in text_field_heatmap:
-                token, rgb, att_rounded = token_rgb.values()
-
-                ff = ii + len(token)
-
-                # One entity in displaCy contains start and end markers (character index) and optionally a label
-                # The label can be added by setting "attribution_labels" to True
-                ent = {
-                    'start': ii,
-                    'end': ff,
-                    'label': str(att_rounded),
-                }
-
-                ents.append(ent)
-                # A "colors" dict takes care of the mapping between attribution labels and hex colors
-                colors[str(att_rounded)] = rgb.hex
-                ii = ff
-
-            to_render = {
-                'text': ''.join([t['token'] for t in text_field_heatmap]),
-                'ents': ents,
-            }
-
-            if attribution_labels:
-                template = """
-                <mark class="entity" style="background: {bg}; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 2; 
-                border-radius: 0.35em; box-decoration-break: clone; -webkit-box-decoration-break: clone">
-                    {text}
-                    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; text-transform: 
-                    uppercase; vertical-align: middle; margin-left: 0.5rem">{label}</span>
-                </mark>
-                """
-            else:
-                template = """
-                <mark class="entity" style="background: {bg}; padding: 0.15em 0.3em; margin: 0 0.2em; line-height: 2.2;
-                border-radius: 0.25em; box-decoration-break: clone; -webkit-box-decoration-break: clone">
-                    {text}
-                </mark>
-                """
-
-            html = displacy.render(
-                to_render,
-                style='ent',
-                manual=True,
-                jupyter=jupyter,
-                options={'template': template,
-                         'colors': colors,
-                         }
-            )
-            if jupyter:
-                html = displacy.render(
-                    to_render,
-                    style='ent',
-                    manual=True,
-                    jupyter=False,
-                    options={'template': template,
-                             'colors': colors,
-                             }
-                )
-            full_html += html
-        return full_html if not jupyter else None
+    def render(self, labels=False):
+        self.heatmap.render(labels=labels)
 
 
 def avg_attribution_stat(thermostat_dataset: Dataset) -> List:
