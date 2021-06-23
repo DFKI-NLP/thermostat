@@ -13,7 +13,7 @@ from typing import Dict, List
 from thermostat.data import additional_configs, thermostat_configs
 from thermostat.data.tokenization import fuse_subwords
 from thermostat.utils import lazy_property
-from thermostat.visualize import ColorToken, Heatmap, normalize_attributions
+from thermostat.visualize import ColorToken, Heatmap, TextField, normalize_attributions
 
 
 def list_configs():
@@ -104,11 +104,8 @@ class Thermopack(Dataset, metaclass=ThermopackMeta):
 
         # Model
         self.model_name = get_coordinate(hf_dataset, 'Model')
-
         # Dataset
         self.dataset_name = get_coordinate(hf_dataset, 'Dataset')
-        self.label_names = self.features['label'].names
-
         # Explainer
         self.explainer_name = get_coordinate(hf_dataset, 'Explainer')
 
@@ -118,6 +115,7 @@ class Thermopack(Dataset, metaclass=ThermopackMeta):
                                                   unit['input_ids'],
                                                   unit['label'],
                                                   unit['predictions']) for unit in self.dataset]
+        self.legacy_label_names = get_config(self.config_name).label_classes
 
     @overrides
     def __getitem__(self, idx):
@@ -131,36 +129,33 @@ class Thermopack(Dataset, metaclass=ThermopackMeta):
             elif not any([isinstance(unit, Thermounit) for unit in self.units]):
                 print(f'The instances (Thermounits) of this Thermopack are placeholders and have to be fully processed '
                       f'before all attributes and metadata are available.')
-                self._decode()
+                self.decode()
                 return self[idx]  # Recursion
             raise KeyError(f'Not a valid slice or column name: {idx}')
 
-        elif isinstance(self.units[idx], PlaceholderThermounit):
+        elif isinstance(idx, slice):
+            """ Slicing """
+            data_indices = range(len(self))
+            slice_indices = data_indices[slice(idx.start, idx.stop, idx.step)]
+            return Thermopack(self.dataset.select(slice_indices))
+
+        elif not isinstance(self.units[idx], Thermounit):
             """ Decode labels and predictions """
             instance = self.units[idx]
 
-            gold_label_names = additional_configs.get_label_names(self.config_name)
-            if gold_label_names:
-                # Overwrite true (HF dataset) label indices with custom label indices from downstream model
-                #  (some MNLI and XNLI models have a different order in the label names)
-                if self.label_names != gold_label_names:
-                    self.lgc_label_names = self.label_names
-                    self.label_names = gold_label_names
-                gold_label_index = gold_label_names.index(self.lgc_label_names[instance.label])
-
-            else:
-                gold_label_index = instance.label
-
-            true_label = {'index': gold_label_index,  # prev: true_label_index = instance.label
-                          'name': self.label_names[gold_label_index]}
+            # Overwrite true (HF dataset) label indices with custom label indices from downstream model
+            #  (some MNLI and XNLI models have a different order in the label names)
+            true_label_index = self.label_names.index(self.legacy_label_names[instance.label])
+            true_label = {'index': true_label_index,
+                          'name': self.label_names[true_label_index]}
 
             predicted_label_index = instance.predictions.index(max(instance.predictions))
             predicted_label = {'index': predicted_label_index,
                                'name': self.label_names[predicted_label_index]}
 
-            self.units[idx] = Thermounit(
-                instance, true_label, predicted_label,
-                self.model_name, self.dataset_name, self.explainer_name, self.tokenizer, self.config_name)
+            tunit = Thermounit(instance, true_label, predicted_label, self.model_name, self.dataset_name,
+                               self.explainer_name, self.tokenizer, self.config_name)
+            self.units[idx] = tunit
         return self.units[idx]
 
     @overrides
@@ -173,10 +168,18 @@ class Thermopack(Dataset, metaclass=ThermopackMeta):
     def __str__(self):
         return self.info.description
 
-    def _decode(self):
+    @property
+    def label_names(self):
+        gold_label_names = additional_configs.get_label_names(self.config_name)
+        if gold_label_names:
+            return gold_label_names
+        else:
+            return self.legacy_label_names
+
+    def decode(self):
         """ Replace all PlaceholderThermounit instances with fully processed Thermounit instances """
         for unit in tqdm(self, desc='Decoding Thermounits', total=len(self)):
-            hm = unit.heatmap
+            u = unit
 
     @lazy_property
     def tokenizer(self):
@@ -188,9 +191,15 @@ class Thermopack(Dataset, metaclass=ThermopackMeta):
 
     def classification_report(self):
         """ Uses sklearn to print the confusion matrix """
-        y_true = [t['index'] for t in self['true_label']]
-        y_pred = [p['index'] for p in self['predicted_label']]
+        y_true = [t['index'] for t in self['true_label_index']]
+        y_pred = [p['index'] for p in self['predicted_label_index']]
         print(classification_report(y_true, y_pred, target_names=self.label_names))
+
+    def true_pred_counter(self):
+        from collections import Counter
+        if 'true_label_index' not in self.units[0].__dict__:
+            self.decode()
+        return Counter([(m_i.true_label_index, m_i.predicted_label_index) for m_i in self.units])
 
 
 class PlaceholderThermounit:
@@ -201,12 +210,6 @@ class PlaceholderThermounit:
         self.label = label
         self.predictions = predictions
 
-    def __getattr__(self, name):
-        if name in list(self.__dict__.keys()):
-            return self.__getattribute__(name)
-        else:
-            return None
-
 
 class Thermounit(PlaceholderThermounit):
     """ Processed single instance of a Thermopack (Thermostat dataset/configuration) """
@@ -216,15 +219,30 @@ class Thermounit(PlaceholderThermounit):
             super().__init__(*instance.__dict__.values())
         for key in instance.__dict__:
             setattr(self, key, instance.__dict__[key])
-        self.true_label = true_label
-        self.predicted_label = predicted_label
+        self.true_label = true_label['name']
+        self.true_label_index = true_label['index']
+        self.predicted_label = predicted_label['name']
+        self.predicted_label_index = predicted_label['index']
         self.model_name = model_name
         self.dataset_name = dataset_name
         self.explainer_name = explainer_name
         self.tokenizer = tokenizer
         self.config_name = config_name
-        self.text_fields: List = []
-        self.texts: Dict = {}
+
+    @property
+    def text_fields(self):
+        # Set text_fields attribute, e.g. containing "premise" and "hypothesis"
+        return get_text_fields(self.config_name)
+
+    @lazy_property
+    def texts(self) -> Dict:
+        # Introduce a texts attribute that also stores all assigned text fields into a dict with the key being the
+        # name of each text field
+        if self.text_fields[0] not in list(self.__dict__.keys()):
+            self.fill_text_fields()
+        return {text_field: getattr(self, text_field) for text_field in self.text_fields}
+        # TODO: If text fields, e.g. "premise", are accessed, trigger fill_text_fields.
+        #  Prevent AttributeError when accessing them and don't introduce None values (hard to overwrite).
 
     @property
     def tokens(self) -> Dict:
@@ -234,7 +252,9 @@ class Thermounit(PlaceholderThermounit):
         tokens_enum = dict(enumerate(tokens))
         return tokens_enum
 
-    def fill_text_fields(self, attributions=None, fuse_subwords_strategy='salient'):
+    def fill_text_fields(self, fuse_subwords_strategy='salient'):
+        """ Use detokenizer to fill text fields """
+
         # Determine groups of tokens split by [SEP] tokens
         text_groups = []
         for group in [list(g) for k, g in groupby(self.tokens.items(),
@@ -243,20 +263,13 @@ class Thermounit(PlaceholderThermounit):
             if len([t for t in group if t[1] in self.tokenizer.all_special_tokens]) < len(group):
                 text_groups.append(group)
 
-        # Set text_fields attribute, e.g. containing "premise" and "hypothesis"
-        setattr(self, 'text_fields', get_text_fields(self.config_name))
-
-        # In case this method gets called from somewhere else than the heatmap method, assign attributions from self
-        if not attributions:
-            attributions = self.attributions
-
         # Assign text field values based on groups
         for text_field, field_tokens in zip(self.text_fields, text_groups):
             # Create new list containing all non-special tokens
             non_special_tokens_enum = [t for t in field_tokens if t[1] not in self.tokenizer.all_special_tokens]
             # Select attributions according to token indices (tokens_enum keys)
 
-            selected_atts = [attributions[idx] for idx in [t[0] for t in non_special_tokens_enum]]
+            selected_atts = [self.attributions[idx] for idx in [t[0] for t in non_special_tokens_enum]]
             if fuse_subwords_strategy:
                 tokens_enum, atts = fuse_subwords(non_special_tokens_enum, selected_atts, self.tokenizer,
                                                   strategy=fuse_subwords_strategy)
@@ -274,29 +287,36 @@ class Thermounit(PlaceholderThermounit):
                             for token_enum, att in zip(tokens_enum, atts)]
 
             # Set class attribute with the name of the text field
-            setattr(self, text_field, color_tokens)
-
-        # Introduce a texts attribute that also stores all assigned text fields into a dict with the key being the
-        # name of each text field
-        setattr(self, 'texts', {text_field: getattr(self, text_field) for text_field in self.text_fields})
+            setattr(self, text_field, TextField(color_tokens))
 
     @property
-    def heatmap(self, gamma=1.0, normalize=True, flip_attributions_idx=None, fuse_subwords_strategy='salient'):
-        """ Generate a list of tuples in the form of <token,color> for a single data point of a Thermostat dataset """
+    def explanation(self, keep_padding_tokens=False):
+        """ Token-attribution tuples of a Thermounit """
+        if keep_padding_tokens:
+            tokens = self.tokens
+        else:
+            tokens = [(idx, token) for idx, token in self.tokens.items() if token != self.tokenizer.pad_token]
+        attributions = [att for i, att in enumerate(self.attributions) if i in [t[0] for t in tokens]]
+        token_att_tuples = list(zip([t[1] for t in tokens], attributions))
+
+        return token_att_tuples
+
+    @property
+    def heatmap(self, gamma=1.0, normalize=True, flip_attributions_idx=None, fuse_subwords_strategy=None):
+        """ Generate a heatmap for a single data point of a Thermostat dataset """
 
         # Handle attributions, apply normalization and sign flipping if needed
-        atts = self.attributions
+        atts = self.attributions  # TODO: Change to ctoken atts
         if normalize:
             atts = normalize_attributions(atts)
-        if flip_attributions_idx == self.predicted_label['index']:
+        if flip_attributions_idx == self.predicted_label:
             atts = [att * -1 for att in atts]
 
-        # Use detokenizer to fill text fields
-        self.fill_text_fields(attributions=atts, fuse_subwords_strategy=fuse_subwords_strategy)
-
+        if not self.texts or fuse_subwords_strategy:
+            self.fill_text_fields(fuse_subwords_strategy=fuse_subwords_strategy)
         ctoken_fields = list(self.texts.values())
         ctokens = reduce(lambda x, y: x + y, ctoken_fields)
-        return Heatmap(color_tokens=ctokens, gamma=gamma)
+        return Heatmap(color_tokens=ctokens, attributions=atts, gamma=gamma)
 
     def render(self, labels=False):
         self.heatmap.render(labels=labels)

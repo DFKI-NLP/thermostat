@@ -115,4 +115,3 @@ def lazy_property(fn):
         return getattr(self, attr_name)
 
     return _lazy_property
-

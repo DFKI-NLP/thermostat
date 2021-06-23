@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import os
+import pandas as pd
 import torch
 from datasets import tqdm
 from spacy import displacy
@@ -26,6 +27,7 @@ class ColorToken:
         self.red = '255'
         self.green = '255'
         self.blue = '255'
+        self.score = None
 
         assert not math.isnan(self.attribution), 'Attribution of token {} is NaN'.format(self.token)
 
@@ -66,14 +68,37 @@ class ColorToken:
         return '#%02x%02x%02x' % (int(self.red), int(self.green), int(self.blue))
 
 
-class Heatmap(list):
-    def __init__(self, color_tokens, gamma=1.0):
+class TextField(list):
+    def __init__(self, color_tokens):
         super().__init__(color_tokens)
-        for color_token in self:
-            color_token.add_color(gamma=gamma)
 
     def __repr__(self):
-        return '\n'.join([repr(ctok) for ctok in self])
+        return ' '.join([ctok.token for ctok in self])
+
+
+class Heatmap(TextField):
+    def __init__(self, color_tokens, attributions=None, gamma=1.0):
+        super().__init__(color_tokens)
+        for i in range(len(self)):
+            if attributions:
+                self[i].attribution = attributions[i]
+            self[i].add_color(gamma=gamma)
+        self.table = pd.DataFrame({
+            'token_index': self['token_index'],
+            'token': self['token'],
+            'attribution': self['attribution'],
+            'text_field': self['text_field']}
+        ).set_index('token_index').T
+
+    def __getitem__(self, idx):
+        if isinstance(idx, str):
+            """ String indexing """
+            if idx in list(self[0].__dict__.keys()):
+                return [getattr(u, idx) for u in self]
+        return list(self)[idx]
+
+    def __repr__(self):
+        return repr(self.table)
 
     def render(self, labels=False):
         """ Uses the displaCy visualization tool to render a HTML from the heatmap """
