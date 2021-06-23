@@ -1,8 +1,4 @@
-from collections import defaultdict
-
-import datasets
-from datasets import Dataset
-from functools import reduce
+from datasets import Dataset, load_dataset
 from itertools import groupby
 from overrides import overrides
 from sklearn.metrics import classification_report
@@ -13,7 +9,7 @@ from typing import Dict, List
 from thermostat.data import additional_configs, thermostat_configs
 from thermostat.data.tokenization import fuse_subwords
 from thermostat.utils import lazy_property
-from thermostat.visualize import ColorToken, Heatmap, TextField, normalize_attributions
+from thermostat.visualize import ColorToken, Heatmap, normalize_attributions
 
 
 def list_configs():
@@ -38,7 +34,7 @@ def load(config_str: str = None, cache_dir: str = None):
 
     def load_from_single_config(config, cache_dir=None):
         print(f'Loading Thermostat configuration: {config}')
-        return datasets.load_dataset("hf_dataset.py", config, split="test", cache_dir=cache_dir)
+        return load_dataset("hf_dataset.py", config, split="test", cache_dir=cache_dir)
 
     if config_str in list_configs():
         data = load_from_single_config(config_str, cache_dir=cache_dir)
@@ -191,8 +187,8 @@ class Thermopack(Dataset, metaclass=ThermopackMeta):
 
     def classification_report(self):
         """ Uses sklearn to print the confusion matrix """
-        y_true = [t['index'] for t in self['true_label_index']]
-        y_pred = [p['index'] for p in self['predicted_label_index']]
+        y_true = self['true_label_index']
+        y_pred = self['predicted_label_index']
         print(classification_report(y_true, y_pred, target_names=self.label_names))
 
     def true_pred_counter(self):
@@ -230,27 +226,17 @@ class Thermounit(PlaceholderThermounit):
         self.config_name = config_name
 
     @property
-    def text_fields(self):
-        # Set text_fields attribute, e.g. containing "premise" and "hypothesis"
-        return get_text_fields(self.config_name)
-
-    @lazy_property
-    def texts(self) -> Dict:
-        # Introduce a texts attribute that also stores all assigned text fields into a dict with the key being the
-        # name of each text field
-        if self.text_fields[0] not in list(self.__dict__.keys()):
-            self.fill_text_fields()
-        return {text_field: getattr(self, text_field) for text_field in self.text_fields}
-        # TODO: If text fields, e.g. "premise", are accessed, trigger fill_text_fields.
-        #  Prevent AttributeError when accessing them and don't introduce None values (hard to overwrite).
-
-    @property
     def tokens(self) -> Dict:
         # "tokens" includes all special tokens, later used for the heatmap when aligning with attributions
         tokens = self.tokenizer.convert_ids_to_tokens(self.input_ids)
         # Make token index
         tokens_enum = dict(enumerate(tokens))
         return tokens_enum
+
+    @property
+    def text_fields(self):
+        # Set text_fields attribute, e.g. containing "premise" and "hypothesis"
+        return get_text_fields(self.config_name)
 
     def fill_text_fields(self, fuse_subwords_strategy='salient'):
         """ Use detokenizer to fill text fields """
@@ -260,7 +246,7 @@ class Thermounit(PlaceholderThermounit):
         for group in [list(g) for k, g in groupby(self.tokens.items(),
                                                   lambda kt: kt[1] != self.tokenizer.sep_token) if k]:
             # Remove groups that only contain special tokens
-            if len([t for t in group if t[1] in self.tokenizer.all_special_tokens]) < len(group):
+            if len([t for t in group if t[1] not in self.tokenizer.all_special_tokens]) < len(group):
                 text_groups.append(group)
 
         # Assign text field values based on groups
@@ -287,7 +273,11 @@ class Thermounit(PlaceholderThermounit):
                             for token_enum, att in zip(tokens_enum, atts)]
 
             # Set class attribute with the name of the text field
-            setattr(self, text_field, TextField(color_tokens))
+            setattr(self, text_field, Heatmap(color_tokens))
+
+        # Introduce a texts attribute that also stores all assigned text fields into a dict with the key being the
+        # name of each text field
+        setattr(self, 'texts', {text_field: getattr(self, text_field) for text_field in self.text_fields})
 
     @property
     def explanation(self, keep_padding_tokens=False):
@@ -297,83 +287,39 @@ class Thermounit(PlaceholderThermounit):
         else:
             tokens = [(idx, token) for idx, token in self.tokens.items() if token != self.tokenizer.pad_token]
         attributions = [att for i, att in enumerate(self.attributions) if i in [t[0] for t in tokens]]
-        token_att_tuples = list(zip([t[1] for t in tokens], attributions))
+        token_att_tuples = list(zip([t[1] for t in tokens], attributions, [t[0] for t in tokens]))
 
         return token_att_tuples
 
     @property
-    def heatmap(self, gamma=1.0, normalize=True, flip_attributions_idx=None, fuse_subwords_strategy=None):
-        """ Generate a heatmap for a single data point of a Thermostat dataset """
+    def heatmap(self, gamma=1.0, normalize=True, flip_attributions_idx=None, fuse_subwords_strategy='salient'):
+        """ Generate a heatmap from explanation (!) data (without instantiating text fields)
+         for a single data point of a Thermostat dataset """
 
         # Handle attributions, apply normalization and sign flipping if needed
-        atts = self.attributions  # TODO: Change to ctoken atts
+        atts = [x[1] for x in self.explanation]
         if normalize:
             atts = normalize_attributions(atts)
         if flip_attributions_idx == self.predicted_label:
             atts = [att * -1 for att in atts]
 
-        if not self.texts or fuse_subwords_strategy:
-            self.fill_text_fields(fuse_subwords_strategy=fuse_subwords_strategy)
-        ctoken_fields = list(self.texts.values())
-        ctokens = reduce(lambda x, y: x + y, ctoken_fields)
-        return Heatmap(color_tokens=ctokens, attributions=atts, gamma=gamma)
+        non_pad_tokens_enum = [tuple(x[i] for i in [2, 0]) for x in self.explanation]
+        if fuse_subwords_strategy:
+            tokens_enum, atts = fuse_subwords(non_pad_tokens_enum, atts, self.tokenizer,
+                                              strategy=fuse_subwords_strategy)
+        else:
+            tokens_enum, atts = non_pad_tokens_enum, atts
+
+        assert (len(tokens_enum) == len(atts))
+        # Cast each token into ColorToken objects with default color white which can later be overwritten
+        # by a Heatmap object
+        color_tokens = [ColorToken(token=token_enum[1],
+                                   attribution=att,
+                                   text_field='text',
+                                   token_index=token_enum[0],
+                                   thermounit_vars=vars(self))
+                        for token_enum, att in zip(tokens_enum, atts)]
+        return Heatmap(color_tokens=color_tokens, attributions=atts, gamma=gamma)
 
     def render(self, labels=False):
         self.heatmap.render(labels=labels)
-
-
-def avg_attribution_stat(thermostat_dataset: Dataset) -> List:
-    """ Given a Thermostat dataset, calculate the average attribution for each token across the whole dataset """
-    model_id = get_coordinate(thermostat_dataset, coordinate='Model')
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
-
-    token_atts = defaultdict(list)
-    for row in thermostat_dataset:
-        for input_id, attribution_score in zip(row['input_ids'], row['attributions']):
-            # Distinguish between the labels
-            if row['label'] == 0:
-                # Add the negative attribution score for label 0
-                # to the list of attribution scores of a single token
-                token_atts[tokenizer.decode(input_id)].append(-attribution_score)
-            else:
-                token_atts[tokenizer.decode(input_id)].append(attribution_score)
-
-    avgs = defaultdict(float)
-    # Calculate the average attribution score from the list of attribution scores of each token
-    for token, scores in token_atts.items():
-        avgs[token] = sum(scores)/len(scores)
-    return sorted(avgs.items(), key=lambda x: x[1], reverse=True)
-
-
-def explainer_agreement_stat(thermostat_datasets: List) -> List:
-    """ Calculate agreement on token attribution scores between multiple Thermostat datasets/explainers """
-    assert len(thermostat_datasets) > 1
-    all_explainers_atts = {}
-    for td in thermostat_datasets:
-        assert type(td) == Dataset
-        explainer_id = get_coordinate(td, coordinate='Explainer')
-        # Add all attribution scores to a dictionary with the key being the name of the explainer
-        all_explainers_atts[explainer_id] = td['attributions']
-
-    model_id = get_coordinate(thermostat_datasets[0], coordinate='Model')
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
-
-    # Dissimilarity dict for tokens and their contexts
-    tokens_dissim = {}
-    for row in zip(thermostat_datasets[0]['input_ids'],
-                   *list(all_explainers_atts.values())):
-        # Decode all tokens of one data point
-        tokens = tokenizer.decode(list(row)[0], skip_special_tokens=True)
-        for idx, input_id in enumerate(zip(*list(row))):
-            if list(input_id)[0] in tokenizer.all_special_ids:
-                continue
-
-            att_explainers = list(input_id)[1:]
-            max_att = max(att_explainers)
-            min_att = min(att_explainers)
-
-            # Key: All tokens (context), single token in question, index of token in context
-            tokens_dissim[(tokenizer.decode(list(input_id)[0]), tokens, idx)]\
-                = {'dissim': max_att - min_att,  # Maximum difference in attribution
-                   'atts': dict(zip(all_explainers_atts.keys(), att_explainers))}
-    return sorted(tokens_dissim.items(), key=lambda x: x[1]['dissim'], reverse=True)

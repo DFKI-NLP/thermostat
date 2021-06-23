@@ -10,7 +10,7 @@ from transformers import AutoTokenizer
 from typing import Dict
 
 from thermostat.data import get_local_explanations
-from thermostat.utils import detach_to_list, read_path
+from thermostat.utils import delistify, detach_to_list, read_path
 
 
 class ColorToken:
@@ -84,10 +84,10 @@ class Heatmap(TextField):
                 self[i].attribution = attributions[i]
             self[i].add_color(gamma=gamma)
         self.table = pd.DataFrame({
-            'token_index': self['token_index'],
-            'token': self['token'],
-            'attribution': self['attribution'],
-            'text_field': self['text_field']}
+            'token_index': delistify(self['token_index']),
+            'token': delistify(self['token']),
+            'attribution': delistify(self['attribution']),
+            'text_field': delistify(self['text_field'])}
         ).set_index('token_index').T
 
     def __getitem__(self, idx):

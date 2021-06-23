@@ -43,6 +43,10 @@ def detach_to_list(t):
     return t.detach().cpu().numpy().tolist() if type(t) == torch.Tensor else t
 
 
+def delistify(lst):
+    return list(map(lambda x: x[0] if isinstance(x, list) else x, lst))
+
+
 def get_logger(name: str, file_out: str = None, level: int = None):
     logger = logging.getLogger(name)
     if level is not None:
