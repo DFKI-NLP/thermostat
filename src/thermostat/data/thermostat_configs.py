@@ -70,32 +70,28 @@ _IMDB_XLNET_KWARGS = dict(
 _MNLI_KWARGS = dict(
     dataset="multi_nli",
     label_column="label",
+    label_classes=["entailment", "neutral", "contradiction"],
     text_column=["premise", "hypothesis"],
     **_BASE_KWARGS,
 )
 _MNLI_ALBERT_KWARGS = dict(
     model="prajjwal1/albert-base-v2-mnli",
-    label_classes=["contradiction", "entailment", "neutral"],
     **_MNLI_KWARGS,
 )
 _MNLI_BERT_KWARGS = dict(
     model="textattack/bert-base-uncased-MNLI",
-    label_classes=["contradiction", "entailment", "neutral"],
     **_MNLI_KWARGS,
 )
 _MNLI_ELECTRA_KWARGS = dict(
     model="howey/electra-base-mnli",
-    label_classes=["entailment", "neutral", "contradiction"],
     **_MNLI_KWARGS,
 )
 _MNLI_ROBERTA_KWARGS = dict(
     model="textattack/roberta-base-MNLI",
-    label_classes=["contradiction", "entailment", "neutral"],
     **_MNLI_KWARGS,
 )
 _MNLI_XLNET_KWARGS = dict(
     model="textattack/xlnet-base-cased-MNLI",
-    label_classes=["contradiction", "entailment", "neutral"],
     **_MNLI_KWARGS,
 )
 
@@ -103,32 +99,28 @@ _MNLI_XLNET_KWARGS = dict(
 _XNLI_KWARGS = dict(
     dataset="xnli",
     label_column="label",
+    label_classes=["entailment", "neutral", "contradiction"],
     text_column=["premise", "hypothesis"],
     **_BASE_KWARGS,
 )
 _XNLI_ALBERT_KWARGS = dict(
     model="prajjwal1/albert-base-v2-mnli",
-    label_classes=["contradiction", "entailment", "neutral"],
     **_XNLI_KWARGS,
 )
 _XNLI_BERT_KWARGS = dict(
     model="textattack/bert-base-uncased-MNLI",
-    label_classes=["contradiction", "entailment", "neutral"],
     **_XNLI_KWARGS,
 )
 _XNLI_ELECTRA_KWARGS = dict(
     model="howey/electra-base-mnli",
-    label_classes=["entailment", "neutral", "contradiction"],
     **_XNLI_KWARGS,
 )
 _XNLI_ROBERTA_KWARGS = dict(
     model="textattack/roberta-base-MNLI",
-    label_classes=["contradiction", "entailment", "neutral"],
     **_XNLI_KWARGS,
 )
 _XNLI_XLNET_KWARGS = dict(
     model="textattack/xlnet-base-cased-MNLI",
-    label_classes=["contradiction", "entailment", "neutral"],
     **_XNLI_KWARGS,
 )
 
@@ -404,147 +396,147 @@ builder_configs = [
     ),
     ThermostatConfig(
         name="multi_nli-albert-lgxa",
-        description="MNLI dataset, ALBERT model, Layer Gradient x Activation explanations",
+        description="MultiNLI dataset, ALBERT model, Layer Gradient x Activation explanations",
         explainer="LayerGradientXActivation",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/nkRmprdnbb5C4Tx/download",
         **_MNLI_ALBERT_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-albert-lig",
-        description="MNLI dataset, ALBERT model, Layer Integrated Gradients explanations",
+        description="MultiNLI dataset, ALBERT model, Layer Integrated Gradients explanations",
         explainer="LayerIntegratedGradients",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/3WAqbXa2DG2RCgz/download",
         **_MNLI_ALBERT_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-albert-lime",
-        description="MNLI dataset, ALBERT model, LIME explanations",
+        description="MultiNLI dataset, ALBERT model, LIME explanations",
         explainer="LimeBase",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/e6JRy9fidSAC5zK/download",
         **_MNLI_ALBERT_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-albert-occ",
-        description="MNLI dataset, ALBERT model, Occlusion explanations",
+        description="MultiNLI dataset, ALBERT model, Occlusion explanations",
         explainer="Occlusion",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/F5xWYpyDpwaAPJs/download",
         **_MNLI_ALBERT_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-bert-lgxa",
-        description="MNLI dataset, BERT model, Layer Gradient x Activation explanations",
+        description="MultiNLI dataset, BERT model, Layer Gradient x Activation explanations",
         explainer="LayerGradientXActivation",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/MdjebgkdexA2ZDt/download",
         **_MNLI_BERT_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-bert-lig",
-        description="MNLI dataset, BERT model, Layer Integrated Gradients explanations",
+        description="MultiNLI dataset, BERT model, Layer Integrated Gradients explanations",
         explainer="LayerIntegratedGradients",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/g53nbtnXaFyPLM7/download",
         **_MNLI_BERT_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-bert-lime",
-        description="MNLI dataset, BERT model, LIME explanations",
+        description="MultiNLI dataset, BERT model, LIME explanations",
         explainer="LimeBase",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/ptspBexoHaXtqXD/download",
         **_MNLI_BERT_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-bert-occ",
-        description="MNLI dataset, BERT model, Occlusion explanations",
+        description="MultiNLI dataset, BERT model, Occlusion explanations",
         explainer="Occlusion",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/cHK6YCAo4ESZ3xx/download",
         **_MNLI_BERT_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-bert-svs",
-        description="MNLI dataset, BERT model, Shapley Value Sampling explanations",
+        description="MultiNLI dataset, BERT model, Shapley Value Sampling explanations",
         explainer="ShapleyValueSampling",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/d5TTHCkAb5TJmbg/download",
         **_MNLI_BERT_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-electra-lgxa",
-        description="MNLI dataset, ELECTRA model, Layer Gradient x Activation explanations",
+        description="MultiNLI dataset, ELECTRA model, Layer Gradient x Activation explanations",
         explainer="LayerGradientXActivation",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/2HrCmp9sxJNiKBc/download",
         **_MNLI_ELECTRA_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-electra-lig",
-        description="MNLI dataset, ELECTRA model, Layer Integrated Gradients explanations",
+        description="MultiNLI dataset, ELECTRA model, Layer Integrated Gradients explanations",
         explainer="LayerIntegratedGradients",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/2eZnJgCbWd2D4PB/download",
         **_MNLI_ELECTRA_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-electra-lime",
-        description="MNLI dataset, ELECTRA model, LIME explanations",
+        description="MultiNLI dataset, ELECTRA model, LIME explanations",
         explainer="LimeBase",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/WzBwpwC9FoQZCwB/download",
         **_MNLI_ELECTRA_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-electra-occ",
-        description="MNLI dataset, ELECTRA model, Occlusion explanations",
+        description="MultiNLI dataset, ELECTRA model, Occlusion explanations",
         explainer="Occlusion",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/MGjQmKK9kynZTQt/download",
         **_MNLI_ELECTRA_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-roberta-lgxa",
-        description="MNLI dataset, RoBERTa model, Layer Gradient x Activation explanations",
+        description="MultiNLI dataset, RoBERTa model, Layer Gradient x Activation explanations",
         explainer="LayerGradientXActivation",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/SxDwtGCpPzi3DDz/download",
         **_MNLI_ROBERTA_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-roberta-lig",
-        description="MNLI dataset, RoBERTa model, Layer Integrated Gradients explanations",
+        description="MultiNLI dataset, RoBERTa model, Layer Integrated Gradients explanations",
         explainer="LayerIntegratedGradients",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/8zaTxTCijG6g7Y5/download",
         **_MNLI_ROBERTA_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-roberta-lime",
-        description="MNLI dataset, RoBERTa model, LIME explanations",
+        description="MultiNLI dataset, RoBERTa model, LIME explanations",
         explainer="LimeBase",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/dY4z4ptcMtiYzZs/download",
         **_MNLI_ROBERTA_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-roberta-occ",
-        description="MNLI dataset, RoBERTa model, Occlusion explanations",
+        description="MultiNLI dataset, RoBERTa model, Occlusion explanations",
         explainer="Occlusion",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/w5YSxNc6L8QZisG/download",
         **_MNLI_ROBERTA_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-xlnet-lgxa",
-        description="MNLI dataset, XLNet model, Layer Gradient x Activation explanations",
+        description="MultiNLI dataset, XLNet model, Layer Gradient x Activation explanations",
         explainer="LayerGradientXActivation",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/n79G9kf9jbNx8o7/download",
         **_MNLI_XLNET_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-xlnet-lig",
-        description="MNLI dataset, XLNet model, Layer Integrated Gradients explanations",
+        description="MultiNLI dataset, XLNet model, Layer Integrated Gradients explanations",
         explainer="LayerIntegratedGradients",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/MZr8jTnaCBdMPGe/download",
         **_MNLI_XLNET_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-xlnet-lime",
-        description="MNLI dataset, XLNet model, LIME explanations",
+        description="MultiNLI dataset, XLNet model, LIME explanations",
         explainer="LimeBase",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/B7tfLSRKBGYxJ3s/download",
         **_MNLI_XLNET_KWARGS,
     ),
     ThermostatConfig(
         name="multi_nli-xlnet-occ",
-        description="MNLI dataset, XLNet model, Occlusion explanations",
+        description="MultiNLI dataset, XLNet model, Occlusion explanations",
         explainer="Occlusion",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/YWjJ6T7n6oeKbJJ/download",
         **_MNLI_XLNET_KWARGS,

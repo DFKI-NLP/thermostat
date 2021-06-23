@@ -5,11 +5,12 @@ from datasets import Dataset
 from functools import reduce
 from itertools import groupby
 from overrides import overrides
+from sklearn.metrics import classification_report
 from tqdm import tqdm
 from transformers import AutoTokenizer
 from typing import Dict, List
 
-from thermostat.data import thermostat_configs
+from thermostat.data import additional_configs, thermostat_configs
 from thermostat.data.tokenization import fuse_subwords
 from thermostat.utils import lazy_property
 from thermostat.visualize import ColorToken, Heatmap, normalize_attributions
@@ -32,15 +33,15 @@ def get_text_fields(config_name):
     return text_fields
 
 
-def load(config_str: str = None):
+def load(config_str: str = None, cache_dir: str = None):
     assert config_str, f'Please enter a config. Available options: {list_configs()}.'
 
-    def load_from_single_config(config):
+    def load_from_single_config(config, cache_dir=None):
         print(f'Loading Thermostat configuration: {config}')
-        return datasets.load_dataset("hf_dataset.py", config, split="test")
+        return datasets.load_dataset("hf_dataset.py", config, split="test", cache_dir=cache_dir)
 
     if config_str in list_configs():
-        data = load_from_single_config(config_str)
+        data = load_from_single_config(config_str, cache_dir=cache_dir)
 
     elif config_str in ['-'.join(c.split('-')[:2]) for c in list_configs()]:
         # Resolve "dataset+model" to all explainer subsets
@@ -97,72 +98,124 @@ class ThermopackMeta(type):
 
 class Thermopack(Dataset, metaclass=ThermopackMeta):
     def __init__(self, hf_dataset):
+        # Init Dataset super class
         super().__init__(hf_dataset.data, info=hf_dataset.info, split=hf_dataset.split,
                          indices_table=hf_dataset._indices)
-        self.dataset = hf_dataset
 
         # Model
         self.model_name = get_coordinate(hf_dataset, 'Model')
 
         # Dataset
         self.dataset_name = get_coordinate(hf_dataset, 'Dataset')
-        self.label_names = hf_dataset.info.features['label'].names
-
-        # Align label indices (some MNLI and XNLI models have a different order in the label names)
-        label_classes = get_config(self.config_name).label_classes
-        if label_classes != self.label_names:
-            self.dataset = self.dataset.map(lambda instance: {
-                'label': label_classes.index(self.label_names[instance['label']])})
-            self.label_names = label_classes
+        self.label_names = self.features['label'].names
 
         # Explainer
         self.explainer_name = get_coordinate(hf_dataset, 'Explainer')
 
-    @lazy_property
-    def tokenizer(self):
-        return AutoTokenizer.from_pretrained(self.model_name)
-
-    @lazy_property
-    def units(self):
-        units = []
-        for instance in tqdm(self.dataset,
-                             desc=f'Tokenizing {self.config_name} instances (Tokenizer: {self.model_name})'):
-            # Decode labels and predictions
-            true_label_index = instance['label']
-            true_label = {'index': true_label_index,
-                          'name': self.label_names[true_label_index]}
-
-            predicted_label_index = instance['predictions'].index(max(instance['predictions']))
-            predicted_label = {'index': predicted_label_index,
-                               'name': self.label_names[predicted_label_index]}
-
-            units.append(Thermounit(
-                instance, true_label, predicted_label,
-                self.model_name, self.dataset_name, self.explainer_name, self.tokenizer, self.config_name))
-        return units
+        self.dataset: Dataset = hf_dataset
+        self.units: List = [PlaceholderThermounit(unit['attributions'],
+                                                  unit['idx'],
+                                                  unit['input_ids'],
+                                                  unit['label'],
+                                                  unit['predictions']) for unit in self.dataset]
 
     @overrides
     def __getitem__(self, idx):
-        """ Indexing a Thermopack returns a Thermounit """
+        """ Indexing a Thermopack by an integer instantiates a Thermounit and returns it.
+            Indexing by string returns the associated column if its exists (similar to HF datasets). """
+
+        if isinstance(idx, str):
+            """ String indexing """
+            if idx in list(self.units[0].__dict__.keys()):
+                return [getattr(u, idx) for u in self.units]
+            elif not any([isinstance(unit, Thermounit) for unit in self.units]):
+                print(f'The instances (Thermounits) of this Thermopack are placeholders and have to be fully processed '
+                      f'before all attributes and metadata are available.')
+                self._decode()
+                return self[idx]  # Recursion
+            raise KeyError(f'Not a valid slice or column name: {idx}')
+
+        elif isinstance(self.units[idx], PlaceholderThermounit):
+            """ Decode labels and predictions """
+            instance = self.units[idx]
+
+            gold_label_names = additional_configs.get_label_names(self.config_name)
+            if gold_label_names:
+                # Overwrite true (HF dataset) label indices with custom label indices from downstream model
+                #  (some MNLI and XNLI models have a different order in the label names)
+                if self.label_names != gold_label_names:
+                    self.lgc_label_names = self.label_names
+                    self.label_names = gold_label_names
+                gold_label_index = gold_label_names.index(self.lgc_label_names[instance.label])
+
+            else:
+                gold_label_index = instance.label
+
+            true_label = {'index': gold_label_index,  # prev: true_label_index = instance.label
+                          'name': self.label_names[gold_label_index]}
+
+            predicted_label_index = instance.predictions.index(max(instance.predictions))
+            predicted_label = {'index': predicted_label_index,
+                               'name': self.label_names[predicted_label_index]}
+
+            self.units[idx] = Thermounit(
+                instance, true_label, predicted_label,
+                self.model_name, self.dataset_name, self.explainer_name, self.tokenizer, self.config_name)
         return self.units[idx]
 
     @overrides
     def __iter__(self):
-        for unit in self.units:
-            yield unit
+        """ Yields Thermounit instances """
+        for unit_index in range(len(self)):  # length of dataset
+            yield self[unit_index]  # uses __getitem__
 
     @overrides
     def __str__(self):
         return self.info.description
 
+    def _decode(self):
+        """ Replace all PlaceholderThermounit instances with fully processed Thermounit instances """
+        for unit in tqdm(self, desc='Decoding Thermounits', total=len(self)):
+            hm = unit.heatmap
 
-class Thermounit:
+    @lazy_property
+    def tokenizer(self):
+        """ Initializes the tokenizer from the model name """
+        return AutoTokenizer.from_pretrained(self.model_name)
+
+    def accuracy(self):
+        return sum([u_i.true_label == u_i.predicted_label for u_i in self])/len(self)
+
+    def classification_report(self):
+        """ Uses sklearn to print the confusion matrix """
+        y_true = [t['index'] for t in self['true_label']]
+        y_pred = [p['index'] for p in self['predicted_label']]
+        print(classification_report(y_true, y_pred, target_names=self.label_names))
+
+
+class PlaceholderThermounit:
+    def __init__(self, attributions, idx, input_ids, label, predictions):
+        self.attributions = attributions
+        self.idx = idx
+        self.input_ids = input_ids
+        self.label = label
+        self.predictions = predictions
+
+    def __getattr__(self, name):
+        if name in list(self.__dict__.keys()):
+            return self.__getattribute__(name)
+        else:
+            return None
+
+
+class Thermounit(PlaceholderThermounit):
     """ Processed single instance of a Thermopack (Thermostat dataset/configuration) """
     def __init__(self, instance, true_label, predicted_label, model_name, dataset_name, explainer_name, tokenizer,
                  config_name):
-        self.instance = instance
-        self.index = self.instance['idx']
-        self.attributions = self.instance['attributions']
+        if not isinstance(instance, Thermounit):
+            super().__init__(*instance.__dict__.values())
+        for key in instance.__dict__:
+            setattr(self, key, instance.__dict__[key])
         self.true_label = true_label
         self.predicted_label = predicted_label
         self.model_name = model_name
@@ -176,7 +229,7 @@ class Thermounit:
     @property
     def tokens(self) -> Dict:
         # "tokens" includes all special tokens, later used for the heatmap when aligning with attributions
-        tokens = self.tokenizer.convert_ids_to_tokens(self.instance['input_ids'])
+        tokens = self.tokenizer.convert_ids_to_tokens(self.input_ids)
         # Make token index
         tokens_enum = dict(enumerate(tokens))
         return tokens_enum
@@ -202,7 +255,7 @@ class Thermounit:
             # Create new list containing all non-special tokens
             non_special_tokens_enum = [t for t in field_tokens if t[1] not in self.tokenizer.all_special_tokens]
             # Select attributions according to token indices (tokens_enum keys)
-            # TODO: Send token indices through fuse_words etc and replace None in ColorToken init
+
             selected_atts = [attributions[idx] for idx in [t[0] for t in non_special_tokens_enum]]
             if fuse_subwords_strategy:
                 tokens_enum, atts = fuse_subwords(non_special_tokens_enum, selected_atts, self.tokenizer,

@@ -1,16 +1,20 @@
 import thermostat
 
-# This will use the dataset script ("thermostat.py") in the "thermostat" directory
-#data = thermostat.load("imdb-bert-lig")
+bert = thermostat.load("xnli-bert-occ")
+albert = thermostat.load("xnli-albert-occ")
+electra = thermostat.load("xnli-electra-occ")
+roberta = thermostat.load("xnli-roberta-occ")
+xlnet = thermostat.load("xnli-xlnet-occ")
 
-xlnet = thermostat.load("multi_nli-xlnet-occ")
-roberta = thermostat.load("multi_nli-roberta-occ")
-bert = thermostat.load("multi_nli-bert-occ")
-#albert = thermostat.load("multi_nli-albert-occ")
+print(xlnet[0])
+model_miscls = {}
+miscl_indices = []
 
-xlnet_hm = xlnet[0].heatmap
-roberta_hm = roberta[0].heatmap
-bert_hm = bert[0].heatmap
+for model_data in [albert, bert, electra, roberta, xlnet]:
+    miscl_indices += [instance.index for instance in model_data if instance.true_label != instance.predicted_label]
 
-bert[0].render()
-roberta[0].render()
+miscl_indices = sorted(list(set(miscl_indices)))
+
+for model_data in [albert, bert, electra, roberta, xlnet]:
+    model_miscls[model_data.config_name] = [instance for instance in model_data if instance.index in miscl_indices]
+    miscl_indices = None

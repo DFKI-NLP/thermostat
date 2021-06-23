@@ -1,8 +1,6 @@
-import logging
 import math
 import numpy as np
 import os
-import sys
 import torch
 from datasets import tqdm
 from spacy import displacy
@@ -12,9 +10,6 @@ from typing import Dict
 
 from thermostat.data import get_local_explanations
 from thermostat.utils import detach_to_list, read_path
-
-
-logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
 
 class ColorToken:
@@ -86,7 +81,7 @@ class Heatmap(list):
         # Call this function once for every text field
         if len(set([t.text_field for t in self])) > 1:
             for field in self[0].text_fields:
-                logging.info(f'Heatmap "{field}"')
+                print(f'Heatmap "{field}"')
                 Heatmap([t for t in self if t.text_field == field]).render(labels=labels)
             return
 
