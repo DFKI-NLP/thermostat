@@ -9,9 +9,7 @@ Explainability in NLP is becoming more important by the day and is getting explo
 
 Thermostat datasets always consist of three basic coordinates: Dataset, Model, Explainer.
 
-At the moment, Thermostat is only available via this repository (it will be published to Hugging Face soon).
-
-Clone this repo and then from the root directory, you can use the Thermostat dataset like this:
+Clone this repo and then from its root directory, you can use it like this:
 
 ```python
 import thermostat
@@ -32,7 +30,11 @@ The configuration always follows this schema: `<dataset>-<model>-<explainer>`.
 ![instance-contents](figures/instance-contents.png)
 
 
-Additionally, `data.description` provides the actual names of the dataset, the explainer and the model
+Additionally,
+```python
+print(data)
+```
+...defaults to the string in `data.description` which provides the actual names of the dataset, the explainer and the model
 ```
 IMDb dataset, BERT model, Layer Gradient x Activation explanations
 Explainer: LayerGradientXActivation
@@ -40,6 +42,34 @@ Model: textattack/bert-base-uncased-imdb
 Dataset: imdb
 ```
 
+
+### Visualizing attributions as a heatmap
+
+```python
+import thermostat
+unit = thermostat.load("imdb-bert-lgxa")[20]
+unit.render()
+```
+
+Refactoring done. More info to be added soon. Please refer to the demo.ipynb Notebook.
+
+Meanwhile, here's the now deprecated HTML visualization:
+
+![heatmap-html](figures/heatmap-html.png)
+
+
+### Get simple tuple-based heatmap
+
+```python
+import thermostat
+unit = thermostat.load("imdb-bert-lgxa")[20]
+print(unit.explanation)
+```
+
+Refactoring done. More info to be added soon. Please refer to the demo.ipynb Notebook.
+
+
+---
 
 ## Explainers
 Name | captum | Settings
@@ -110,37 +140,3 @@ Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs`
 ALBERT (`albert`) | [`textattack/albert-base-v2-ag-news`](https://huggingface.co/textattack/albert-base-v2-ag-news) | ✅ | ✅ | ✅ | ✅ | ✅
 BERT (`bert`) | [`textattack/bert-base-uncased-ag-news`](https://huggingface.co/textattack/bert-base-uncased-ag-news) | ✅ | ✅ | ✅ | ✅ | ⏏️
 RoBERTa (`roberta`) | [`textattack/roberta-base-ag-news`](https://huggingface.co/textattack/roberta-base-ag-news) | ✅ | ✅ | ✅ | ✅ | ⏏️
-
-
----
-
-## Helper functions
-
-### Visualizing attributions as a heatmap
-
-```python
-
-lgxa = thermostat.load("thermostat_dataset", "imdb-bert-lgxa", split="test")
-lgxa_head20 = lgxa.select(range(20))
-thermostat.to_html(lgxa_head20, "imdb-bert-lgxa_heatmaps.html")
-```
-Runs the visualization script with default settings (`gamma=2.0`, `normalize=True`) on a Thermostat dataset to output an HTML file, returns nothing.  
-Note: Always consider file size! Creating an HTML with more than ~100 instances might be difficult to handle for your browser when viewing.  
-Recommendation: Using the `select` method on the loaded dataset.
-
-First instance of the [HTML sample](figures/imdb-bert-lgxa_heatmaps_20-40.html):
-
-![heatmap-html](figures/heatmap-html.png)
-
-
-### Get simple tuple-based heatmap
-Refactoring ongoing. To be added soon. Please refer to the demo.ipynb Notebook.
-
-
-
-### Config files
-jsonnet config files used for generating the explanation datasets have the following naming convention:
-`<DATASET_ID>/<EXPLAINER_ID>/<MODEL_ID>.jsonnet` where
-* `<DATASET_ID>` corresponds to a dataset (from `datasets` package by default, but can be any other locally stored dataset),
-* `<EXPLAINER_ID>` corresponds to an explainability method (usually provided through the `captum` package) and
-* `<MODEL_ID>` corresponds to a model (from `transformers` package by default)
