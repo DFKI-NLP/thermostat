@@ -12,7 +12,7 @@
     "explainer": {
         "name": "LayerIntegratedGradients",
         "internal_batch_size": 1,
-        "n_samples": 5,
+        "n_samples": 25,
     },
     "model": {
         "name": "prajjwal1/albert-base-v2-mnli",

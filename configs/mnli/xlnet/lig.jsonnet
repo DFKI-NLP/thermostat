@@ -12,7 +12,7 @@
     "explainer": {
         "name": "LayerIntegratedGradients",
         "internal_batch_size": 1,
-        "mask_prob": 0.3,
+        "n_samples": 25,
     },
     "model": {
         "name": "textattack/xlnet-base-cased-MNLI",

@@ -9,9 +9,10 @@
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
     "explainer": {
-        "name": "Occlusion",
+        "name": "LimeBase",
         "internal_batch_size": 1,
-        "sliding_window_shapes": [3],
+        "n_samples": 25,
+        "mask_prob": 0.3,
     },
     "model": {
         "name": "textattack/albert-base-v2-ag-news",

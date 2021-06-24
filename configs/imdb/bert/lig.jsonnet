@@ -10,9 +10,8 @@
     },
     "explainer": {
         "name": "LayerIntegratedGradients",
-        "internal_batch_size": 2,
-        "n_samples": 5,
-        "early_stopping": -1,
+        "internal_batch_size": 1,
+        "n_samples": 25,
     },
     "model": {
         "name": "textattack/bert-base-uncased-imdb",

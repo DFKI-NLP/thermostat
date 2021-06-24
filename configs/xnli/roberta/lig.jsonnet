@@ -2,9 +2,11 @@
     "path": "$HOME/experiments/thermostat",
     "device": "cuda",
     "dataset": {
-        "name": "imdb",
+        "name": "xnli",
+        "subset": "en",
         "split": "test",
-        "columns": ['input_ids', 'attention_mask', 'token_type_ids', 'special_tokens_mask', 'labels'],
+        "text_field": ["premise", "hypothesis"],
+        "columns": ['input_ids', 'attention_mask', 'special_tokens_mask', 'labels'],
         "batch_size": 1,
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
@@ -14,7 +16,7 @@
         "n_samples": 25,
     },
     "model": {
-        "name": "textattack/albert-base-v2-imdb",
+        "name": "textattack/roberta-base-MNLI",
         "mode_load": "hf",
         "path_model": null,
         "tokenization": {
@@ -26,7 +28,7 @@
         }
     },
     "visualization": {
-        "columns": ["attributions", "predictions", "input_ids", "labels"],
+        "columns": ["attributions", "predictions", "input_ids", "label"],
         "gamma": 2.0,
         "normalize": true,
     }

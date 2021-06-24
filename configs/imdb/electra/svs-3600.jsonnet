@@ -4,17 +4,18 @@
     "dataset": {
         "name": "imdb",
         "split": "test",
+        "end": 3600,
         "columns": ['input_ids', 'attention_mask', 'token_type_ids', 'special_tokens_mask', 'labels'],
         "batch_size": 1,
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
     "explainer": {
-        "name": "LayerIntegratedGradients",
+        "name": "ShapleyValueSampling",
         "internal_batch_size": 1,
         "n_samples": 25,
     },
     "model": {
-        "name": "textattack/albert-base-v2-imdb",
+        "name": "monologg/electra-small-finetuned-imdb",
         "mode_load": "hf",
         "path_model": null,
         "tokenization": {

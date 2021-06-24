@@ -2,19 +2,22 @@
     "path": "$HOME/experiments/thermostat",
     "device": "cuda",
     "dataset": {
-        "name": "imdb",
-        "split": "test",
+        "name": "multi_nli",
+        "text_field": ["premise", "hypothesis"],
+        "split": "validation_matched",
+        "start": 3250,
+        "end": 6500,
         "columns": ['input_ids', 'attention_mask', 'token_type_ids', 'special_tokens_mask', 'labels'],
         "batch_size": 1,
         "root_dir": "$HOME/experiments/thermostat/datasets",
     },
     "explainer": {
-        "name": "LayerIntegratedGradients",
+        "name": "ShapleyValueSampling",
         "internal_batch_size": 1,
         "n_samples": 25,
     },
     "model": {
-        "name": "textattack/albert-base-v2-imdb",
+        "name": "textattack/xlnet-base-cased-MNLI",
         "mode_load": "hf",
         "path_model": null,
         "tokenization": {

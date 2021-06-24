@@ -12,8 +12,7 @@
     "explainer": {
         "name": "LayerIntegratedGradients",
         "internal_batch_size": 1,
-        "n_samples": 5,
-        "early_stopping": -1,
+        "n_samples": 25,
     },
     "model": {
         "name": "textattack/roberta-base-MNLI",
