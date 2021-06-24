@@ -220,6 +220,13 @@ builder_configs = [
         **_AGNEWS_BERT_KWARGS,
     ),
     ThermostatConfig(
+        name="ag_news-bert-svs",
+        description="AG News dataset, BERT model, Shapley Value Sampling explanations",
+        explainer="ShapleyValueSampling",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/dCbgsjdW6b9pzo3/download",
+        **_AGNEWS_BERT_KWARGS,
+    ),
+    ThermostatConfig(
         name="ag_news-roberta-lgxa",
         description="AG News dataset, RoBERTa model, Layer Gradient x Activation explanations",
         explainer="LayerGradientXActivation",
@@ -248,6 +255,13 @@ builder_configs = [
         **_AGNEWS_ROBERTA_KWARGS,
     ),
     ThermostatConfig(
+        name="ag_news-roberta-svs",
+        description="AG News dataset, RoBERTa model, Shapley Value Sampling explanations",
+        explainer="ShapleyValueSampling",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/yabEAY5sLpjxKkW/download",
+        **_AGNEWS_ROBERTA_KWARGS,
+    ),
+    ThermostatConfig(
         name="imdb-albert-lgxa",
         description="IMDb dataset, ALBERT model, Layer Gradient x Activation explanations",
         explainer="LayerGradientXActivation",
@@ -273,6 +287,13 @@ builder_configs = [
         description="IMDb dataset, ALBERT model, Occlusion explanations",
         explainer="Occlusion",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/98XqEgbZt9KiSfm/download",
+        **_IMDB_ALBERT_KWARGS,
+    ),
+    ThermostatConfig(
+        name="imdb-albert-svs",
+        description="IMDb dataset, ALBERT model, Shapley Value Sampling explanations",
+        explainer="ShapleyValueSampling",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/sQMK2XsknbzK23a/download",
         **_IMDB_ALBERT_KWARGS,
     ),
     ThermostatConfig(
@@ -486,6 +507,13 @@ builder_configs = [
         **_MNLI_ELECTRA_KWARGS,
     ),
     ThermostatConfig(
+        name="multi_nli-electra-svs",
+        description="MultiNLI dataset, ELECTRA model, Shapley Value Sampling explanations",
+        explainer="ShapleyValueSampling",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/zx3rGTpMkRT68tk/download",
+        **_MNLI_ELECTRA_KWARGS,
+    ),
+    ThermostatConfig(
         name="multi_nli-roberta-lgxa",
         description="MultiNLI dataset, RoBERTa model, Layer Gradient x Activation explanations",
         explainer="LayerGradientXActivation",
@@ -595,6 +623,13 @@ builder_configs = [
         description="XNLI dataset, BERT model, Occlusion explanations",
         explainer="Occlusion",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/AHoTKbtSCQ73QxN/download",
+        **_XNLI_BERT_KWARGS,
+    ),
+    ThermostatConfig(
+        name="xnli-bert-svs",
+        description="XNLI dataset, BERT model, Shapley Value Sampling explanations",
+        explainer="ShapleyValueSampling",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/D4ctEijzerMoNT8/download",
         **_XNLI_BERT_KWARGS,
     ),
     ThermostatConfig(
