@@ -6,6 +6,7 @@ overrides~=3.1.0
 pandas
 protobuf
 pytorch-ignite
+scipy
 sentencepiece
 sklearn
 spacy~=3.0.6

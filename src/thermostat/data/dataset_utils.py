@@ -225,6 +225,9 @@ class Thermounit(PlaceholderThermounit):
         self.tokenizer = tokenizer
         self.config_name = config_name
 
+    def __len__(self):
+        return len(self.explanation)
+
     @property
     def tokens(self) -> Dict:
         # "tokens" includes all special tokens, later used for the heatmap when aligning with attributions

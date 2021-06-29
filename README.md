@@ -47,6 +47,7 @@ Dataset: imdb
 
 ```python
 import thermostat
+
 unit = thermostat.load("imdb-bert-lgxa")[20]
 unit.render()
 ```
@@ -62,6 +63,7 @@ Meanwhile, here's the now deprecated HTML visualization:
 
 ```python
 import thermostat
+
 unit = thermostat.load("imdb-bert-lgxa")[20]
 print(unit.explanation)
 ```
@@ -82,6 +84,8 @@ Shapley Value Sampling (`svs`) | [`.attr.ShapleyValueSampling`](https://captum.a
 
 
 ## Datasets + Models
+
+![Overview](figures/overview_v1.png)
 
 ✅ = Dataset is downloadable  
 ⏏️ = Dataset is finished, but not uploaded yet  
