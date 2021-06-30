@@ -1,5 +1,6 @@
 from datasets import Dataset, load_dataset
 from itertools import groupby
+import numpy as np
 from overrides import overrides
 from sklearn.metrics import classification_report
 from tqdm import tqdm
@@ -113,6 +114,15 @@ class Thermopack(Dataset, metaclass=ThermopackMeta):
                                                   unit['predictions']) for unit in self.dataset]
         self.legacy_label_names = get_config(self.config_name).label_classes
 
+    def __getattr__(self, name):
+        """ Only gets called if an attribute that is not part of the Thermopack is accessed.
+         In this case, if the name of the requested attribute is one of the five attributes of a Thermounit,
+         return the respective entries of all units as a list """
+        if name in list(self.units[0].__dict__.keys()):
+            return ThermounitAttributeArray([getattr(u, name) for u in self.units])
+        else:
+            raise AttributeError
+
     @overrides
     def __getitem__(self, idx):
         """ Indexing a Thermopack by an integer instantiates a Thermounit and returns it.
@@ -121,7 +131,8 @@ class Thermopack(Dataset, metaclass=ThermopackMeta):
         if isinstance(idx, str):
             """ String indexing """
             if idx in list(self.units[0].__dict__.keys()):
-                return [getattr(u, idx) for u in self.units]
+                """ Same behaviour as __getattr__: Return the requested attribute of all units as a list. """
+                return ThermounitAttributeArray([getattr(u, idx) for u in self.units])
             elif not any([isinstance(unit, Thermounit) for unit in self.units]):
                 print(f'The instances (Thermounits) of this Thermopack are placeholders and have to be fully processed '
                       f'before all attributes and metadata are available.')
@@ -205,6 +216,24 @@ class PlaceholderThermounit:
         self.input_ids = input_ids
         self.label = label
         self.predictions = predictions
+
+
+class ThermounitAttributeArray(np.ndarray):
+    """ NumPy Array of a list of attribute values of Thermopack units
+     Follows: https://numpy.org/devdocs/user/basics.subclassing.html"""
+    def __new__(cls, array, info=None):
+        # Input array is an already formed ndarray instance
+        # We first cast to be our class type
+        obj = np.asarray(array).view(cls)
+        # add the new attribute to the created instance
+        obj.info = info
+        # Finally, we must return the newly created object:
+        return obj
+
+    def __array_finalize__(self, obj):
+        if obj is None:
+            return
+        self.info = getattr(obj, 'info', None)
 
 
 class Thermounit(PlaceholderThermounit):
