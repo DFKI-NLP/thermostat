@@ -1,11 +1,63 @@
 import torch
-from captum.attr import KernelShap, LimeBase
+from captum.attr import KernelShap, Lime, LimeBase
 from captum._utils.models.linear_model import SkLearnLinearModel
 from functools import partial
+from math import exp
 from typing import Any, Dict, List
 
 from thermostat.explain import ExplainerAutoModelInitializer
 from thermostat.utils import detach_to_list
+
+
+class ExplainerLime(ExplainerAutoModelInitializer):
+    def __init__(self):
+        super().__init__()
+        self.n_samples = None
+
+    @staticmethod
+    def token_similarity_kernel(
+            original_input: torch.Tensor,
+            perturbed_input: torch.Tensor,
+            perturbed_interpretable_input: torch.Tensor,
+            **kwargs) -> torch.Tensor:
+        """
+        Following https://github.com/copenlu/ALPS_2021
+        """
+        pad_token_id = 0
+        kernel_width = 1.1
+        assert original_input.shape[0] == perturbed_input.shape[0] == 1, 'This kernel assumes batch size 1'
+        original_input_list = detach_to_list(original_input[0])
+        perturbed_input_list = detach_to_list(perturbed_input[0])
+        number_pad_tokens_original = original_input_list.count(pad_token_id)
+        number_pad_tokens_perturbed = perturbed_input_list.count(pad_token_id)
+        distance = (number_pad_tokens_perturbed - number_pad_tokens_original) / number_pad_tokens_original
+        similarity = exp(-distance**2/kernel_width**2)
+        return similarity
+
+    @classmethod
+    def from_config(cls, config):
+        res = super().from_config(config)
+        res.n_samples = config['explainer']['n_samples']
+        res.explainer = Lime(forward_func=res.forward_func)
+        return res
+
+    def explain(self, batch):
+        self.model.eval()
+        assert len(batch['input_ids']) == 1, 'This implementation assumes that the batch size is 1.'
+        batch = {k: v.to(self.device) for k, v in batch.items()}
+        inputs, additional_forward_args = self.get_inputs_and_additional_args(base_model=type(self.model.base_model),
+                                                                              batch=batch)
+        base_line = self.get_baseline(batch)
+        predictions = self.forward_func(inputs, *additional_forward_args)
+        target = torch.argmax(predictions, dim=1)
+        attributions = self.explainer.attribute(
+            inputs=inputs,
+            additional_forward_args=additional_forward_args,
+            target=target.item(),
+            n_samples=self.n_samples,
+            baselines=base_line,
+        )
+        return attributions, predictions
 
 
 class ExplainerLimeBase(ExplainerAutoModelInitializer):

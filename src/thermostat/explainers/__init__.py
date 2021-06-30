@@ -5,6 +5,7 @@ from .grad import (
 
 from .lime import (
     ExplainerKernelShap,
+    ExplainerLime,
     ExplainerLimeBase,
 )
 
