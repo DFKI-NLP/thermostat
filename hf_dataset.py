@@ -25,10 +25,10 @@ from thermostat.data.thermostat_configs import builder_configs
 # Find for instance the citation on arxiv or on the dataset repo/website
 _CITATION = "Coming soon."
 
-_DESCRIPTION = "Coming soon."
+_DESCRIPTION = "Thermostat is a large collection of NLP model explanations and accompanying analysis tools."
 
 # TODO: Add a link to an official homepage for the dataset here
-_HOMEPAGE = 'https://github.com/DFKI-NLP/'
+_HOMEPAGE = 'https://github.com/DFKI-NLP/Thermostat'
 
 # TODO: Add the licence for the dataset here if you can find it
 _LICENSE = ''
@@ -54,8 +54,8 @@ class Thermostat(datasets.GeneratorBasedBuilder):
         features["input_ids"] = datasets.Sequence(datasets.Value("int32"))
 
         return datasets.DatasetInfo(
-            description=self.config.description + f'\nExplainer: {self.config.explainer}\nModel: {self.config.model}'
-                                                  f'\nDataset: {self.config.dataset}\n',
+            description=self.config.description + f'\nDataset: {self.config.dataset}\nModel: {self.config.model}'
+                                                  f'\nExplainer: {self.config.explainer}\n',
             features=datasets.Features(features),
             homepage=_HOMEPAGE,
             citation=_CITATION,

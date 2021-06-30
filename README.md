@@ -1,28 +1,27 @@
 # Thermostat 🌡️
 
-### **Thermostat** combines explainability methods from the `captum` library with Hugging Face's `datasets` and `transformers`.
+### **Thermostat** is a large collection of NLP model explanations and accompanying analysis tools.
 
-Explainability in NLP is becoming more important by the day and is getting explored on many different levels. To alleviate computational burden on the hardware that is induced by repetitive execution, **Thermostat** combines popular text classification datasets and state-of-the-art language models with explainability methods commonly applied to NLP tasks.
+* Combines explainability methods from the `captum` library with Hugging Face's `datasets` and `transformers`.
+* Mitigates repetitive execution of common experiments in Explainable NLP.
+* Increases comparability and replicability of research.
+* Reduces the implementational burden
 
 
 ## Usage
 
-Thermostat datasets always consist of three basic coordinates: Dataset, Model, Explainer.
-
-Clone this repo and then from its root directory, you can use it like this:
+Downloading a dataset requires just two lines of code:
 
 ```python
 import thermostat
-
-# This will use the dataset script ("thermostat.py") in the "thermostat" directory
-data = thermostat.load("imdb-bert-lgxa")
-# data contains IMDb-BERT-LayerGradientXActivation attributions
+data = thermostat.load("imdb-bert-lig")
 ```
 
-The configuration always follows this schema: `<dataset>-<model>-<explainer>`.
+Thermostat datasets always consist of three basic coordinates: Dataset, Model, and Explainer. In this example, the dataset is IMDb (sentiment analysis of movie reviews), the model is a BERT model fine-tuned on the IMDb data, the explanations are generated using a (Layer) Integrated Gradients explainer.
 
-`data` then contains a subset with the following columns/features:
+`data` then contains the following columns/features:
 * `attributions` (the attributions for each token for each data point; type: List of floats)
+* `idx` (the index of the instance in the dataset)
 * `input_ids` (the token IDs of the original dataset; type: List of ints)
 * `label` (the label of the original dataset; type: int)
 * `predictions` (the class logits of the classifier/downstream model; type: List of floats)  
@@ -34,10 +33,10 @@ Additionally,
 ```python
 print(data)
 ```
-...defaults to the string in `data.description` which provides the actual names of the dataset, the explainer and the model
+... provides the actual names of the dataset, the explainer and the model:
 ```
-IMDb dataset, BERT model, Layer Gradient x Activation explanations
-Explainer: LayerGradientXActivation
+IMDb dataset, BERT model, Layer Integrated Gradients explanations
+Explainer: LayerIntegratedGradients
 Model: textattack/bert-base-uncased-imdb
 Dataset: imdb
 ```

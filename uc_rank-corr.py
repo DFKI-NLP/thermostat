@@ -1,7 +1,7 @@
 import thermostat
 from scipy.stats import kendalltau
 
-imdb_lime = thermostat.load("imdb-bert-lime")
+imdb_lime = thermostat.load("imdb-bert-lime", cache_dir='/home/nfel/datasets')
 il_atts = imdb_lime.attributions.flatten()
 imdb_intg = thermostat.load("imdb-bert-lig")
 ii_atts = imdb_intg.attributions.flatten()

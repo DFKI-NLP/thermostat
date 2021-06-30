@@ -1,6 +1,6 @@
+import numpy as np
 from datasets import Dataset, load_dataset
 from itertools import groupby
-import numpy as np
 from overrides import overrides
 from sklearn.metrics import classification_report
 from tqdm import tqdm
@@ -11,60 +11,6 @@ from thermostat.data import additional_configs, thermostat_configs
 from thermostat.data.tokenization import fuse_subwords
 from thermostat.utils import lazy_property
 from thermostat.visualize import ColorToken, Heatmap, normalize_attributions
-
-
-def list_configs():
-    """ Returns the list of names of all available configs in the Thermostat HF dataset"""
-    return [config.name for config in thermostat_configs.builder_configs]
-
-
-def get_config(config_name):
-    """ based on : https://stackoverflow.com/a/7125547 """
-    return next((x for x in thermostat_configs.builder_configs if x.name == config_name), None)
-
-
-def get_text_fields(config_name):
-    text_fields = get_config(config_name).text_column
-    if type(text_fields) != list:
-        text_fields = [text_fields]
-    return text_fields
-
-
-def load(config_str: str = None, cache_dir: str = None):
-    assert config_str, f'Please enter a config. Available options: {list_configs()}.'
-
-    def load_from_single_config(config, cache_dir=None):
-        print(f'Loading Thermostat configuration: {config}')
-        return load_dataset("hf_dataset.py", config, split="test", cache_dir=cache_dir)
-
-    if config_str in list_configs():
-        data = load_from_single_config(config_str, cache_dir=cache_dir)
-
-    elif config_str in ['-'.join(c.split('-')[:2]) for c in list_configs()]:
-        # Resolve "dataset+model" to all explainer subsets
-        raise NotImplementedError()
-
-    elif config_str in [f'{c.split("-")[0]}-{c.split("-")[-1]}' for c in list_configs()]:
-        # Resolve "dataset+explainer" to all model subsets
-        raise NotImplementedError()
-
-    else:
-        raise ValueError(f'Invalid config. Available options: {list_configs()}')
-
-    return Thermopack(data)
-
-
-def get_coordinate(thermostat_dataset: Dataset, coordinate: str) -> str:
-    """ Determine a coordinate (dataset, model, or explainer) of a Thermostat dataset from its description """
-    assert coordinate in ['Model', 'Dataset', 'Explainer']
-    coord_prefix = f'{coordinate}: '
-    assert coord_prefix in thermostat_dataset.description
-    str_post_coord_prefix = thermostat_dataset.description.split(coord_prefix)[1]
-    if '\n' in str_post_coord_prefix:
-        coord_value = str_post_coord_prefix.split('\n')[0]
-    else:
-        coord_value = str_post_coord_prefix
-    return coord_value
 
 
 class ThermopackMeta(type):
@@ -210,6 +156,9 @@ class Thermopack(Dataset, metaclass=ThermopackMeta):
 
 
 class PlaceholderThermounit:
+    """ Raw single instance of a Thermopack. Accessing units of a Thermopack will automatically cast these to
+     Thermounits. This class exists for efficiency purposes. Properly processing an entire dataset while loading it
+     takes too long. """
     def __init__(self, attributions, idx, input_ids, label, predictions):
         self.attributions = attributions
         self.idx = idx
@@ -355,3 +304,51 @@ class Thermounit(PlaceholderThermounit):
 
     def render(self, labels=False):
         self.heatmap.render(labels=labels)
+
+
+def list_configs():
+    """ Returns the list of names of all available configs in the Thermostat HF dataset"""
+    return [config.name for config in thermostat_configs.builder_configs]
+
+
+def get_config(config_name):
+    """ Returns a ThermostatConfig if a config exists by the name of `config_name`, else returns None
+     based on : https://stackoverflow.com/a/7125547 """
+    return next((x for x in thermostat_configs.builder_configs if x.name == config_name), None)
+
+
+def get_text_fields(config_name):
+    """ Returns a list of the text fields in a Thermostat config """
+    text_fields = get_config(config_name).text_column
+    if type(text_fields) != list:
+        text_fields = [text_fields]
+    return text_fields
+
+
+def load(config_str: str = None, **kwargs) -> Thermopack:
+    """
+    Wrapper around the load_dataset method from the HF datasets library:
+    https://huggingface.co/docs/datasets/package_reference/loading_methods.html#datasets.load_dataset
+    :param config_str: equivalent to the second argument (`name`) of `datasets.load_dataset`. The value has to be one of
+    the available configs in `thermostat.data.thermostat_configs.builder_configs` (accessible via `list_configs()`).
+    """
+    assert config_str, f'Please enter a config. Available options: {list_configs()}'
+    assert config_str in list_configs(), f'Invalid config. Available options: {list_configs()}'
+
+    print(f'Loading Thermostat configuration: {config_str}')
+    data = load_dataset(path="hf_dataset.py", name=config_str, split="test", **kwargs)
+
+    return Thermopack(data)
+
+
+def get_coordinate(thermostat_dataset: Dataset, coordinate: str) -> str:
+    """ Determine a coordinate (dataset, model, or explainer) of a Thermostat dataset from its description """
+    assert coordinate in ['Model', 'Dataset', 'Explainer']
+    coord_prefix = f'{coordinate}: '
+    assert coord_prefix in thermostat_dataset.description
+    str_post_coord_prefix = thermostat_dataset.description.split(coord_prefix)[1]
+    if '\n' in str_post_coord_prefix:
+        coord_value = str_post_coord_prefix.split('\n')[0]
+    else:
+        coord_value = str_post_coord_prefix
+    return coord_value
