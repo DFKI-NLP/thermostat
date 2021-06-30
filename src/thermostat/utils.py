@@ -61,7 +61,7 @@ def get_logger(name: str, file_out: str = None, level: int = None):
     logger.addHandler(c_handler)
 
     if file_out is not None:
-        f_handler = logging.FileHandler(file_out, mode='w+')
+        f_handler = logging.FileHandler(file_out, mode='a+')
         if level is not None:
             f_handler.setLevel(level)
         f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')

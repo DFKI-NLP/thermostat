@@ -20,7 +20,8 @@ args = parser.parse_args()
 config_file = args.c
 home_dir = args.home
 
-logger = get_logger(name='explain', file_out='./pipeline.log', level=logging.INFO)
+log_file = config_file.replace('/', '_').strip('.jsonnet')
+logger = get_logger(name='explain', file_out=f'./{log_file}.log', level=logging.INFO)
 
 # Config handling
 config = read_config(config_file, home_dir=home_dir)
