@@ -331,12 +331,20 @@ def load(config_str: str = None, **kwargs) -> Thermopack:
     https://huggingface.co/docs/datasets/package_reference/loading_methods.html#datasets.load_dataset
     :param config_str: equivalent to the second argument (`name`) of `datasets.load_dataset`. The value has to be one of
     the available configs in `thermostat.data.thermostat_configs.builder_configs` (accessible via `list_configs()`).
+    :param kwargs: Additional keywords will all be passed to `datasets.load_dataset`. `path`, `name` and `split` are
+    already reserved.
     """
     assert config_str, f'Please enter a config. Available options: {list_configs()}'
     assert config_str in list_configs(), f'Invalid config. Available options: {list_configs()}'
 
+    """ Following https://stackoverflow.com/a/23430335/6788442 """
+    ld_kwargs = {key: value for key, value in kwargs.items() if
+                 key in load_dataset.__code__.co_varnames and key not in ['path', 'name', 'split']}
+
     print(f'Loading Thermostat configuration: {config_str}')
-    data = load_dataset(path="hf_dataset.py", name=config_str, split="test", **kwargs)
+    if ld_kwargs:
+        print(f'Additional parameters for loading: {ld_kwargs}')
+    data = load_dataset(path="hf_dataset.py", name=config_str, split="test", **ld_kwargs)
 
     return Thermopack(data)
 
