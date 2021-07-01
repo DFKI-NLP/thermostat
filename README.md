@@ -109,6 +109,9 @@ text_field        text       text        text       text       text
 ```
 
 
+### Modifying the load function
+`thermostat.load()` is a wrapper around [`datasets.load_dataset()`](https://huggingface.co/docs/datasets/package_reference/loading_methods.html#datasets.load_dataset) and you can use any keyword arguments from `load_dataset()` in `load()`, too (except `path`, `name` and `split` which are reserved), e.g. if you want to use another cache directory, you can use the `cache_dir` argument in `thermostat.load()`.
+
 ---
 
 ## Explainers
@@ -205,6 +208,13 @@ Necessary fields include...
 * `description` : Should at least state the full names of the three coordinates, can optionally include more info such as hyperparameter choices
 * `data_url` : The URL to the data storage, e.g. a Google Drive link
 
+plus `features` which you can copy from the codebox below:
+```python
+features={"attributions": "attributions",
+          "predictions": "predictions",
+          "input_ids": "input_ids"}
+```
+
 
 While debugging, you can wrap your data with the `Thermopack` class and see if it correctly parses your data:
 
@@ -218,3 +228,8 @@ thermostat.Thermopack(data)
 If you're successful, follow the official instructions for [sharing a community provided dataset at the HuggingFace hub](https://huggingface.co/docs/datasets/share_dataset.html).
 
 At first, all Thermostat contributions will have to be loaded via the code example above. Please notify us of existing explanation datasets by creating an [Issue](https://github.com/DFKI-NLP/thermostat/issues) with the tag [Contribution](https://github.com/DFKI-NLP/thermostat/labels/contribution) and a maintainer of this repository will add your dataset to the Thermostat configs s.t. it can be accessed by everyone via `thermostat.load()`.
+
+
+## Acknowledgements
+
+The majority of the codebase, especially regarding the combination of transformers and captum, stems from our other recent project [Empirical Explainers](https://github.com/DFKI-NLP/emp-exp).
