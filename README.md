@@ -7,6 +7,22 @@
 * Increases comparability and replicability of research.
 * Reduces the implementational burden.
 
+This work is described in our demo paper:  
+**Nils Feldhus, Robert Schwarzenberg, and Sebastian Möller.**  
+__Thermostat: A Large Collection of NLP Model Explanations and Analysis Tools.__  
+*2021. Under (single-blind) peer review, coming soon.*
+
+
+
+## Installation
+
+### With pip
+
+```bash
+pip install thermostat
+```
+
+
 
 ## Usage
 

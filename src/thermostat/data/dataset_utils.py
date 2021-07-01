@@ -344,7 +344,7 @@ def load(config_str: str = None, **kwargs) -> Thermopack:
     print(f'Loading Thermostat configuration: {config_str}')
     if ld_kwargs:
         print(f'Additional parameters for loading: {ld_kwargs}')
-    data = load_dataset(path="hf_dataset.py", name=config_str, split="test", **ld_kwargs)
+    data = load_dataset(path="src/thermostat/dataset.py", name=config_str, split="test", **ld_kwargs)
 
     return Thermopack(data)
 
