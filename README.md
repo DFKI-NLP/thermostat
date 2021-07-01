@@ -16,7 +16,7 @@ __Thermostat: A Large Collection of NLP Model Explanations and Analysis Tools.__
 
 ## Installation
 
-### With pip
+### With pip (coming soon!)
 
 ```bash
 pip install thermostat
