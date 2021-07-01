@@ -28,7 +28,7 @@ _CITATION = "Coming soon."
 _DESCRIPTION = "Thermostat is a large collection of NLP model explanations and accompanying analysis tools."
 
 # TODO: Add a link to an official homepage for the dataset here
-_HOMEPAGE = 'https://github.com/DFKI-NLP/Thermostat'
+_HOMEPAGE = 'https://github.com/DFKI-NLP/thermostat'
 
 # TODO: Add the licence for the dataset here if you can find it
 _LICENSE = ''
