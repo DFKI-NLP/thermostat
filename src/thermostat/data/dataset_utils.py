@@ -1,4 +1,5 @@
 import numpy as np
+import os
 from datasets import Dataset, load_dataset
 from itertools import groupby
 from overrides import overrides
@@ -344,7 +345,10 @@ def load(config_str: str = None, **kwargs) -> Thermopack:
     print(f'Loading Thermostat configuration: {config_str}')
     if ld_kwargs:
         print(f'Additional parameters for loading: {ld_kwargs}')
-    data = load_dataset(path="src/thermostat/dataset.py", name=config_str, split="test", **ld_kwargs)
+    dataset_script_path = os.path.dirname(os.path.realpath(__file__)).replace('/thermostat/data',
+                                                                              '/thermostat/dataset.py')
+    data = load_dataset(path=dataset_script_path,
+                        name=config_str, split="test", **ld_kwargs)
 
     return Thermopack(data)
 

@@ -31,7 +31,7 @@ _DESCRIPTION = "Thermostat is a large collection of NLP model explanations and a
 _HOMEPAGE = 'https://github.com/DFKI-NLP/thermostat'
 
 # TODO: Add the licence for the dataset here if you can find it
-_LICENSE = ''
+_LICENSE = 'Apache 2.0'
 
 
 class Thermostat(datasets.GeneratorBasedBuilder):

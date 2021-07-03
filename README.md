@@ -19,7 +19,7 @@ __Thermostat: A Large Collection of NLP Model Explanations and Analysis Tools.__
 ### With pip (coming soon!)
 
 ```bash
-pip install thermostat
+pip install thermostat-datasets
 ```
 
 
@@ -244,6 +244,10 @@ thermostat.Thermopack(data)
 If you're successful, follow the official instructions for [sharing a community provided dataset at the HuggingFace hub](https://huggingface.co/docs/datasets/share_dataset.html).
 
 At first, all Thermostat contributions will have to be loaded via the code example above. Please notify us of existing explanation datasets by creating an [Issue](https://github.com/DFKI-NLP/thermostat/issues) with the tag [Contribution](https://github.com/DFKI-NLP/thermostat/labels/contribution) and a maintainer of this repository will add your dataset to the Thermostat configs s.t. it can be accessed by everyone via `thermostat.load()`.
+
+
+## Disclaimer
+We give no warranties for the correctness of the heatmaps or any other part of the data. This is evolving work and will be hot-patched continuously.
 
 
 ## Acknowledgements
