@@ -1,4 +1,4 @@
-# Thermostat 🌡️
+![logo](figures/logo.png)
 
 ### **Thermostat** is a large collection of NLP model explanations and accompanying analysis tools.
 
@@ -139,7 +139,6 @@ Name | captum implementation | Parameters
 Layer Gradient x Activation (`lgxa`) | [`.attr.LayerGradientXActivation`](https://captum.ai/api/layer.html#layer-gradient-x-activation) |
 Layer Integrated Gradients (`lig`) | [`.attr.LayerIntegratedGradients`](https://captum.ai/api/layer.html#layer-integrated-gradients) | # samples = 25
 LIME (`lime`) | [`.attr.LimeBase`](https://captum.ai/api/lime.html) | # samples = 25, <br>mask prob = 0.3
-LIME <br>(Coming soon) | [`.attr.Lime`](https://captum.ai/api/lime.html) | # samples = 100
 Occlusion (`occ`) | [`.attr.Occlusion`](https://captum.ai/api/occlusion.html) | sliding window = 3
 Shapley Value Sampling (`svs`) | [`.attr.ShapleyValueSampling`](https://captum.ai/api/shapley_value_sampling.html) | # samples = 25
 
@@ -207,6 +206,7 @@ ALBERT (`albert`) | [`textattack/albert-base-v2-ag-news`](https://huggingface.co
 BERT (`bert`) | [`textattack/bert-base-uncased-ag-news`](https://huggingface.co/textattack/bert-base-uncased-ag-news) | ✅ | ✅ | ✅ | ✅ | ✅
 RoBERTa (`roberta`) | [`textattack/roberta-base-ag-news`](https://huggingface.co/textattack/roberta-base-ag-news) | ✅ | ✅ | ✅ | ✅ | ✅
 
+---
 
 ### Contribute a dataset
 
