@@ -16,11 +16,14 @@ __Thermostat: A Large Collection of NLP Model Explanations and Analysis Tools.__
 
 ## Installation
 
-### With pip (coming soon!)
+### With pip
+
+[![PyPI](https://img.shields.io/pypi/v/thermostat-datasets?style=flat-square)](https://pypi.org/project/thermostat-datasets/)
 
 ```bash
 pip install thermostat-datasets
 ```
+
 
 
 
