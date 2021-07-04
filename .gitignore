@@ -42,3 +42,7 @@ venv.bak/
 # Sphinx documentation
 docs/_build/
 docs/source/_build/
+
+maps/
+
+.ipynb_checkpoints/
