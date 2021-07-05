@@ -1,10 +1,11 @@
 import torch
 from captum.attr import (
-    LayerIntegratedGradients, LayerGradientXActivation)
+    GuidedBackprop, LayerDeepLift, LayerIntegratedGradients, LayerGradientXActivation,)
 from transformers import XLNetForSequenceClassification
 from typing import Dict
 
 from thermostat.explain import ExplainerAutoModelInitializer
+from thermostat.utils import HookableModelWrapper
 
 
 class ExplainerLayerIntegratedGradients(ExplainerAutoModelInitializer):
@@ -88,3 +89,35 @@ class ExplainerLayerGradientXActivation(ExplainerAutoModelInitializer):
             # but [batch_dim, seq_len] is assumed
             attributions = attributions.T
         return attributions, predictions  # xlnet: [130, 1]
+
+
+class ExplainerDeepLift(ExplainerAutoModelInitializer):
+    def __init__(self):
+        super().__init__()
+
+    @classmethod
+    def from_config(cls, config):
+        res = super().from_config(config)
+        res.explainer = LayerDeepLift(model=HookableModelWrapper(res), layer=res.get_embedding_layer(res.model))
+        return res
+
+    def explain(self, batch):
+        self.model.eval()
+        batch = {k: v.to(self.device) for k, v in batch.items()}
+        inputs, additional_forward_args = self.get_inputs_and_additional_args(base_model=type(self.model.base_model),
+                                                                              batch=batch)
+        base_line = self.get_baseline(batch)
+        predictions = self.forward_func(inputs, *additional_forward_args)
+        target = torch.argmax(predictions, dim=1)
+        attributions = self.explainer.attribute(
+            inputs=inputs,
+            additional_forward_args=additional_forward_args,
+            target=target,
+            baselines=base_line,
+        )
+        attributions = torch.sum(attributions, dim=2)
+        if isinstance(self.model, XLNetForSequenceClassification):
+            # for xlnet, attributions.shape = [seq_len, batch_dim]
+            # but [batch_dim, seq_len] is assumed
+            attributions = attributions.T
+        return attributions, predictions

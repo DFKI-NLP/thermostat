@@ -20,7 +20,7 @@ class ExplainerShapleyValueSampling(ExplainerAutoModelInitializer):
     def from_config(cls, config):
         res = super().from_config(config)
         res.n_samples = config['explainer']['n_samples']
-        res.explainer = ShapleyValueSampling(res.forward_func)  # KernelShap(forward_func=res.forward_func)
+        res.explainer = ShapleyValueSampling(res.forward_func)
         return res
 
     def explain(self, batch):

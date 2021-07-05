@@ -1,10 +1,14 @@
 from .grad import (
     ExplainerLayerGradientXActivation,
     ExplainerLayerIntegratedGradients,
+    ExplainerDeepLift,
+)
+
+from .iba import (
+    ExplainerIBA,
 )
 
 from .lime import (
-    ExplainerKernelShap,
     ExplainerLime,
     ExplainerLimeBase,
 )

@@ -39,6 +39,14 @@ class Configurable:
         return res
 
 
+class HookableModelWrapper(torch.nn.Module):
+    def __init__(self, res):
+        super().__init__()
+        self.model = res.model
+        self.model.zero_grad()
+        self.forward = res.forward_func
+
+
 def detach_to_list(t):
     return t.detach().cpu().numpy().tolist() if type(t) == torch.Tensor else t
 
