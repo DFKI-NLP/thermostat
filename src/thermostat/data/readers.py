@@ -1,6 +1,6 @@
 from datasets import load_dataset, load_from_disk
 from transformers import AutoTokenizer
-from typing import Dict
+from typing import Dict, List
 
 
 def download_dataset(config: Dict, logger):
@@ -55,10 +55,25 @@ def get_dataset(config: Dict):
     else:
         text_field = 'text'
     encode_fn = encode_pair if type(text_field) == list and len(text_field) else encode
-
     dataset = dataset.map(encode_fn, batched=True, batch_size=dataset_config['batch_size'])
-    dataset = dataset.map(lambda examples: {'labels': examples['label']},
-                          batched=True, batch_size=dataset_config['batch_size'])
+
+    if 'label_field' in dataset_config:
+        label_field = dataset_config['label_field']
+        expression = label_field['expression']
+    else:
+        label_field = 'label'
+
+    def get_label(example: Dict):
+        if type(label_field) == str:
+            return example[label_field]
+        else:
+            try:
+                return eval('example' + expression)
+            except IndexError:
+                return None
+
+    dataset = dataset.map(lambda examples: {'labels': get_label(examples)},
+                          batch_size=dataset_config['batch_size'])  # batched=True,
     dataset.set_format(type='torch', columns=dataset_config['columns'])
     return dataset
 

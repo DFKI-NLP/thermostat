@@ -36,7 +36,7 @@ import thermostat
 data = thermostat.load("imdb-bert-lig")
 ```
 
-Thermostat datasets always consist of three basic coordinates: Dataset, Model, and Explainer. In this example, the dataset is IMDb (sentiment analysis of movie reviews), the model is a BERT model fine-tuned on the IMDb data, the explanations are generated using a (Layer) Integrated Gradients explainer.
+Thermostat datasets can be addressed and loaded with an identifier string that contains three basic coordinates: Dataset, Model, and Explainer. In this example, the dataset is IMDb (sentiment analysis of movie reviews), the model is a BERT model fine-tuned on the IMDb data, the explanations are generated using a (Layer) Integrated Gradients explainer.
 
 `data` then contains the following columns/features:
 * `attributions` (the attributions for each token for each data point; type: List of floats)

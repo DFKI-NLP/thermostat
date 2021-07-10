@@ -1,4 +1,5 @@
 import torch
+import transformers
 import transformers.models as tlm
 from ignite.handlers import ModelCheckpoint
 from transformers import AutoModelForSequenceClassification
@@ -114,8 +115,6 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
 
     def validate_config(self, config: Dict) -> bool:
         assert 'name' in config['model'], f'Provide the name of the model to explain.'
-        assert 'path_model' in config['model'], f'Provide a path to the model which should be explained.'
-        assert 'mode_load' in config['model'], f'Should the model be loaded using the ignite framework or huggingface?'
         return True
 
     @classmethod
@@ -131,24 +130,20 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
         if config['model']['path_model']:  # can be empty when loading a HF model!
             res.path_model = config['model']['path_model']
 
-        res.mode_load = config['model']['mode_load']
-        assert res.mode_load in ['hf', 'ignite']
-
-        res.num_labels = len(config['dataset']['label_names'])
-        # TODO: Assert that num_labels in dataset corresponds to classification head in model
-
-        if res.mode_load == 'hf':
-            res.model = AutoModelForSequenceClassification.from_pretrained(res.name_model,
-                                                                           num_labels=res.num_labels)
-        elif res.mode_load == 'ignite':
-            res.model = AutoModelForSequenceClassification.from_pretrained(res.name_model,
-                                                                           num_labels=res.num_labels)
-            checkpoint = torch.load(res.path_model)
-            to_load = {'model': res.model}
-            ModelCheckpoint.load_objects(to_load=to_load,
-                                         checkpoint=checkpoint)  # overwrite pretrained weights w/ fine-tuned weights
+        if not config['model']['class']:
+            res.num_labels = len(config['dataset']['label_names'])
+            # TODO: Assert that num_labels in dataset corresponds to classification head in model
+            res.model = AutoModelForSequenceClassification.from_pretrained(res.name_model, num_labels=res.num_labels)
         else:
-            raise NotImplementedError('"hf" and "ignite" values are supported for config field "mode_load".')
+            res.model = getattr(transformers, config['model']['class']).from_pretrained(res.name_model)
+
+        if 'mode_load' in config['model']:
+            res.mode_load = config['model']['mode_load']
+            if res.mode_load == 'ignite':
+                checkpoint = torch.load(res.path_model)
+                to_load = {'model': res.model}
+                ModelCheckpoint.load_objects(to_load=to_load, # overwrite pretrained weights w/ fine-tuned weights
+                                             checkpoint=checkpoint)
 
         res.forward_func = res.get_forward_func(name_model=res.name_model, model=res.model)
         res.pad_token_id = config['tokenizer'].pad_token_id
