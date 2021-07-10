@@ -7,6 +7,6 @@ This is based on an implementation by [Hugging Face](https://github.com/huggingf
 3. At the start, it will automatically download the `ag_news-albert-lgxa` configuration to your cache directory. This can take a while depending on your connection.
 4. You can now freely explore all the Thermostat configurations using the sidebar dropdown menu.
 
-![streamlit-menu](streamlit/streamlit-menu.png)
+![streamlit-menu](streamlit-menu.png)
 
 The checkbox "Show Attribution Scores" additionally gives you the option to add the feature attributions (rounded to three digits) as labels to each token.
