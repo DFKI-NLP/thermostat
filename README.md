@@ -7,10 +7,11 @@
 * Increases comparability and replicability of research.
 * Reduces the implementational burden.
 
-This work is described in our demo paper:  
+This work is described in our paper accepted to **EMNLP 2021 System Demonstrations** :  
 **Nils Feldhus, Robert Schwarzenberg, and Sebastian Möller.**  
-__Thermostat: A Large Collection of NLP Model Explanations and Analysis Tools.__  
-*2021. Under (single-blind) peer review, coming soon.*
+__Thermostat: A Large Collection of NLP Model Explanations and Analysis Tools.__  *2021.*
+
+arXiv pre-print available here: https://arxiv.org/abs/2108.13961  
 
 
 
@@ -23,8 +24,6 @@ __Thermostat: A Large Collection of NLP Model Explanations and Analysis Tools.__
 ```bash
 pip install thermostat-datasets
 ```
-
-
 
 
 ## Usage
@@ -174,7 +173,7 @@ Example configuration: `multi_nli-roberta-lime`
 
 Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs`
 --- | --- | --- | --- | --- | --- | ---
-ALBERT (`albert`) | [`prajjwal1/albert-base-v2-mnli`](https://huggingface.co/prajjwal1/albert-base-v2-mnli) | ✅ | ✅ | ✅ | ✅ | 🔄x3/3
+ALBERT (`albert`) | [`prajjwal1/albert-base-v2-mnli`](https://huggingface.co/prajjwal1/albert-base-v2-mnli) | ✅ | ✅ | ✅ | ✅ | ✅
 BERT (`bert`) | [`textattack/bert-base-uncased-MNLI`](https://huggingface.co/textattack/bert-base-uncased-MNLI) | ✅ | ✅ | ✅ | ✅ | ✅
 ELECTRA (`electra`) | [`howey/electra-base-mnli`](https://huggingface.co/howey/electra-base-mnli) | ✅ | ✅ | ✅ | ✅ | ✅
 RoBERTa (`roberta`) | [`textattack/roberta-base-MNLI`](https://huggingface.co/textattack/roberta-base-MNLI) | ✅ | ✅ | ✅ | ✅ | ✅
@@ -188,11 +187,11 @@ Example configuration: `xnli-roberta-lime`
 
 Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs`
 --- | --- | --- | --- | --- | --- | ---
-ALBERT (`albert`) | [`prajjwal1/albert-base-v2-mnli`](https://huggingface.co/prajjwal1/albert-base-v2-mnli) | ✅ | ✅ | ✅ | ✅ | 🔄
+ALBERT (`albert`) | [`prajjwal1/albert-base-v2-mnli`](https://huggingface.co/prajjwal1/albert-base-v2-mnli) | ✅ | ✅ | ✅ | ✅ | ✅
 BERT (`bert`) | [`textattack/bert-base-uncased-MNLI`](https://huggingface.co/textattack/bert-base-uncased-MNLI) | ✅ | ✅ | ✅ | ✅ | ✅
 ELECTRA (`electra`) | [`howey/electra-base-mnli`](https://huggingface.co/howey/electra-base-mnli) | ✅ | ✅ | ✅ | ✅ | ✅
-RoBERTa (`roberta`) | [`textattack/roberta-base-MNLI`](https://huggingface.co/textattack/roberta-base-MNLI) | ✅ | ✅ | ✅ | ✅ | 🔄
-XLNet (`xlnet`) | [`textattack/xlnet-base-cased-MNLI`](https://huggingface.co/textattack/xlnet-base-cased-MNLI) | ✅ | ✅ | ✅ | ✅ | 🔄
+RoBERTa (`roberta`) | [`textattack/roberta-base-MNLI`](https://huggingface.co/textattack/roberta-base-MNLI) | ✅ | ✅ | ✅ | ✅ | ✅
+XLNet (`xlnet`) | [`textattack/xlnet-base-cased-MNLI`](https://huggingface.co/textattack/xlnet-base-cased-MNLI) | ✅ | ✅ | ✅ | ✅ | ✅
 
 
 ### AG News
@@ -248,9 +247,25 @@ If you're successful, follow the official instructions for [sharing a community 
 
 At first, all Thermostat contributions will have to be loaded via the code example above. Please notify us of existing explanation datasets by creating an [Issue](https://github.com/DFKI-NLP/thermostat/issues) with the tag [Contribution](https://github.com/DFKI-NLP/thermostat/labels/contribution) and a maintainer of this repository will add your dataset to the Thermostat configs s.t. it can be accessed by everyone via `thermostat.load()`.
 
+---
+
+## Cite Thermostat
+
+```
+@inproceedings{feldhus2021thermostat,
+    title={Thermostat: A Large Collection of NLP Model Explanations and Analysis Tools},
+    author={Nils Feldhus and Robert Schwarzenberg and Sebastian Möller},
+    year={2021},
+    editor = {Heike Adel and Shuming Shi},
+    booktitle = {Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing: System Demonstrations},
+}
+```
+
 
 ## Disclaimer
 We give no warranties for the correctness of the heatmaps or any other part of the data. This is evolving work and will be hot-patched continuously.
+
+The Thermostat project follows the [ACL and ACM Code of Ethics](https://www.acm.org/code-of-ethics).
 
 
 ## Acknowledgements

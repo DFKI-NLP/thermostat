@@ -46,3 +46,9 @@ docs/source/_build/
 maps/
 
 .ipynb_checkpoints/
+
+align_maps.py
+pypi-test-api-token.txt
+run_visualization.py
+runtimes.md
+src/thermostat/data/stats.py

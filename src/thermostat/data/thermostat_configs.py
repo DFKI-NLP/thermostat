@@ -1,7 +1,7 @@
 import datasets
 
 
-_VERSION = datasets.Version('1.0.0', '')
+_VERSION = datasets.Version('1.0.1', '')
 
 
 # Base arguments for any dataset
@@ -465,6 +465,13 @@ builder_configs = [
         **_MNLI_ALBERT_KWARGS,
     ),
     ThermostatConfig(
+        name="multi_nli-albert-svs",
+        description="MultiNLI dataset, ALBERT model, Shapley Value Sampling explanations",
+        explainer="ShapleyValueSampling",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/fffM7w64CnTSzHA/download",
+        **_MNLI_ALBERT_KWARGS,
+    ),
+    ThermostatConfig(
         name="multi_nli-bert-lgxa",
         description="MultiNLI dataset, BERT model, Layer Gradient x Activation explanations",
         explainer="LayerGradientXActivation",
@@ -633,6 +640,13 @@ builder_configs = [
         **_XNLI_ALBERT_KWARGS,
     ),
     ThermostatConfig(
+        name="xnli-albert-svs",
+        description="XNLI dataset, ALBERT model, Shapley Value Sampling explanations",
+        explainer="ShapleyValueSampling",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/wekiPq7ijzsCQK4/download",
+        **_XNLI_ALBERT_KWARGS,
+    ),
+    ThermostatConfig(
         name="xnli-bert-lgxa",
         description="XNLI dataset, BERT model, Layer Gradient x Activation explanations",
         explainer="LayerGradientXActivation",
@@ -731,6 +745,13 @@ builder_configs = [
         **_XNLI_ROBERTA_KWARGS,
     ),
     ThermostatConfig(
+        name="xnli-roberta-svs",
+        description="XNLI dataset, RoBERTa model, Shapley Value Sampling explanations",
+        explainer="ShapleyValueSampling",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/opYTzjSeWWL7eYg/download",
+        **_XNLI_ROBERTA_KWARGS,
+    ),
+    ThermostatConfig(
         name="xnli-xlnet-lgxa",
         description="XNLI dataset, XLNet model, Layer Gradient x Activation explanations",
         explainer="LayerGradientXActivation",
@@ -756,6 +777,13 @@ builder_configs = [
         description="XNLI dataset, XLNet model, Occlusion explanations",
         explainer="Occlusion",
         data_url="https://cloud.dfki.de/owncloud/index.php/s/yEFEyrq4pbGKP4s/download",
+        **_XNLI_XLNET_KWARGS,
+    ),
+    ThermostatConfig(
+        name="xnli-xlnet-svs",
+        description="XNLI dataset, XLNet model, Shapley Value Sampling explanations",
+        explainer="ShapleyValueSampling",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/fT34Q7CD2GQkdxJ/download",
         **_XNLI_XLNET_KWARGS,
     ),
 ]

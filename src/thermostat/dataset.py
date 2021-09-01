@@ -12,7 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""TODO: Add a description here."""
 
 
 import datasets
@@ -20,17 +19,24 @@ import json
 
 from thermostat.data.thermostat_configs import builder_configs
 
-
-# TODO: Add BibTeX citation
 # Find for instance the citation on arxiv or on the dataset repo/website
-_CITATION = "Coming soon."
+_CITATION = """\
+@misc{feldhus2021thermostat,
+      title={Thermostat: A Large Collection of NLP Model Explanations and Analysis Tools}, 
+      author={Nils Feldhus and Robert Schwarzenberg and Sebastian Möller},
+      year={2021},
+      eprint={2108.13961},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL}
+}
+"""
 
 _DESCRIPTION = "Thermostat is a large collection of NLP model explanations and accompanying analysis tools."
 
-# TODO: Add a link to an official homepage for the dataset here
+# Link to an official homepage for the dataset
 _HOMEPAGE = 'https://github.com/DFKI-NLP/thermostat'
 
-# TODO: Add the licence for the dataset here if you can find it
+# Licence for the dataset
 _LICENSE = 'Apache 2.0'
 
 
