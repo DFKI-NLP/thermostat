@@ -24,6 +24,10 @@ arXiv pre-print available here: https://arxiv.org/abs/2108.13961
 ```bash
 pip install thermostat-datasets
 ```
+### Explore on Hugging Face Spaces
+
+The **Spaces** edition of Thermostat launched on October 26, 2021. Check it out here:
+[![](figures/spaces.png)](https://huggingface.co/spaces/nfel/Thermostat)
 
 
 ## Usage
