@@ -129,8 +129,11 @@ class ExplainerAutoModelInitializer(ExplainerCaptum):  # todo check if this is a
         res.name_model = config['model']['name']
         if config['model']['path_model']:  # can be empty when loading a HF model!
             res.path_model = config['model']['path_model']
-
-        if not config['model']['class']:
+        
+        # new change
+        # if not config['model']['class']:
+        if 'class' not in config['model'].keys():
+        # new change
             res.num_labels = len(config['dataset']['label_names'])
             # TODO: Assert that num_labels in dataset corresponds to classification head in model
             res.model = AutoModelForSequenceClassification.from_pretrained(res.name_model, num_labels=res.num_labels)

@@ -1,0 +1,34 @@
+{
+    "path": "$HOME/experiments/thermostat",
+    "device": "cuda",
+    "dataset": {
+        "name": "imdb",
+        "split": "test",
+        "columns": ['input_ids', 'attention_mask', 'token_type_ids', 'labels'],
+        "batch_size": 1,
+        "root_dir": "$HOME/experiments/thermostat/datasets",
+    },
+    "explainer": {
+        "name": "LimeBase",
+        "internal_batch_size": 1,
+        "n_samples": 100,
+        "mask_prob": 0.3,
+    },
+    "model": {
+        "name": "textattack/xlnet-base-cased-imdb",
+        "mode_load": "hf",
+        "path_model": null,
+        "tokenization": {
+            "max_length": 512,
+            "padding": "max_length",
+            "return_tensors": "np",
+            "truncation": true,
+            "special_tokens_mask": true,
+        }
+    },
+    "visualization": {
+        "columns": ["attributions", "predictions", "input_ids", "labels"],
+        "gamma": 2.0,
+        "normalize": true,
+    }
+}
