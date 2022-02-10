@@ -177,6 +177,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/8SLyHdDgRk2pXSL/download",
         **_AGNEWS_ALBERT_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="ag_news-albert-lime-100",
+        description="AG News dataset, ALBERT model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/W3GT4ZDT2BzR5mj/download",
+        **_AGNEWS_ALBERT_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="ag_news-albert-occlusion",
         description="AG News dataset, ALBERT model, Occlusion explanations",
@@ -212,6 +221,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/rW8MJyAjBGQxsK9/download",
         **_AGNEWS_BERT_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="ag_news-bert-lime-100",
+        description="AG News dataset, BERT model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/FkSdXZPpN78HSHR/download",
+        **_AGNEWS_BERT_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="ag_news-bert-occlusion",
         description="AG News dataset, BERT model, Occlusion explanations",
@@ -247,6 +265,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/qRgBtwfjaXceJoL/download",
         **_AGNEWS_ROBERTA_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="ag_news-roberta-lime-100",
+        description="AG News dataset, RoBERTa model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/kFyjX2LqBdcW9bp/download",
+        **_AGNEWS_ROBERTA_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="ag_news-roberta-occlusion",
         description="AG News dataset, RoBERTa model, Occlusion explanations",
@@ -282,6 +309,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/Tgktb4fq4EdXJNx/download",
         **_IMDB_ALBERT_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="imdb-albert-lime-100",
+        description="IMDb dataset, ALBERT model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/FzErcT9TcFcG2Pr/download",
+        **_IMDB_ALBERT_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="imdb-albert-occ",
         description="IMDb dataset, ALBERT model, Occlusion explanations",
@@ -317,6 +353,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/ZQEdEmFtKeGkYWp/download",
         **_IMDB_BERT_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="imdb-bert-lime-100",
+        description="IMDb dataset, BERT model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/Qx7z8SFcMTB5bFa/download",
+        **_IMDB_BERT_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="imdb-bert-occ",
         description="IMDb dataset, BERT model, Occlusion explanations",
@@ -352,6 +397,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/7p2576kFqiQLL9x/download",
         **_IMDB_ELECTRA_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="imdb-electra-lime-100",
+        description="IMDb dataset, ELECTRA model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/LBqzn6JiQNzwMAC/download",
+        **_IMDB_ELECTRA_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="imdb-electra-occ",
         description="IMDb dataset, ELECTRA model, Occlusion explanations",
@@ -387,6 +441,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/rpsMTw3S6JkQgcF/download",
         **_IMDB_ROBERTA_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="imdb-roberta-lime-100",
+        description="IMDb dataset, RoBERTa model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/YZsAoJmR4EcwnG2/download",
+        **_IMDB_ROBERTA_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="imdb-roberta-occ",
         description="IMDb dataset, RoBERTa model, Occlusion explanations",
@@ -422,6 +485,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/YCDW67f49wj5NXg/download",
         **_IMDB_XLNET_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="imdb-xlnet-lime-100",
+        description="IMDb dataset, XLNet model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/T2KsA8ragxPz6eL/download",
+        **_IMDB_XLNET_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="imdb-xlnet-occ",
         description="IMDb dataset, XLNet model, Occlusion explanations",
@@ -457,6 +529,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/e6JRy9fidSAC5zK/download",
         **_MNLI_ALBERT_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="multi_nli-albert-lime-100",
+        description="MultiNLI dataset, ALBERT model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/WB2N3nFkHTGkXY8/download",
+        **_MNLI_ALBERT_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="multi_nli-albert-occ",
         description="MultiNLI dataset, ALBERT model, Occlusion explanations",
@@ -492,6 +573,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/ptspBexoHaXtqXD/download",
         **_MNLI_BERT_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="multi_nli-bert-lime-100",
+        description="MultiNLI dataset, BERT model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/LjFccwQ2mCAnsmH/download",
+        **_MNLI_BERT_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="multi_nli-bert-occ",
         description="MultiNLI dataset, BERT model, Occlusion explanations",
@@ -527,6 +617,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/WzBwpwC9FoQZCwB/download",
         **_MNLI_ELECTRA_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="multi_nli-electra-lime-100",
+        description="MultiNLI dataset, ELECTRA model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/TX6jWs9wBdsJA9w/download",
+        **_MNLI_ELECTRA_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="multi_nli-electra-occ",
         description="MultiNLI dataset, ELECTRA model, Occlusion explanations",
@@ -562,6 +661,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/dY4z4ptcMtiYzZs/download",
         **_MNLI_ROBERTA_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="multi_nli-roberta-lime-100",
+        description="MultiNLI dataset, RoBERTa model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/KTQWmCDX2EjHtQE/download",
+        **_MNLI_ROBERTA_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="multi_nli-roberta-occ",
         description="MultiNLI dataset, RoBERTa model, Occlusion explanations",
@@ -597,6 +705,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/B7tfLSRKBGYxJ3s/download",
         **_MNLI_XLNET_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="multi_nli-xlnet-lime-100",
+        description="MultiNLI dataset, XLNet model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/SesZACA2AwyefFp/download",
+        **_MNLI_XLNET_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="multi_nli-xlnet-occ",
         description="MultiNLI dataset, XLNet model, Occlusion explanations",
@@ -632,6 +749,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/sijLW3ceigxDsKY/download",
         **_XNLI_ALBERT_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="xnli-albert-lime-100",
+        description="XNLI dataset, ALBERT model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/oQW5cRc6GbqHtB6/download",
+        **_XNLI_ALBERT_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="xnli-albert-occ",
         description="XNLI dataset, ALBERT model, Occlusion explanations",
@@ -667,6 +793,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/KfjqkRTd7FSWSkx/download",
         **_XNLI_BERT_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="xnli-bert-lime-100",
+        description="XNLI dataset, BERT model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/FXHt989a2En8aZZ/download",
+        **_XNLI_BERT_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="xnli-bert-occ",
         description="XNLI dataset, BERT model, Occlusion explanations",
@@ -702,6 +837,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/XnkiHXgxNsptxTJ/download",
         **_XNLI_ELECTRA_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="xnli-electra-lime-100",
+        description="XNLI dataset, ELECTRA model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/7zNtxCHxEZk2tzC/download",
+        **_XNLI_ELECTRA_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="xnli-electra-occ",
         description="XNLI dataset, ELECTRA model, Occlusion explanations",
@@ -737,6 +881,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/pZKo7m4g9WJXfoe/download",
         **_XNLI_ROBERTA_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="xnli-roberta-lime-100",
+        description="XNLI dataset, RoBERTa model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/CHSR7Arw8M56bxN/download",
+        **_XNLI_ROBERTA_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="xnli-roberta-occ",
         description="XNLI dataset, RoBERTa model, Occlusion explanations",
@@ -772,6 +925,15 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/6s4DFPNYpzi8722/download",
         **_XNLI_XLNET_KWARGS,
     ),
+    # new change
+    ThermostatConfig(
+        name="xnli-xlnet-lime-100",
+        description="XNLI dataset, XLNet model, LIME explanations, 100 samples",
+        explainer="LimeBase",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/ZzN9PSkiRrJNza2/download",
+        **_XNLI_XLNET_KWARGS,
+    ),
+    # new change
     ThermostatConfig(
         name="xnli-xlnet-occ",
         description="XNLI dataset, XLNet model, Occlusion explanations",

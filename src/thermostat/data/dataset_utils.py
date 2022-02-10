@@ -1,5 +1,8 @@
 import numpy as np
 import os
+# new change 
+from sys import platform
+# new change
 from datasets import Dataset, load_dataset
 from itertools import groupby
 from overrides import overrides
@@ -345,8 +348,15 @@ def load(config_str: str = None, **kwargs) -> Thermopack:
     print(f'Loading Thermostat configuration: {config_str}')
     if ld_kwargs:
         print(f'Additional parameters for loading: {ld_kwargs}')
-    dataset_script_path = os.path.dirname(os.path.realpath(__file__)).replace('/thermostat/data',
+    # new change
+    if platform == "win32":
+       dataset_script_path = os.path.dirname(os.path.realpath(__file__)).replace('\\thermostat\\data',
+                                                                              '\\thermostat\\dataset.py')
+    else:
+        dataset_script_path = os.path.dirname(os.path.realpath(__file__)).replace('/thermostat/data',
                                                                               '/thermostat/dataset.py')
+    # new change
+    
     data = load_dataset(path=dataset_script_path,
                         name=config_str, split="test", **ld_kwargs)
 
