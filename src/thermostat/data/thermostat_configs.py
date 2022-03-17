@@ -200,6 +200,22 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/GLppwQjeBTsLtTC/download",
         **_AGNEWS_ALBERT_KWARGS,
     ),
+    # shap value inclusion
+    ThermostatConfig(
+        name="ag_news-albert-lds",
+        description="AG News dataset, ALBERT model, Layer DeepLift Shap explanations",
+        explainer="LayerDeepLiftShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/nzriaZHxniNtJBN/download",
+        **_AGNEWS_ALBERT_KWARGS,
+    ),
+    ThermostatConfig(
+        name="ag_news-albert-lgs",
+        description="AG News dataset, ALBERT model, Layer Gradient Shap explanations",
+        explainer="LayerGradientShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/EjCXxWCETQH9onj/download",
+        **_AGNEWS_ALBERT_KWARGS,
+    ),
+    # shap value inclusion
     ThermostatConfig(
         name="ag_news-bert-lgxa",
         description="AG News dataset, BERT model, Layer Gradient x Activation explanations",
@@ -244,6 +260,22 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/dCbgsjdW6b9pzo3/download",
         **_AGNEWS_BERT_KWARGS,
     ),
+    # shap value inclusion
+    ThermostatConfig(
+        name="ag_news-bert-lds",
+        description="AG News dataset, BERT model, Layer DeepLift Shap explanations",
+        explainer="LayerDeepLiftShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/XQzBnRniEyC8NEF/download",
+        **_AGNEWS_BERT_KWARGS,
+    ),
+    ThermostatConfig(
+        name="ag_news-bert-lgs",
+        description="AG News dataset, BERT model, Layer Gradient Shap explanations",
+        explainer="LayerGradientShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/nHt4Ld4AKfbG2ft/download",
+        **_AGNEWS_BERT_KWARGS,
+    ),
+    # shap value inclusion
     ThermostatConfig(
         name="ag_news-roberta-lgxa",
         description="AG News dataset, RoBERTa model, Layer Gradient x Activation explanations",
@@ -288,6 +320,22 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/yabEAY5sLpjxKkW/download",
         **_AGNEWS_ROBERTA_KWARGS,
     ),
+    # shap value inclusion
+    ThermostatConfig(
+        name="ag_news-roberta-lds",
+        description="AG News dataset, RoBERTa model, Layer DeepLift Shap explanations",
+        explainer="LayerDeepLiftShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/ZWoxq27s36For98/download",
+        **_AGNEWS_ROBERTA_KWARGS,
+    ),
+    ThermostatConfig(
+        name="ag_news-roberta-lgs",
+        description="AG News dataset, RoBERTa model, Layer Gradient Shap explanations",
+        explainer="LayerGradientShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/HgHjNFcMQbCC2Nb/download",
+        **_AGNEWS_ROBERTA_KWARGS,
+    ),
+    # shap value inclusion
     ThermostatConfig(
         name="imdb-albert-lgxa",
         description="IMDb dataset, ALBERT model, Layer Gradient x Activation explanations",
@@ -332,6 +380,22 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/sQMK2XsknbzK23a/download",
         **_IMDB_ALBERT_KWARGS,
     ),
+    # shap value inclusion
+    ThermostatConfig(
+        name="imdb-albert-lds",
+        description="IMDb dataset, ALBERT model, Layer DeepLift Shap explanations",
+        explainer="LayerDeepLiftShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/SYg2GjRkewW8fn7/download",
+        **_IMDB_ALBERT_KWARGS,
+    ),
+    ThermostatConfig(
+        name="imdb-albert-lgs",
+        description="IMDb dataset, ALBERT model, Layer Gradient Shap explanations",
+        explainer="LayerGradientShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/rWZfSzPN7Gm3Cko/download",
+        **_IMDB_ALBERT_KWARGS,
+    ),
+    # shap value inclusion
     ThermostatConfig(
         name="imdb-bert-lgxa",
         description="IMDb dataset, BERT model, Layer Gradient x Activation explanations",
@@ -376,6 +440,22 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/DjmCKdBoWHt8jbX/download",
         **_IMDB_BERT_KWARGS,
     ),
+    # shap value inclusion
+    ThermostatConfig(
+        name="imdb-bert-lds",
+        description="IMDb dataset, BERT model, Layer DeepLift Shap explanations",
+        explainer="LayerDeepLiftShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/dnqSfrgGPYcYsKt/download",
+        **_IMDB_BERT_KWARGS,
+    ),
+    ThermostatConfig(
+        name="imdb-bert-lgs",
+        description="IMDb dataset, BERT model, Layer Gradient Shap explanations",
+        explainer="LayerGradientShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/fnBqKxEjfsScqwg/download",
+        **_IMDB_BERT_KWARGS,
+    ),
+    # shap value inclusion
     ThermostatConfig(
         name="imdb-electra-lgxa",
         description="IMDb dataset, ELECTRA model, Layer Gradient x Activation explanations",
@@ -420,6 +500,22 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/MPHqZwJCP97sA4D/download",
         **_IMDB_ELECTRA_KWARGS,
     ),
+    # shap value inclusion
+    ThermostatConfig(
+        name="imdb-electra-lds",
+        description="IMDb dataset, ELECTRA model, Layer DeepLift Shap explanations",
+        explainer="LayerDeepLiftShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/cHdECMFjHacAnFk/download",
+        **_IMDB_ELECTRA_KWARGS,
+    ),
+    ThermostatConfig(
+        name="imdb-electra-lgs",
+        description="IMDb dataset, ELECTRA model, Layer Gradient Shap explanations",
+        explainer="LayerGradientShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/dRM6RKSwD5fKteG/download",
+        **_IMDB_ELECTRA_KWARGS,
+    ),
+    # shap value inclusion
     ThermostatConfig(
         name="imdb-roberta-lgxa",
         description="IMDb dataset, RoBERTa model, Layer Gradient x Activation explanations",
@@ -464,6 +560,22 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/339zLEttF6djtBR/download",
         **_IMDB_ROBERTA_KWARGS,
     ),
+    # shap value inclusion
+    ThermostatConfig(
+        name="imdb-roberta-lds",
+        description="IMDb dataset, RoBERTa model, Layer DeepLift Shap explanations",
+        explainer="LayerDeepLiftShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/EzD7brEosFx4iW2/download",
+        **_IMDB_ROBERTA_KWARGS,
+    ),
+    ThermostatConfig(
+        name="imdb-roberta-lgs",
+        description="IMDb dataset, RoBERTa model, Layer Gradient Shap explanations",
+        explainer="LayerGradientShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/ptcfks7sTnpm85M/download",
+        **_IMDB_ROBERTA_KWARGS,
+    ),
+    # shap value inclusion
     ThermostatConfig(
         name="imdb-xlnet-lgxa",
         description="IMDb dataset, XLNet model, Layer Gradient x Activation explanations",
@@ -552,6 +664,22 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/fffM7w64CnTSzHA/download",
         **_MNLI_ALBERT_KWARGS,
     ),
+    # shap value inclusion
+    ThermostatConfig(
+        name="multi_nli-albert-lds",
+        description="MultiNLI dataset, ALBERT model, Layer DeepLift Shap explanations",
+        explainer="LayerDeepLiftShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/LiMzjexGXc5PdAm/download",
+        **_MNLI_ALBERT_KWARGS,
+    ),
+    ThermostatConfig(
+        name="multi_nli-albert-lgs",
+        description="MultiNLI dataset, ALBERT model, Layer Gradient Shap explanations",
+        explainer="LayerGradientShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/ZL9fN8QKy8Di58B/download",
+        **_MNLI_ALBERT_KWARGS,
+    ),
+    # shap value inclusion
     ThermostatConfig(
         name="multi_nli-bert-lgxa",
         description="MultiNLI dataset, BERT model, Layer Gradient x Activation explanations",
@@ -596,6 +724,22 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/d5TTHCkAb5TJmbg/download",
         **_MNLI_BERT_KWARGS,
     ),
+    # shap value inclusion
+    ThermostatConfig(
+        name="multi_nli-bert-lds",
+        description="MultiNLI dataset, BERT model, Layer DeepLift Shap explanations",
+        explainer="LayerDeepLiftShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/yBtF9ybEm5kCzeg/download",
+        **_MNLI_BERT_KWARGS,
+    ),
+    ThermostatConfig(
+        name="multi_nli-bert-lgs",
+        description="MultiNLI dataset, BERT model, Layer Gradient Shap explanations",
+        explainer="LayerGradientShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/XMAgeYenwS7MSWP/download",
+        **_MNLI_BERT_KWARGS,
+    ),
+    # shap value inclusion
     ThermostatConfig(
         name="multi_nli-electra-lgxa",
         description="MultiNLI dataset, ELECTRA model, Layer Gradient x Activation explanations",
@@ -640,6 +784,22 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/zx3rGTpMkRT68tk/download",
         **_MNLI_ELECTRA_KWARGS,
     ),
+    # shap value inclusion
+    ThermostatConfig(
+        name="multi_nli-electra-lds",
+        description="MultiNLI dataset, ELECTRA model, Layer DeepLift Shap explanations",
+        explainer="LayerDeepLiftShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/PD578t8fzsR2Q6k/download",
+        **_MNLI_ELECTRA_KWARGS,
+    ),
+    ThermostatConfig(
+        name="multi_nli-electra-lgs",
+        description="MultiNLI dataset, ELECTRA model, Layer Gradient Shap explanations",
+        explainer="LayerGradientShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/iq2QNQRojpsoKwW/download",
+        **_MNLI_ELECTRA_KWARGS,
+    ),
+    # shap value inclusion
     ThermostatConfig(
         name="multi_nli-roberta-lgxa",
         description="MultiNLI dataset, RoBERTa model, Layer Gradient x Activation explanations",
@@ -684,6 +844,22 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/3aPeTawM8cbAsEg/download",
         **_MNLI_ROBERTA_KWARGS,
     ),
+    # shap value inclusion
+    ThermostatConfig(
+        name="multi_nli-roberta-lds",
+        description="MultiNLI dataset, RoBERTa model, Layer DeepLift Shap explanations",
+        explainer="LayerDeepLiftShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/Kg4eLx2SZWrf8MF/download",
+        **_MNLI_ROBERTA_KWARGS,
+    ),
+    ThermostatConfig(
+        name="multi_nli-roberta-lgs",
+        description="MultiNLI dataset, RoBERTa model, Layer Gradient Shap explanations",
+        explainer="LayerGradientShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/7Fxtawd3t8WXTWC/download",
+        **_MNLI_ROBERTA_KWARGS,
+    ),
+    # shap value inclusion
     ThermostatConfig(
         name="multi_nli-xlnet-lgxa",
         description="MultiNLI dataset, XLNet model, Layer Gradient x Activation explanations",
@@ -772,6 +948,22 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/wekiPq7ijzsCQK4/download",
         **_XNLI_ALBERT_KWARGS,
     ),
+    # shap value inclusion
+    ThermostatConfig(
+        name="xnli-albert-lds",
+        description="XNLI dataset, ALBERT model, Layer DeepLift Shap explanations",
+        explainer="LayerDeepLiftShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/AzKmCQfEP6CmwTH/download",
+        **_XNLI_ALBERT_KWARGS,
+    ),
+    ThermostatConfig(
+        name="xnli-albert-lgs",
+        description="XNLI dataset, ALBERT model, Layer Gradient Shap explanations",
+        explainer="LayerGradientShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/qWdK5YkSBxmMPKp/download",
+        **_XNLI_ALBERT_KWARGS,
+    ),
+    # shap value inclusion
     ThermostatConfig(
         name="xnli-bert-lgxa",
         description="XNLI dataset, BERT model, Layer Gradient x Activation explanations",
@@ -816,6 +1008,22 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/D4ctEijzerMoNT8/download",
         **_XNLI_BERT_KWARGS,
     ),
+    # shap value inclusion
+    ThermostatConfig(
+        name="xnli-bert-lds",
+        description="XNLI dataset, BERT model, Layer DeepLift Shap explanations",
+        explainer="LayerDeepLiftShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/LtARP8wA4mLCcL2/download",
+        **_XNLI_BERT_KWARGS,
+    ),
+    ThermostatConfig(
+        name="xnli-bert-lgs",
+        description="XNLI dataset, BERT model, Layer Gradient Shap explanations",
+        explainer="LayerGradientShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/AHw6WdfNbYXP9zD/download",
+        **_XNLI_BERT_KWARGS,
+    ),
+    # shap value inclusion
     ThermostatConfig(
         name="xnli-electra-lgxa",
         description="XNLI dataset, ELECTRA model, Layer Gradient x Activation explanations",
@@ -860,6 +1068,22 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/T3KKsM5TtsHyCAL/download",
         **_XNLI_ELECTRA_KWARGS,
     ),
+    # shap value inclusion
+    ThermostatConfig(
+        name="xnli-electra-lds",
+        description="XNLI dataset, ELECTRA model, Layer DeepLift Shap explanations",
+        explainer="LayerDeepLiftShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/MmHwGXa6EpzT3ns/download",
+        **_XNLI_ELECTRA_KWARGS,
+    ),
+    ThermostatConfig(
+        name="xnli-electra-lgs",
+        description="XNLI dataset, ELECTRA model, Layer Gradient Shap explanations",
+        explainer="LayerGradientShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/gLwPwAaJDCB956T/download",
+        **_XNLI_ELECTRA_KWARGS,
+    ),
+    # shap value inclusion
     ThermostatConfig(
         name="xnli-roberta-lgxa",
         description="XNLI dataset, RoBERTa model, Layer Gradient x Activation explanations",
@@ -904,6 +1128,22 @@ builder_configs = [
         data_url="https://cloud.dfki.de/owncloud/index.php/s/opYTzjSeWWL7eYg/download",
         **_XNLI_ROBERTA_KWARGS,
     ),
+    # shap value inclusion
+    ThermostatConfig(
+        name="xnli-roberta-lds",
+        description="XNLI dataset, RoBERTa model, Layer DeepLift Shap explanations",
+        explainer="LayerDeepLiftShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/zsrrBirPHY4gp2p/download",
+        **_XNLI_ROBERTA_KWARGS,
+    ),
+    ThermostatConfig(
+        name="xnli-roberta-lgs",
+        description="XNLI dataset, RoBERTa model, Layer Gradient Shap explanations",
+        explainer="LayerGradientShap",
+        data_url="https://cloud.dfki.de/owncloud/index.php/s/fxAMzqGzgBZb9b4/download",
+        **_XNLI_ROBERTA_KWARGS,
+    ),
+    # shap value inclusion
     ThermostatConfig(
         name="xnli-xlnet-lgxa",
         description="XNLI dataset, XLNet model, Layer Gradient x Activation explanations",
