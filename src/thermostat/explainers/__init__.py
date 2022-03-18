@@ -20,3 +20,8 @@ from .occlusion import (
 from .svs import (
     ExplainerShapleyValueSampling
 )
+
+from .shap import (
+    ExplainerLayerDeepLiftShap,
+    ExplainerLayerGradientShap,
+)
