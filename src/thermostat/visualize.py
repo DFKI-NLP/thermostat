@@ -3,7 +3,7 @@ import numpy as np
 import os
 import pandas as pd
 import torch
-from datasets import tqdm
+from tqdm import tqdm
 from spacy import displacy
 from spacy.util import is_in_jupyter
 from transformers import AutoTokenizer

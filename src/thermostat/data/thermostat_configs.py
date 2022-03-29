@@ -1,7 +1,7 @@
 import datasets
 
 
-_VERSION = datasets.Version('1.0.1', '')
+_VERSION = datasets.Version('1.0.2', '')
 
 
 # Base arguments for any dataset
