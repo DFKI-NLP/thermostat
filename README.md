@@ -19,7 +19,7 @@ arXiv pre-print available here: https://arxiv.org/abs/2108.13961
 
 ### With pip
 
-[![PyPI](https://img.shields.io/pypi/v/thermostat-datasets?style=flat-square)](https://pypi.org/project/thermostat-datasets/)]
+[![PyPI](https://img.shields.io/pypi/v/thermostat-datasets?style=flat-square)](https://pypi.org/project/thermostat-datasets/)
 
 ```bash
 pip install thermostat-datasets
@@ -144,8 +144,8 @@ Layer Integrated Gradients (`lig`) | [`.attr.LayerIntegratedGradients`](https://
 LIME (`lime`) | [`.attr.LimeBase`](https://captum.ai/api/lime.html) | # samples = 25, <br>mask prob = 0.3
 Occlusion (`occ`) | [`.attr.Occlusion`](https://captum.ai/api/occlusion.html) | sliding window = 3
 Shapley Value Sampling (`svs`) | [`.attr.ShapleyValueSampling`](https://captum.ai/api/shapley_value_sampling.html) | # samples = 25
-Layer DeepLiftShap ('lds') | [`.attr.LayerDeepLiftShap`](https://captum.ai/api/layer.html#layer-deepliftshap) |
-Layer GradientShap ('lgs') | [`attr.LayerGradientShap`](https://captum.ai/api/layer.html#layer-gradientshap) | # samples = 5
+Layer DeepLiftShap (`lds`) | [`.attr.LayerDeepLiftShap`](https://captum.ai/api/layer.html#layer-deepliftshap) |
+Layer GradientShap (`lgs`) | [`.attr.LayerGradientShap`](https://captum.ai/api/layer.html#layer-gradientshap) | # samples = 5
 
 
 
@@ -164,7 +164,7 @@ Layer GradientShap ('lgs') | [`attr.LayerGradientShap`](https://captum.ai/api/la
 [`imdb`](https://huggingface.co/datasets/viewer/?dataset=imdb) is a sentiment analysis dataset with 2 classes (`pos` and `neg`). The available split is the `test` subset containing 25k examples.  
 Example configuration: `imdb-xlnet-lig`
 
-Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs` | 'lds' | 'lgs' 
+Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs` | `lds` | `lgs` 
 --- | --- | --- | --- | --- | --- | --- | --- | ---
 ALBERT (`albert`) | [`textattack/albert-base-v2-imdb`](https://huggingface.co/textattack/albert-base-v2-imdb) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅
 BERT (`bert`) | [`textattack/bert-base-uncased-imdb`](https://huggingface.co/textattack/bert-base-uncased-imdb) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅
@@ -178,7 +178,7 @@ XLNet (`xlnet`) | [`textattack/xlnet-base-cased-imdb`](https://huggingface.co/te
 [`multi_nli`](https://huggingface.co/datasets/viewer/?dataset=multi_nli) is a textual entailment dataset. The available split is the `validation_matched` subset containing 9815 examples.  
 Example configuration: `multi_nli-roberta-lime`
 
-Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs` | 'lds' | 'lgs'
+Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs` | `lds` | `lgs`
 --- | --- | --- | --- | --- | --- | --- | --- | ---
 ALBERT (`albert`) | [`prajjwal1/albert-base-v2-mnli`](https://huggingface.co/prajjwal1/albert-base-v2-mnli) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅
 BERT (`bert`) | [`textattack/bert-base-uncased-MNLI`](https://huggingface.co/textattack/bert-base-uncased-MNLI) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅
@@ -192,7 +192,7 @@ XLNet (`xlnet`) | [`textattack/xlnet-base-cased-MNLI`](https://huggingface.co/te
 [`xnli`](https://huggingface.co/datasets/viewer/?dataset=xnli) is a textual entailment dataset. It provides the test set of MultiNLI through the "en" configuration. The fine-tuned models used here are the same as the MultiNLI ones. The available split is the `test` subset containing 5010 examples.  
 Example configuration: `xnli-roberta-lime`
 
-Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs` | 'lds' | 'lgs'
+Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs` | `lds` | `lgs`
 --- | --- | --- | --- | --- | --- | --- | --- | ---
 ALBERT (`albert`) | [`prajjwal1/albert-base-v2-mnli`](https://huggingface.co/prajjwal1/albert-base-v2-mnli) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅
 BERT (`bert`) | [`textattack/bert-base-uncased-MNLI`](https://huggingface.co/textattack/bert-base-uncased-MNLI) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅
@@ -206,7 +206,7 @@ XLNet (`xlnet`) | [`textattack/xlnet-base-cased-MNLI`](https://huggingface.co/te
 [`ag_news`](https://huggingface.co/datasets/viewer/?dataset=ag_news) is a news topic classification dataset. The available split is the `test` subset containing 7600 examples.  
 Example configuration: `ag_news-albert-svs`
 
-Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs` | 'lds' | 'lgs'
+Name | 🤗 | `lgxa` | `lig` | `lime` | `occ` | `svs` | `lds` | `lgs`
 --- | --- | --- | --- | --- | --- | --- | --- | ---
 ALBERT (`albert`) | [`textattack/albert-base-v2-ag-news`](https://huggingface.co/textattack/albert-base-v2-ag-news) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅
 BERT (`bert`) | [`textattack/bert-base-uncased-ag-news`](https://huggingface.co/textattack/bert-base-uncased-ag-news) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅
