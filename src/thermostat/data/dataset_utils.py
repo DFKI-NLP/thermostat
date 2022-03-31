@@ -307,7 +307,7 @@ class Thermounit(PlaceholderThermounit):
         return Heatmap(color_tokens=color_tokens, attributions=atts, gamma=gamma)
 
     def render(self, labels=False):
-        self.heatmap.render(labels=labels)
+        return self.heatmap.render(labels=labels)
 
 
 def list_configs():
