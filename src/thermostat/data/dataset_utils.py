@@ -29,7 +29,7 @@ class ThermopackMeta(type):
         """Turn from Base- to Child-instance-returning function."""
         def wrapper(*args, **kwargs):
             result = fun(*args, **kwargs)
-            if not result:
+            if result is None:
                 # Ignore if returns None
                 return None
             if type(result) == base:
