@@ -1,9 +1,17 @@
 from setuptools import find_packages, setup
+# new change 
+from sys import platform
+
+if platform == "win32":
+    jsonnet = "jsonnet-binary"
+else:
+    jsonnet = "jsonnet"
+# new change
 
 REQUIRED_PKGS = [
     "captum>=0.3",
     "datasets>=1.5",
-    "jsonnet",
+    jsonnet,
     "numpy>=1.20",
     "overrides",
     "pandas",
@@ -20,7 +28,7 @@ REQUIRED_PKGS = [
 
 setup(
     name="thermostat-datasets",
-    version="1.0.1",  # expected format is one of x.y.z.dev0, or x.y.z.rc1 or x.y.z (no to dashes, yes to dots)
+    version="1.0.2.1",  # expected format is one of x.y.z.dev0, or x.y.z.rc1 or x.y.z (no to dashes, yes to dots)
     description="Collection of NLP model explanations and accompanying analysis tools",
     long_description="Thermostat is a large collection of NLP model explanations and accompanying analysis tools. "
                      "Combines explainability methods from the captum library with Hugging Face's datasets and "
