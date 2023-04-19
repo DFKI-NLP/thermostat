@@ -19,7 +19,7 @@ REQUIRED_PKGS = [
     "pytorch-ignite",
     "scipy",
     "sentencepiece",
-    "sklearn",
+    "scikit-learn",
     "spacy>=3.0",
     "torch",
     "tqdm>=4.49",
