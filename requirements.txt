@@ -8,7 +8,7 @@ protobuf
 pytorch-ignite
 scipy
 sentencepiece
-sklearn
+scikit-learn
 spacy~=3.0.6
 torch
 tqdm~=4.49.0
